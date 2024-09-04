@@ -17,7 +17,7 @@ redirect_from:
 
 <span class='anchor' id='about-me'></span>
 
-I am a Ph.D. Candidate at Nanjing University, working under the supervision of Associate Professor Lin Shang. I earned my bachelor's degree in the Department of Computer Science and Technology from Nanjing University. During my undergraduate studies, I was awarded the prestigious People's Scholarship. I was also awarded the President's Scholarship in the first year of my Ph.D. studies.
+I am a Ph.D. Candidate at Nanjing University, working under the supervision of Associate Professor [Lin Shang](https://cs.nju.edu.cn/shanglin/index.htm). I earned my bachelor's degree in the Department of Computer Science and Technology from Nanjing University. During my undergraduate studies, I was awarded the prestigious People's Scholarship. I was also awarded the President's Scholarship in the first year of my Ph.D. studies.
 
 My research focuses on machine learning, with emphasis on adversarial attacks and defenses, as well as privacy protection in AI applications. I have contributed to the field through a publication in the Pacific-Asia Conference on Knowledge Discovery and Data Mining (PAKDD 2024), a respected venue for data mining and machine learning research.
 
@@ -46,12 +46,12 @@ I am eager to engage in academic collaborations and welcome inquiries about my w
 - *2022.10* People's Scholarship. 
 
 # 📖 Educations
-- *2023.09 - now*, Ph.D.Candidate, Department of Computer Science and Technology, Nanjing University, Nanjing.
+- *2023.09 - now*, Ph.D. Candidate, Department of Computer Science and Technology, Nanjing University, Nanjing.
 - *2019.09 - 2023.06*, Undergraduate, Department of Computer Science and Technology, Nanjing University, Nanjing. 
 
 # 💬 Presentations
-- 
-<!-- - 
-# 💻 Internships
-- *2019.05 - 2020.02*, [Lorem](https://github.com/), China. 
--->
+- TODO
+
+<!-- - # 💻 Internships
+- *2019.05 - 2020.02*, [Lorem](https://github.com/), China. -->
+
