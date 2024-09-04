@@ -6,8 +6,8 @@
 # `jekyll serve`. If you change this file, please restart the server process.
 
 # Site Settings
-title                    : "Lorem ipsum"
-description              : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ornare aliquet ipsum, ac tempus justo dapibus sit amet. "
+title                    : "Lappland"
+description              : "Ph.D. Candidate in Dept. of Computer Science and Technology, Nanjing University. Focusing on Machine Learning and Adversarial Attack."
 repository               : "yumizhi/yumizhi.github.io"
 google_scholar_stats_use_cdn : true
 
@@ -23,7 +23,7 @@ baidu_site_verification  :  # get baidu_site_verification from https://ziyuan.ba
 author:
   name             : "Yihan Meng"
   avatar           : "images/Lappland.jpg"
-  bio              : "Lorem ipsum College"
+  bio              : "Nanjing University"
   location         : "Nanjing, China"
   employer         :
   pubmed           : 
