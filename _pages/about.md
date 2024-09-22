@@ -37,7 +37,7 @@ I am eager to engage in academic collaborations and welcome inquiries about my w
   <div class='paper-box-image'><div><div class="badge">PAKDD 2024</div><img src='images/pakdd2024.png' alt="sym" width="100%"></div></div>
   <div class='paper-box-text' markdown="1">
 
-(Oral)[SASBO: Sparse Attack via Stochastic Binary Optimization](https://link.springer.com/chapter/10.1007/978-981-97-2242-6_10)
+<font color="red">(Oral)</font>[SASBO: Sparse Attack via Stochastic Binary Optimization](https://link.springer.com/chapter/10.1007/978-981-97-2242-6_10)
 
 **Yihan Meng**, Weitao Li, Lin Shang 
 </div>
@@ -45,7 +45,7 @@ I am eager to engage in academic collaborations and welcome inquiries about my w
 
 <ul>
   <li>
-    <code class="language-plaintext highlighter-rouge">IJCNN 2024</code> (Oral)<a href="https://ieeexplore.ieee.org/abstract/document/10650867">Sparse Attack with Meta-Learning</a>, Weitao Li, Mingqian Lin, <strong>Yihan Meng</strong>, Yangdai Si, Lin Shang.
+    <code class="language-plaintext highlighter-rouge">IJCNN 2024</code> <font color="red">(Oral)</font> <a href="https://ieeexplore.ieee.org/abstract/document/10650867">Sparse Attack with Meta-Learning</a>, Weitao Li, Mingqian Lin, <strong>Yihan Meng</strong>, Yangdai Si, Lin Shang.
   </li>
 </ul>
 
