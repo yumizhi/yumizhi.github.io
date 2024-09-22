@@ -37,7 +37,7 @@ I am eager to engage in academic collaborations and welcome inquiries about my w
   <div class='paper-box-image'><div><div class="badge">PAKDD 2024</div><img src='images/pakdd2024.png' alt="sym" width="100%"></div></div>
   <div class='paper-box-text' markdown="1">
 
-<span style="color:red">(Oral)</span>[SASBO: Sparse Attack via Stochastic Binary Optimization](https://link.springer.com/chapter/10.1007/978-981-97-2242-6_10)
+<span style="color:red">(Oral)</span> [SASBO: Sparse Attack via Stochastic Binary Optimization](https://link.springer.com/chapter/10.1007/978-981-97-2242-6_10)
 
 **Yihan Meng**, Weitao Li, Lin Shang 
 </div>
