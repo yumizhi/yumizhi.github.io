@@ -19,11 +19,9 @@ redirect_from:
 
 # 🐝 About me
 
-I am a Ph.D. Candidate at Nanjing University, working under Associate Professor [Lin Shang](https://cs.nju.edu.cn/shanglin/index.htm). I earned my bachelor's degree in the Department of Computer Science and Technology from Nanjing University. During my undergraduate studies, I was awarded the prestigious People's Scholarship. I was also awarded the President's Scholarship in the first year of my Ph.D. studies.
+I am a Ph.D. Candidate at Nanjing University, working under Associate Professor [Lin Shang](https://cs.nju.edu.cn/shanglin/index.htm). I earned my bachelor's degree in the Department of Computer Science and Technology from Nanjing University. During my undergraduate studies, I was awarded the People's Scholarship. I was also awarded the President's Scholarship in the first year of my Ph.D. studies.
 
-My research focuses on machine learning, emphasizing adversarial attacks and defenses, as well as privacy protection in AI applications. I have contributed to the field through a publication in the Pacific-Asia Conference on Knowledge Discovery and Data Mining (PAKDD 2024), a respected data mining and machine learning research venue.
-
-I am eager to engage in academic collaborations and welcome inquiries about my work. Please don't hesitate to contact me if you're interested in discussing potential research opportunities or have any questions about my areas of expertise.
+My research focuses on machine learning, emphasizing adversarial attacks and defenses, as well as privacy protection in AI applications. I am eager to engage in academic collaborations and welcome inquiries about my work. Please don't hesitate to contact me if you're interested in discussing potential research opportunities or have any questions about my areas of expertise.
 
 
 # 🔥 News
