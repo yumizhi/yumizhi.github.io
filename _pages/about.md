@@ -26,8 +26,8 @@ My research focuses on machine learning, emphasizing adversarial attacks and def
 
 # 🔥 News
 - *2024.10*: &nbsp;🎉🎉 Expect good results!
-- *2024.03*: &nbsp;🎉🎉 <a href="https://ieeexplore.ieee.org/abstract/document/10650867" target="_blank">Sparse Attack with Meta-Learning</a> are accepted by IJCNN 2024. 
-- *2024.01*: &nbsp;🎉🎉 <a href="https://link.springer.com/chapter/10.1007/978-981-97-2242-6_10" target="_blank">SASBO: Sparse Attack via Stochastic Binary Optimization</a> are accepted by PAKDD 2024. 
+- *2024.03*: &nbsp;🎉🎉 <a href="https://ieeexplore.ieee.org/abstract/document/10650867" target="_blank">Sparse Attack with Meta-Learning</a> is accepted by IJCNN 2024. 
+- *2024.01*: &nbsp;🎉🎉 <a href="https://link.springer.com/chapter/10.1007/978-981-97-2242-6_10" target="_blank">SASBO: Sparse Attack via Stochastic Binary Optimization</a> is accepted by PAKDD 2024. 
 
 # 📝 Publications 
 
