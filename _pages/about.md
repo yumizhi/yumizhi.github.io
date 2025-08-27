@@ -19,13 +19,12 @@ redirect_from:
 
 # 🐝 About me
 
-I am a Ph.D. Candidate at Nanjing University, working under Associate Professor [Lin Shang](https://cs.nju.edu.cn/shanglin/index.htm). I earned my bachelor's degree in the School of Computer Science from Nanjing University. During my undergraduate studies, I was awarded the People's Scholarship. I was also awarded the President's Scholarship in the first year of my Ph.D. studies.
+I am a Ph.D. Candidate at Nanjing University, working under Associate Professor [Lin Shang](https://cs.nju.edu.cn/shanglin/index.htm). I earned my bachelor's degree in the Department of Computer Science and Technology from Nanjing University. During my undergraduate studies, I was awarded the People's Scholarship. I was also awarded the President's Scholarship in the first year of my Ph.D. studies.
 
 My research focuses on machine learning, emphasizing adversarial attacks and defenses, as well as privacy protection in AI applications. I am eager to engage in academic collaborations and welcome inquiries about my work. Please don't hesitate to contact me if you're interested in discussing potential research opportunities or have any questions about my areas of expertise.
 
 
 # 🔥 News
-- *2024.10*: &nbsp;🎉🎉 Expect good results!
 - *2024.03*: &nbsp;🎉🎉 <a href="https://ieeexplore.ieee.org/abstract/document/10650867" target="_blank">Sparse Attack with Meta-Learning</a> is accepted by IJCNN 2024. 
 - *2024.01*: &nbsp;🎉🎉 <a href="https://link.springer.com/chapter/10.1007/978-981-97-2242-6_10" target="_blank">SASBO: Sparse Attack via Stochastic Binary Optimization</a> is accepted by PAKDD 2024. 
 
@@ -60,6 +59,6 @@ My research focuses on machine learning, emphasizing adversarial attacks and def
 # 💬 Presentations
 - 🤓Later.
 
-<!-- - # 💻 Internships
-- *2019.05 - 2020.02*, [Lorem](https://github.com/), China. -->
+# 💻 Internships
+- *2025.07 - now*, [SAC](http://www.sac-china.com/), China.
 
