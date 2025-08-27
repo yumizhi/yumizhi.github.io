@@ -56,9 +56,9 @@ My research focuses on machine learning, emphasizing adversarial attacks and def
 - *2023.09 - now*, Ph.D. Candidate, Department of Computer Science and Technology, Nanjing University, Nanjing.
 - *2019.09 - 2023.06*, Undergraduate, Department of Computer Science and Technology, Nanjing University, Nanjing. 
 
-# 💬 Presentations
-- 🤓Later.
+<!-- # 💬 Presentations
+- 🤓Later. -->
 
 # 💻 Internships
-- *2025.07 - now*, [SAC](http://www.sac-china.com/), China.
+- *2025.07 - now*, [Guodian Nanjing Automation Co.,Ltd](http://www.sac-china.com/), China.
 
