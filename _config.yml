@@ -6,13 +6,14 @@
 # `jekyll serve`. If you change this file, please restart the server process.
 
 # Site Settings
-title                    : "Lappland"
+title                    : "Yihan-Meng"
 description              : "Ph.D. Candidate in School of Computer Science, Nanjing University. Focusing on Machine Learning and Adversarial Attack."
 repository               : "yumizhi/yumizhi.github.io"
 google_scholar_stats_use_cdn : true
 
 # google analytics
-google_analytics_id      :  # get google_analytics_id from https://analytics.google.com/analytics/
+google_analytics_id      :  G-7YW0Y81D8
+# get google_analytics_id from https://analytics.google.com/analytics/
 
 # SEO Related
 google_site_verification :  # get google_site_verification from https://search.google.com/search-console/about
@@ -22,7 +23,7 @@ baidu_site_verification  :  # get baidu_site_verification from https://ziyuan.ba
 # Site Author
 author:
   name             : "Yihan Meng (蒙一涵) 🐌"
-  avatar           : "images/Lappland.jpg"
+  avatar           : "images/mutsumi.png"
   bio              : "Nanjing University"
   location         : "Nanjing, China"
   employer         :
