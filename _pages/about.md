@@ -73,12 +73,13 @@ My research focuses on machine learning, emphasizing adversarial attacks and def
 [![Stars](https://img.shields.io/github/stars/yumizhi/lightweight_epub_merge_tool?style=flat-square)](https://github.com/yumizhi/lightweight_epub_merge_tool/stargazers)
 [![Forks](https://img.shields.io/github/forks/yumizhi/lightweight_epub_merge_tool?style=flat-square)](https://github.com/yumizhi/lightweight_epub_merge_tool/network/members)
 
-一个针对轻小说多卷 EPUB 的轻量级合并工具：尽量保留插图与章节结构，并重建按卷分组目录（TOC）。
+A lightweight merge tool for multi-volume light-novel EPUBs: it tries to preserve illustrations and chapter structure as much as possible, and rebuilds a volume-grouped table of contents (TOC).
 
-- 合并多卷 EPUB 为合订本，重建按卷分组的总目录（支持 EPUB2/EPUB3）
-- 尽量保留文本、插图、CSS 等资源
-- 提供 CLI 与 PySide6/Qt GUI
-- Releases 提供打包版本可直接运行
+* Merge multiple EPUB volumes into a single omnibus edition, rebuilding an overall TOC grouped by volume (supports EPUB2/EPUB3).
+* Preserve text, illustrations, CSS, and other resources as much as possible.
+* Provides both a CLI and a PySide6/Qt GUI.
+* Releases provide packaged builds that can be run directly.
+
 
 **Links:** [Repo](https://github.com/yumizhi/lightweight_epub_merge_tool) ·
 [Releases](https://github.com/yumizhi/lightweight_epub_merge_tool/releases) ·
