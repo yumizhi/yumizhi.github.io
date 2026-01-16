@@ -117,6 +117,7 @@ My research focuses on watermark generation, emphasizing diffusion model and adv
 </div>
 
 <a id="open-source"></a>
+
 # 🛠️ Projects
 
 ### [Lightweight EPUB Merge Tool](https://github.com/yumizhi/lightweight_epub_merge_tool)
