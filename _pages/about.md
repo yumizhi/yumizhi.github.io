@@ -19,14 +19,14 @@ redirect_from:
 
 # 🐝 About me
 
-I am a Ph.D. Candidate at Nanjing University, working under Associate Professor [Lin Shang](https://cs.nju.edu.cn/shanglin/index.htm). I earned my bachelor's degree in the Department of Computer Science and Technology from Nanjing University. During my undergraduate studies, I was awarded the People's Scholarship. I was also awarded the President's Scholarship in the first year of my Ph.D. studies.
+I am a Ph.D. Candidate at Nanjing University, advised by Associate Professor [Lin Shang](https://cs.nju.edu.cn/shanglin/index.htm). I received my B.S. degree from the Department of Computer Science and Technology from Nanjing University. During my undergraduate studies, I was awarded the People's Scholarship. I was also awarded the President's Scholarship in the first year of my Ph.D. studies.
 
-My research focuses on machine learning, emphasizing adversarial attacks and defenses, as well as privacy protection in AI applications. I am eager to engage in academic collaborations and welcome inquiries about my work. Please don't hesitate to contact me if you're interested in discussing potential research opportunities or have any questions about my areas of expertise.
+My research focuses on watermark generation, emphasizing diffusion model and adversarial attacks, as well as privacy protection in AI applications. I am eager to engage in academic collaborations and welcome inquiries about my work. Please feel free to contact me if you're interested in discussing potential research opportunities or have any questions about my areas of expertise.
 
 
 # 🔥 News
-- *2024.03*: &nbsp;🎉🎉 <a href="https://ieeexplore.ieee.org/abstract/document/10650867" target="_blank">Sparse Attack with Meta-Learning</a> is accepted by IJCNN 2024. 
-- *2024.01*: &nbsp;🎉🎉 <a href="https://link.springer.com/chapter/10.1007/978-981-97-2242-6_10" target="_blank">SASBO: Sparse Attack via Stochastic Binary Optimization</a> is accepted by PAKDD 2024. 
+- **2024**: &nbsp;🎉🎉 <a href="https://ieeexplore.ieee.org/abstract/document/10650867" target="_blank">Sparse Attack with Meta-Learning</a> is accepted to IJCNN 2024. 
+- **2024**: &nbsp;🎉🎉 <a href="https://link.springer.com/chapter/10.1007/978-981-97-2242-6_10" target="_blank">SASBO: Sparse Attack via Stochastic Binary Optimization</a> is accepted to PAKDD 2024. 
 
 # 📝 Publications 
 
@@ -36,7 +36,7 @@ My research focuses on machine learning, emphasizing adversarial attacks and def
 
 <span style="color:red">(Oral)</span> [SASBO: Sparse Attack via Stochastic Binary Optimization](https://link.springer.com/chapter/10.1007/978-981-97-2242-6_10)
 
-**Yihan Meng**, Weitao Li, Lin Shang 
+<strong>Yihan Meng</strong>, Weitao Li, Lin Shang 
 </div>
 </div>
 
@@ -49,21 +49,61 @@ My research focuses on machine learning, emphasizing adversarial attacks and def
 <!-- - [Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ornare aliquet ipsum, ac tempus justo dapibus sit amet](https://github.com), A, B, C, **CVPR 2020** -->
 
 # 🎖 Honors and Awards
-- *2023.10* President's Scholarship. 
-- *2022.10* People's Scholarship. 
+<div class="table-responsive">
+  <table style="width: 100%; border: none; border-collapse: collapse; border-spacing: 0;">
+    <tr style="border: none;">
+      <td style="width: 15%; vertical-align: top; border: none; padding: 5px 0;"><strong>2025</strong></td>
+      <td style="border: none; padding: 5px 0;">Outstanding Graduate Student</td>
+    </tr>
+    <tr style="border: none;">
+      <td style="width: 15%; vertical-align: top; border: none; padding: 5px 0;"><strong>2023</strong></td>
+      <td style="border: none; padding: 5px 0;">President's Scholarship</td>
+    </tr>
+    <tr style="border: none;">
+      <td style="width: 15%; vertical-align: top; border: none; padding: 5px 0;"><strong>2022</strong></td>
+      <td style="border: none; padding: 5px 0;">People's Scholarship</td>
+    </tr>
+  </table>
+</div>
 
-# 📖 Educations
-- *2023.09 - now*, Ph.D. Candidate, Department of Computer Science and Technology, Nanjing University, Nanjing.
-- *2019.09 - 2023.06*, Undergraduate, Department of Computer Science and Technology, Nanjing University, Nanjing. 
+# 📖 Education
+
+<div style="display: flex; align-items: center; margin-bottom: 20px;">
+  <img src="https://upload.wikimedia.org/wikipedia/en/thumb/a/ag/Nanjing_University_Logo.svg/1200px-Nanjing_University_Logo.svg.png" style="width: 60px; height: 60px; margin-right: 15px; object-fit: contain;">
+  <div style="flex-grow: 1;">
+    <div style="display: flex; justify-content: space-between;">
+      <strong style="font-size: 1.1em;">Nanjing University</strong>
+      <span style="color: #666; font-size: 0.9em;">Nanjing, China</span>
+    </div>
+    <div style="display: flex; justify-content: space-between; margin-top: 3px;">
+      <span>Ph.D. Candidate in Computer Science and Technology</span>
+      <span style="font-style: italic; color: #444;">Sept. 2023 - Present</span>
+    </div>
+  </div>
+</div>
+
+<div style="display: flex; align-items: center;">
+  <img src="https://upload.wikimedia.org/wikipedia/en/thumb/a/ag/Nanjing_University_Logo.svg/1200px-Nanjing_University_Logo.svg.png" style="width: 60px; height: 60px; margin-right: 15px; object-fit: contain;">
+  <div style="flex-grow: 1;">
+    <div style="display: flex; justify-content: space-between;">
+      <strong style="font-size: 1.1em;">Nanjing University</strong>
+      <span style="color: #666; font-size: 0.9em;">Nanjing, China</span>
+    </div>
+    <div style="display: flex; justify-content: space-between; margin-top: 3px;">
+      <span>B.S. in Computer Science and Technology</span>
+      <span style="font-style: italic; color: #444;">Sept. 2019 - June 2023</span>
+    </div>
+  </div>
+</div>
 
 <!-- # 💬 Presentations
 - 🤓Later. -->
 
 # 💻 Internships
-- *2025.07 - now*, [Guodian Nanjing Automation Co.,Ltd](http://www.sac-china.com/), China.
+- **2025.07 - Present**, [Guodian Nanjing Automation Co.,Ltd](http://www.sac-china.com/), China.
 
 <a id="open-source"></a>
-# Open Source
+# 🛠️ Projects
 
 ### [Lightweight EPUB Merge Tool](https://github.com/yumizhi/lightweight_epub_merge_tool)
 
