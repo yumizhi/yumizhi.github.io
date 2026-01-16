@@ -49,27 +49,26 @@ My research focuses on watermark generation, emphasizing diffusion model and adv
 <!-- - [Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ornare aliquet ipsum, ac tempus justo dapibus sit amet](https://github.com), A, B, C, **CVPR 2020** -->
 
 # 🎖 Honors and Awards
-<div class="table-responsive">
-  <table style="width: 100%; border: none; border-collapse: collapse; border-spacing: 0;">
-    <tr style="border: none;">
-      <td style="width: 15%; vertical-align: top; border: none; padding: 5px 0;"><strong>2025</strong></td>
-      <td style="border: none; padding: 5px 0;">Outstanding Graduate Student</td>
-    </tr>
-    <tr style="border: none;">
-      <td style="width: 15%; vertical-align: top; border: none; padding: 5px 0;"><strong>2023</strong></td>
-      <td style="border: none; padding: 5px 0;">President's Scholarship</td>
-    </tr>
-    <tr style="border: none;">
-      <td style="width: 15%; vertical-align: top; border: none; padding: 5px 0;"><strong>2022</strong></td>
-      <td style="border: none; padding: 5px 0;">People's Scholarship</td>
-    </tr>
-  </table>
+
+<div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+  <strong>Outstanding Graduate Student</strong>
+  <span>2025</span>
+</div>
+
+<div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+  <strong>President's Scholarship</strong>
+  <span>2023</span>
+</div>
+
+<div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+  <strong>People's Scholarship</strong>
+  <span>2022</span>
 </div>
 
 # 📖 Education
 
 <div style="display: flex; align-items: center; margin-bottom: 20px;">
-  <img src="https://upload.wikimedia.org/wikipedia/en/thumb/a/ag/Nanjing_University_Logo.svg/1200px-Nanjing_University_Logo.svg.png" style="width: 60px; height: 60px; margin-right: 15px; object-fit: contain;">
+  <img src="./images/nju_sign.svg" style="width: 60px; height: 60px; margin-right: 15px; object-fit: contain;">
   <div style="flex-grow: 1;">
     <div style="display: flex; justify-content: space-between;">
       <strong style="font-size: 1.1em;">Nanjing University</strong>
@@ -83,7 +82,7 @@ My research focuses on watermark generation, emphasizing diffusion model and adv
 </div>
 
 <div style="display: flex; align-items: center;">
-  <img src="https://upload.wikimedia.org/wikipedia/en/thumb/a/ag/Nanjing_University_Logo.svg/1200px-Nanjing_University_Logo.svg.png" style="width: 60px; height: 60px; margin-right: 15px; object-fit: contain;">
+  <img src="./images/nju_sign.svg" style="width: 60px; height: 60px; margin-right: 15px; object-fit: contain;">
   <div style="flex-grow: 1;">
     <div style="display: flex; justify-content: space-between;">
       <strong style="font-size: 1.1em;">Nanjing University</strong>
