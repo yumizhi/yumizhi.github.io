@@ -99,7 +99,22 @@ My research focuses on watermark generation, emphasizing diffusion model and adv
 - 🤓Later. -->
 
 # 💻 Internships
-- **2025.07 - Present**, [Guodian Nanjing Automation Co.,Ltd](http://www.sac-china.com/), China.
+
+<div style="display: flex; align-items: center; margin-bottom: 20px;">
+  <img src="images/sac_logo.webp" style="width: 60px; height: 60px; margin-right: 15px; object-fit: contain;">
+  <div style="flex-grow: 1;">
+    <div style="display: flex; justify-content: space-between;">
+      <strong style="font-size: 1.1em;">
+        <a href="http://www.sac-china.com/" target="_blank" style="color: inherit; text-decoration: none;">Guodian Nanjing Automation Co.,Ltd</a>
+      </strong>
+      <span style="color: #666; font-size: 0.9em;">Nanjing, China</span>
+    </div>
+    <div style="display: flex; justify-content: space-between; margin-top: 3px;">
+      <span>Research Intern</span> 
+      <span style="font-style: italic; color: #444;">July 2025 - Present</span>
+    </div>
+  </div>
+</div>
 
 <a id="open-source"></a>
 # 🛠️ Projects
