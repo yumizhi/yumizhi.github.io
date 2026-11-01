@@ -1,0 +1,9 @@
+{
+  "environment": "Local static export fixture, desktop, unthrottled. Not a field Core Web Vitals score.",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "cls": 0.0021255824964232896,
+  "lcp": 360
+}

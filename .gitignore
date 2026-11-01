@@ -1,3 +1,13 @@
-_site/
-push.sh
+node_modules/
+.next/
+out/
+.env*
+!.env.example
+*.tsbuildinfo
+test-results/
+playwright-report/
+.openai/
 .DS_Store
+docs/qa/frames/
+docs/qa/screenshots/*.png
+docs/qa/*.png

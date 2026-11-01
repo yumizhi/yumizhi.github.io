@@ -1,0 +1,77 @@
+[
+  {
+    "name": "original",
+    "url": "https://yumizhi.github.io/",
+    "error": "Error: page.goto: net::ERR_CERT_AUTHORITY_INVALID at https://yumizhi.github.io/\nCall log:\n\u001b[2m  - navigating to \"https://yumizhi.github.io/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "apple-article",
+    "url": "https://www.apple.com/newsroom/2026/10/apple-unveils-groundbreaking-macbook-pro-with-proled-xdr-display/",
+    "error": "Error: page.goto: net::ERR_CERT_AUTHORITY_INVALID at https://www.apple.com/newsroom/2026/10/apple-unveils-groundbreaking-macbook-pro-with-proled-xdr-display/\nCall log:\n\u001b[2m  - navigating to \"https://www.apple.com/newsroom/2026/10/apple-unveils-groundbreaking-macbook-pro-with-proled-xdr-display/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "apple-index",
+    "url": "https://www.apple.com/newsroom/",
+    "error": "Error: page.goto: net::ERR_CERT_AUTHORITY_INVALID at https://www.apple.com/newsroom/\nCall log:\n\u001b[2m  - navigating to \"https://www.apple.com/newsroom/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "apple-motion",
+    "url": "https://developer.apple.com/design/human-interface-guidelines/motion",
+    "error": "Error: page.goto: net::ERR_CERT_AUTHORITY_INVALID at https://developer.apple.com/design/human-interface-guidelines/motion\nCall log:\n\u001b[2m  - navigating to \"https://developer.apple.com/design/human-interface-guidelines/motion\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "meta-article",
+    "url": "https://ai.meta.com/blog/introducing-muse-spark-meta-model-api/",
+    "error": "Error: page.goto: net::ERR_CERT_AUTHORITY_INVALID at https://ai.meta.com/blog/introducing-muse-spark-meta-model-api/\nCall log:\n\u001b[2m  - navigating to \"https://ai.meta.com/blog/introducing-muse-spark-meta-model-api/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "meta-research",
+    "url": "https://ai.meta.com/research/",
+    "error": "Error: page.goto: net::ERR_CERT_AUTHORITY_INVALID at https://ai.meta.com/research/\nCall log:\n\u001b[2m  - navigating to \"https://ai.meta.com/research/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "meta-publications",
+    "url": "https://ai.meta.com/results/?content_types%5B0%5D=publication",
+    "error": "Error: page.goto: net::ERR_CERT_AUTHORITY_INVALID at https://ai.meta.com/results/?content_types%5B0%5D=publication\nCall log:\n\u001b[2m  - navigating to \"https://ai.meta.com/results/?content_types%5B0%5D=publication\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "google-article",
+    "url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-carbon/",
+    "error": "Error: page.goto: net::ERR_CERT_AUTHORITY_INVALID at https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-carbon/\nCall log:\n\u001b[2m  - navigating to \"https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-carbon/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "google-index",
+    "url": "https://blog.google/innovation-and-ai/models-and-research/",
+    "error": "Error: page.goto: net::ERR_CERT_AUTHORITY_INVALID at https://blog.google/innovation-and-ai/models-and-research/\nCall log:\n\u001b[2m  - navigating to \"https://blog.google/innovation-and-ai/models-and-research/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "deepmind-index",
+    "url": "https://deepmind.google/blog/",
+    "error": "Error: page.goto: net::ERR_CERT_AUTHORITY_INVALID at https://deepmind.google/blog/\nCall log:\n\u001b[2m  - navigating to \"https://deepmind.google/blog/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "mobbin-home",
+    "url": "https://mobbin.com/",
+    "error": "Error: page.goto: net::ERR_CERT_AUTHORITY_INVALID at https://mobbin.com/\nCall log:\n\u001b[2m  - navigating to \"https://mobbin.com/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "mobbin-sites",
+    "url": "https://mobbin.com/explore/sites",
+    "error": "Error: page.goto: net::ERR_CERT_AUTHORITY_INVALID at https://mobbin.com/explore/sites\nCall log:\n\u001b[2m  - navigating to \"https://mobbin.com/explore/sites\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "mobbin-web",
+    "url": "https://mobbin.com/explore/web",
+    "error": "Error: page.goto: net::ERR_CERT_AUTHORITY_INVALID at https://mobbin.com/explore/web\nCall log:\n\u001b[2m  - navigating to \"https://mobbin.com/explore/web\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "mobbin-changelog",
+    "url": "https://mobbin.com/changelog",
+    "error": "Error: page.goto: net::ERR_CERT_AUTHORITY_INVALID at https://mobbin.com/changelog\nCall log:\n\u001b[2m  - navigating to \"https://mobbin.com/changelog\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "shadcn-command",
+    "url": "https://ui.shadcn.com/docs/components/command",
+    "error": "Error: page.goto: net::ERR_CERT_AUTHORITY_INVALID at https://ui.shadcn.com/docs/components/command\nCall log:\n\u001b[2m  - navigating to \"https://ui.shadcn.com/docs/components/command\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  }
+]

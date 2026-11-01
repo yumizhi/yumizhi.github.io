@@ -1,0 +1,47 @@
+---
+title: "A home for research, code, and the work in between"
+description: "How this site connects papers, open-source projects, and the resources that support them."
+date: "2026-11-01"
+category: "Site notes"
+author: "Site documentation"
+---
+This homepage keeps a few kinds of work close together: papers, working software, and the documents that explain them. Each has a different reading pace. A paper needs a clear title and a direct route to the full text. A project benefits from a screenshot. A note needs room to develop a thought.
+
+## Follow the work
+
+The research gallery starts with the image and title. Open a work to see its authors, overview, citation, and resources. The original figures remain available at their full reading width on the detail page.
+
+The **EPUB Toolkit** project follows the same path: an actual application screenshot, a description of the workflow, and links to the source and live application.
+
+## Keep the source close
+
+Each paper has a structured record. A short entry describes the work without repeating the full abstract:
+
+```typescript
+const work = {
+  title: "TIDE",
+  venue: "NeurIPS",
+  year: 2026,
+  paper: "/files/tide-neurips-2026.pdf",
+};
+```
+
+Files live with the site. The resource browser offers a preview, an open-in-browser link, and a download. This keeps the original document within reach.
+
+## Read in either language
+
+中文研究笔记和英文文章共用一套阅读排版。正文保持适中的行宽，段落之间留出空间；公式、代码和图片说明各有清楚的位置。长标题在窄屏上自然换行。
+
+The reader also supports typeset mathematics. For example, a weighted objective can be written as
+
+$$
+\mathcal{L} = \mathcal{L}_{\mathrm{fidelity}} + \lambda\mathcal{L}_{\mathrm{detection}}.
+$$
+
+This expression demonstrates the article renderer. It is a formatting example, with no experimental claim attached.
+
+## Make room for revision
+
+New papers, notes, slides, and posters can be added as the work develops. The page structure stays stable, and the local search index follows the content at build time.
+
+> This is a site note that documents the new homepage. Research notes will be published separately.
