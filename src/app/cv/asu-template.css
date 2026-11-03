@@ -1,0 +1,63 @@
+/* Scoped from ASu-skills/assets/frame/asu/base.css. MIT; license in scripts/vendor/asu-resume/LICENSE. */
+@page { size: A4; margin: 7mm 10mm 8mm; }
+    .asu-resume { --blue: #2458b8; --text: #151515; --muted: #596273; --band: #f2f3f5; }
+    .asu-resume * { box-sizing: border-box; }
+    .asu-resume, .asu-resume { margin: 0; padding: 0; background: #fff; }
+    .asu-resume { color: var(--text); font-family: "Times New Roman", "SimHei", "黑体", "Microsoft YaHei", sans-serif; font-size: 10.5pt; line-height: 1.34; }
+    .asu-resume { width: 210mm; min-height: 0; padding: 7mm 10mm 8mm; border-top: 0; margin: 0 auto; }
+    .asu-resume .page-break { break-before: auto; }
+    .asu-resume [contenteditable="true"]:focus { outline: 2px solid #b7caf3; outline-offset: 2px; }
+    .asu-resume h1 { margin: 0 0 3px; font-family: "Microsoft YaHei", "Arial", sans-serif; font-size: 24pt; line-height: 1.08; font-weight: 700; }
+    .asu-resume .header-grid { display: grid; grid-template-columns: minmax(0, 1fr) 28mm; gap: 8mm; align-items: start; }
+    .asu-resume .profile-photo-slot { position: relative; width: 28mm; height: 36mm; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px dashed #a8adb7; background: #fafafa; color: #8b919c; font: 9pt/1.2 Arial, sans-serif; text-align: center; cursor: pointer; }
+    .asu-resume .profile-photo-slot.has-photo { border-color: transparent; background: transparent; }
+    .asu-resume .profile-photo-slot:not(.has-photo):hover, .asu-resume .profile-photo-slot:not(.has-photo):focus-visible { border-color: #2458b8; outline: none; }
+    .asu-resume .profile-photo-slot::after { content: "点击上传"; position: absolute; inset: auto 0 0; padding: 4px 2px; background: rgba(36, 88, 184, .88); color: #fff; font: 8pt/1.2 Arial, "Microsoft YaHei", sans-serif; opacity: 0; transition: opacity .15s ease; }
+    .asu-resume .profile-photo-slot:hover::after, .asu-resume .profile-photo-slot:focus-visible::after { opacity: 1; }
+    .asu-resume .profile-photo-slot.has-photo::after { content: "点击替换"; }
+    .asu-resume .photo-placeholder { pointer-events: none; }
+    .asu-resume .profile-photo-slot img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .asu-resume .meta-row { display: flex; align-items: center; gap: 4px; margin: 2px 0; font-size: 11.5pt; line-height: 1.42; white-space: nowrap; }
+    .asu-resume .meta-icon { width: 16px; height: 16px; object-fit: contain; flex: 0 0 auto; }
+    .asu-resume .meta-row strong { font-weight: 700; }
+    .asu-resume .separator { color: #2d2d2d; padding: 0 5px; }
+    .asu-resume .section { margin-top: 8px; }
+    .asu-resume .section-title { margin: 0 0 4px; padding-bottom: 2px; border-bottom: 2px solid var(--blue); color: var(--blue); font-family: "Microsoft YaHei", "Arial", sans-serif; font-size: 18.5pt; line-height: 1.03; font-weight: 700; break-after: avoid; }
+    .asu-resume .lead { margin: 3px 0 4px; color: #1d448f; font-size: 10.8pt; line-height: 1.35; font-weight: 700; }
+    .asu-resume .evidence-link { margin: 2px 0 5px; color: #2458b8; font-size: 11.5pt; font-weight: 700; }
+    .asu-resume .evidence-link a { color: inherit; }
+    .asu-resume .evidence-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .asu-resume .evidence-link { display: flex; align-items: center; flex-wrap: wrap; gap: 2px; }
+    .asu-resume .trend-badge { min-width: 135px; padding: 4px 7px; border: 1px solid #7351a3; border-radius: 6px; color: #7351a3; text-align: center; font: 7px/1.25 Arial, sans-serif; }
+    .asu-resume .trend-badge strong { font-size: 8px; }
+    .asu-resume .company { display: flex; align-items: center; gap: 7px; min-height: 31px; margin: 6px 0 4px; padding: 5px 8px; border-radius: 6px; background: var(--band); page-break-inside: avoid; break-inside: avoid; }
+    .asu-resume .company-logo { width: 27px; height: 27px; object-fit: contain; flex: 0 0 auto; }
+    .asu-resume .company-name { flex: 1; min-width: 0; font-size: 11.2pt; font-weight: 700; }
+    .asu-resume .company-meta { color: #202020; font-size: 9.5pt; white-space: nowrap; }
+    .asu-resume .education-name .education-major { margin-left: 18px; }
+    .asu-resume .project { margin: 3px 0 4px; page-break-inside: avoid; }
+    .asu-resume .project-title { margin: 3px 0 2px; color: #244b9b; font-size: 11.5pt; line-height: 1.12; font-weight: 700; break-after: avoid; }
+    .asu-resume ul { margin: 1px 0 3px 17px; padding: 0; }
+    .asu-resume li { margin: 1px 0; break-inside: avoid; }
+    .asu-resume li::marker { font-size: .8em; }
+    .asu-resume .nested { margin-left: 18px; }
+    .asu-resume .nested::marker { content: "○ "; }
+    .asu-resume .nested-deep { margin-left: 35px; }
+    .asu-resume .nested-deep::marker { content: "▪ "; }
+    .asu-resume .code { padding: 0 2px; border-radius: 2px; background: #eef0f3; font-family: "Cascadia Mono", Consolas, monospace; font-size: .9em; }
+    .asu-resume .muted { color: var(--muted); }
+    .asu-resume .small { font-size: 9pt; }
+    .asu-resume[data-fit-spacing="tight"] .section { margin-top: 5px; }
+    .asu-resume[data-fit-spacing="tight"] .section-title { margin-bottom: 2px; padding-bottom: 1px; }
+    .asu-resume[data-fit-spacing="tight"] .company { margin: 4px 0 2px; padding-top: 3px; padding-bottom: 3px; }
+    .asu-resume[data-fit-spacing="tight"] .project { margin: 2px 0; }
+    .asu-resume[data-fit-spacing="tight"] li { margin: 0; }
+    .asu-resume[data-fit-lh="tight"] { line-height: 1.24; }
+    .asu-resume[data-fit-scale] > * { width: var(--resume-fit-width, 100%); zoom: var(--resume-fit-scale, 1); }
+    /* 打印样式必须放在所有元素规则之后：与基础规则同优先级时后者胜出，
+       若提前声明，.profile-photo-slot 的虚线框与浅灰底色会在打印稿里残留。 */
+    @media print {
+      .asu-resume { padding: 0; width: auto; min-height: 0; }
+      .asu-resume .profile-photo-slot { border-color: transparent; background: transparent; cursor: default; }
+      .asu-resume .profile-photo-slot::after, .asu-resume .profile-photo-slot .photo-placeholder { display: none !important; }
+    }

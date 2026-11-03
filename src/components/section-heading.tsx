@@ -1,0 +1,4 @@
+import type { ReactNode } from 'react';
+export function SectionHeading({id,title,children}:{id:string;title:ReactNode;children:ReactNode}){
+ return <div className="section-heading"><h2 id={id}>{title}</h2>{children}</div>;
+}

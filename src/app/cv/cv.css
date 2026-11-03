@@ -1,0 +1,83 @@
+@import './asu-template.css';
+
+.cv-page{max-width:1010px}
+.cv-page-toolbar{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:36px 0 28px}
+.cv-page-toolbar>p{font-size:13px;color:var(--muted-foreground)}
+.asu-resume{width:100%;max-width:900px;margin:auto;padding:0;background:transparent;color:#28242b;font:14px/1.65 Arial,'PingFang SC','Microsoft YaHei',sans-serif;--resume-accent:#6a005f}
+.asu-resume *{box-sizing:border-box}
+.asu-resume h1,.asu-resume h2,.asu-resume h3,.asu-resume p,.asu-resume ul{margin:0;letter-spacing:normal;text-wrap:initial}
+.asu-resume a{color:inherit;text-decoration:none}
+.asu-resume a:hover{text-decoration:underline;text-underline-offset:3px}
+.asu-resume svg{display:inline;vertical-align:middle;flex:none}
+.asu-resume strong{font-weight:700}
+.asu-resume .resume-sheet{padding:36px 40px;background:#fff;position:relative}
+.asu-resume .resume-sheet+.resume-sheet{margin-top:26px}
+.asu-resume .resume-header{display:grid;grid-template-columns:minmax(0,1fr) 60px;gap:20px;align-items:center}
+.asu-resume .resume-header>img{width:60px;height:72px;object-fit:contain}
+.asu-resume h1{font-size:32px;font-family:inherit;line-height:1.15;margin-bottom:8px}
+.asu-resume .resume-affiliation{font-size:12px;margin-top:4px;color:#6c626e}
+.asu-resume .resume-position{font-size:14px;font-weight:600;line-height:1.5}
+.asu-resume .resume-credentials{font-size:13px;color:#514453;font-weight:700;line-height:1.5;margin-top:5px}
+.asu-resume .resume-contact{display:flex;flex-wrap:wrap;gap:5px 16px;font-size:10px;color:#675d69;margin-top:12px}
+.asu-resume .resume-contact a{display:inline-flex;align-items:center;gap:4px}
+.asu-resume .resume-section{margin-top:22px}
+.asu-resume h2{font-size:19px;font-family:inherit;line-height:1.3;font-weight:700;color:var(--resume-accent);margin-bottom:10px;break-after:avoid}
+.asu-resume h3{font-size:15px;line-height:1.5;color:#28242b;font-weight:700;break-after:avoid}
+.asu-resume .resume-education-row{display:flex;justify-content:space-between;align-items:center;gap:16px;margin:3px 0;font-size:13px}
+.asu-resume .resume-school{display:flex;align-items:center;gap:8px;min-width:0}
+.asu-resume .resume-school>img{width:14px;height:17px;object-fit:contain;flex:none}
+.asu-resume .resume-school>div{display:flex;flex-wrap:wrap;gap:2px 13px}
+.asu-resume time{font-size:11px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.asu-resume .resume-entry+.resume-entry{margin-top:19px}
+.asu-resume .resume-entry-heading{display:flex;justify-content:space-between;align-items:baseline;gap:18px;margin-bottom:0}
+.asu-resume .resume-entry-heading h3{flex:1;min-width:0}
+.asu-resume .resume-topic{font-size:13px;font-weight:500;color:#514853;margin-left:10px}
+.asu-resume .resume-entry-meta{display:flex;align-items:baseline;gap:8px;flex:none;text-align:right;font-size:11px;line-height:1.4;color:#706573}
+.asu-resume .resume-entry .resume-entry-meta>strong,.asu-resume .resume-collaboration .resume-entry-meta>strong{color:var(--resume-accent)}
+.asu-resume .resume-entry-meta>span:not([data-language]){display:inline}
+.asu-resume .resume-paper-title{display:block;font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:11px;line-height:1.4;color:#706573;margin:2px 0 4px}
+.asu-resume .resume-paper-title svg{margin-left:5px}
+.asu-resume .resume-intro{margin:5px 0 7px}
+.asu-resume .resume-bullets{list-style:disc;margin:5px 0 0;padding-left:17px}
+.asu-resume .resume-bullets li{margin:5px 0;line-height:inherit;break-inside:avoid}
+.asu-resume .resume-result{color:#382e3b;font-size:13px;line-height:1.6;margin:7px 0 0}
+.asu-resume .resume-company{display:flex;align-items:center;gap:10px;background:#fff;padding:0;margin:0 0 9px}
+.asu-resume .resume-company img{width:25px;height:25px;object-fit:contain;flex:none}
+.asu-resume .resume-company>div{flex:1;min-width:0;line-height:1.5;font-size:13px}
+.asu-resume .resume-company>div>span{display:block;font-size:11px;color:#6c626e}
+.asu-resume .resume-project-date{color:#706573}
+.asu-resume .resume-running-head{display:flex;justify-content:space-between;align-items:baseline;gap:20px;color:#6c626e;font-size:12px;margin-bottom:20px}
+.asu-resume .resume-running-head strong{color:#28242b;font-size:18px}
+.asu-resume .resume-sheet-next>.resume-section:first-of-type{margin-top:0}
+.asu-resume .resume-engineering-title{font-size:15px;font-weight:600;color:#4b394e;margin:5px 0}
+.asu-resume .resume-stack{font-size:11px;line-height:1.4;color:#706573;margin:2px 0 3px}
+.asu-resume .resume-project-links{display:flex;align-items:center;flex-wrap:wrap;gap:6px 18px;color:var(--resume-accent);font-size:11px;margin-top:10px;overflow-wrap:anywhere}
+.asu-resume .resume-project-links a{display:inline-flex;align-items:center;gap:5px}
+.asu-resume .resume-award-list{display:flex;flex-wrap:wrap;gap:5px 24px;list-style:none;padding:0;font-size:13px;line-height:1.5}
+.asu-resume .resume-award-list li{display:inline-flex;align-items:baseline;gap:6px}
+.asu-resume .resume-award-list time{color:#706573}
+.asu-resume .resume-award-list li:first-child>span{font-weight:600}
+.asu-resume .resume-folio{display:flex;justify-content:space-between;margin-top:28px;font-size:10px;color:#867c89}
+@media(max-width:620px){
+ .cv-page-toolbar{flex-wrap:wrap;padding:25px 0;gap:12px}
+ .asu-resume .resume-award-list{font-size:12px;gap:4px 18px}
+ .asu-resume{font-size:13px;line-height:1.8}.asu-resume .resume-sheet{padding:23px 17px}.asu-resume .resume-header{grid-template-columns:minmax(0,1fr) 44px;gap:12px}.asu-resume .resume-header>img{width:44px;height:55px}.asu-resume h1{font-size:28px}.asu-resume .resume-position,.asu-resume .resume-credentials{font-size:11px}.asu-resume .resume-contact{font-size:9px;gap:6px 12px}.asu-resume .resume-education-row{font-size:12px;align-items:flex-start}.asu-resume .resume-school{align-items:flex-start}.asu-resume .resume-school>div{display:block}.asu-resume .resume-education-row strong{display:block}.asu-resume time{font-size:9px}.asu-resume .resume-entry-heading{display:block}.asu-resume .resume-entry-meta{display:flex;gap:10px;text-align:left;margin-top:4px;font-size:10px}.asu-resume .resume-topic{display:block;margin:3px 0;font-size:12px}.asu-resume h2{font-size:18px}.asu-resume .resume-company{align-items:flex-start;gap:7px;padding:0}.asu-resume .resume-company>div{font-size:11px}.asu-resume .resume-company>div>span{font-size:10px}.asu-resume .resume-company img{width:21px;height:21px}.asu-resume .resume-result{font-size:12px}.asu-resume .resume-project-links{font-size:9px}.asu-resume .resume-project-links a{display:block}.asu-resume .resume-running-head,.asu-resume .resume-folio{display:none}.asu-resume .resume-engineering-title{font-size:14px}
+}
+@page{size:A4;margin:10mm 12mm}
+@media print{
+ html,body{background:#fff!important;color:#28242b!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+ .site-header,.site-footer,.cv-page-toolbar,.skip-link,nextjs-portal{display:none!important}
+ #main-content,.cv-page{margin:0!important;padding:0!important;width:100%!important;max-width:none!important}
+ #main-content>div{opacity:1!important;transform:none!important}
+ .asu-resume{width:auto!important;max-width:none!important;margin:0!important;padding:0!important;font-size:10.7pt;line-height:1.55;background:white}
+ html[data-site-language="en"] .asu-resume{font-size:9.5pt;line-height:1.4}
+ .asu-resume .resume-sheet{padding:0;min-height:274mm;display:flex;flex-direction:column}
+ .asu-resume .resume-sheet+.resume-sheet{margin:0;break-before:page}
+ .asu-resume .resume-header{grid-template-columns:minmax(0,1fr) 40pt;gap:12pt}.asu-resume .resume-header>img{width:40pt;height:48pt}
+ .asu-resume h1{font-size:23pt;margin-bottom:4pt}.asu-resume .resume-position{font-size:9.5pt}.asu-resume .resume-affiliation{font-size:8.5pt;margin-top:2pt}.asu-resume .resume-credentials{font-size:9pt;margin-top:3pt}.asu-resume .resume-contact{font-size:7pt;gap:3pt 10pt;margin-top:6pt}.asu-resume .resume-contact svg{width:8pt;height:8pt}
+ .asu-resume .resume-section{margin-top:9pt}.asu-resume h2{font-size:12pt;line-height:1.2;margin-bottom:5pt}.asu-resume h3{font-size:10pt;line-height:1.35}.asu-resume .resume-education-row{font-size:9pt;margin:1pt 0}.asu-resume .resume-school{align-items:center;gap:5pt}.asu-resume .resume-school>img{width:10pt;height:12pt}.asu-resume .resume-school>div{display:flex;gap:9pt}.asu-resume time{font-size:8pt}
+ .asu-resume .resume-entry{break-inside:avoid}.asu-resume .resume-entry+.resume-entry{margin-top:8pt}.asu-resume .resume-entry-heading{display:flex;gap:10pt;margin-bottom:2pt}.asu-resume .resume-topic{display:inline;font-size:9pt;margin-left:7pt}.asu-resume .resume-entry-meta{display:block;font-size:8pt;text-align:right;margin:0}.asu-resume .resume-entry-meta>span:not([data-language]){display:inline;margin-left:5pt}
+ .asu-resume .resume-paper-title{font-size:7.5pt;line-height:1.25;margin:2pt 0 3pt}.asu-resume .resume-paper-title svg{display:none}.asu-resume .resume-intro{margin:3pt 0 4pt}.asu-resume .resume-bullets{padding-left:12pt;margin:3pt 0 0}.asu-resume .resume-bullets li{margin:2pt 0}.asu-resume .resume-result{font-size:9pt;line-height:1.35;margin:4pt 0 0}
+ .asu-resume .resume-industry{break-inside:avoid}.asu-resume .resume-company{padding:0;gap:7pt;margin-bottom:5pt}.asu-resume .resume-company img{width:19pt;height:19pt}.asu-resume .resume-company>div{font-size:9pt;line-height:1.35}.asu-resume .resume-company>div>span{display:inline;font-size:8pt;margin-left:8pt}
+ .asu-resume .resume-running-head{display:flex;font-size:9pt;margin-bottom:14pt}.asu-resume .resume-running-head strong{font-size:13pt}.asu-resume .resume-sheet-next>.resume-section:first-of-type{margin-top:0}.asu-resume .resume-engineering-title{font-size:11pt;margin:4pt 0}.asu-resume .resume-stack{font-size:9pt;font-weight:600;margin:1pt 0 2pt}.asu-resume .resume-project-links{font-size:8pt;gap:8pt;margin-top:7pt}.asu-resume .resume-project-links a{display:inline-flex}.asu-resume .resume-honors{break-inside:avoid}.asu-resume .resume-award-list{font-size:9pt;gap:3pt 18pt}.asu-resume .resume-award-list li{gap:4pt}.asu-resume .resume-folio{display:flex;font-size:7pt;margin-top:auto;padding-top:10pt}
+}

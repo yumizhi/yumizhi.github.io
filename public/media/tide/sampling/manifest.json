@@ -1,0 +1,25 @@
+{
+  "prompt": "Giant female robot, digital art, mech, unreal engine, highly detailed, full body, standing in a futuristic city, blue and white armor",
+  "seed": 42,
+  "steps": 50,
+  "inject_after_steps": 35,
+  "source": "SD 2.1 / existing TIDE checkpoint",
+  "preview": "VAE-decoded DPM-Solver++ clean-image estimates, not decoded noisy latents",
+  "modes": {
+    "original": {
+      "frames": 50,
+      "start": 1,
+      "last": 50
+    },
+    "tree": {
+      "frames": 50,
+      "start": 1,
+      "last": 50
+    },
+    "tide": {
+      "frames": 50,
+      "start": 1,
+      "last": 50
+    }
+  }
+}

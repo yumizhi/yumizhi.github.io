@@ -1,0 +1,27 @@
+{
+  "source": "airs-mengyihan, existing SD 2.1 and TIDE checkpoint",
+  "prompt": "Giant female robot, digital art, mech, unreal engine, highly detailed, full body, standing in a futuristic city, blue and white armor",
+  "seed": 42,
+  "steps": 50,
+  "inject_after_steps": 15,
+  "scheduler": "DPMSolverMultistepScheduler",
+  "checkpoint": "optimized_wm5-30_embedding-step-500.pt",
+  "note": "New illustrative run, not the published Figure 2 sample. Frames are VAE-decoded actual intermediate latents.",
+  "modes": {
+    "original": {
+      "frames": 51,
+      "first": 0,
+      "last": 50
+    },
+    "tree": {
+      "frames": 51,
+      "first": 0,
+      "last": 50
+    },
+    "tide": {
+      "frames": 51,
+      "first": 0,
+      "last": 50
+    }
+  }
+}

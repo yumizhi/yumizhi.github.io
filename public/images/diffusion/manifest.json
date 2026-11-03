@@ -1,0 +1,257 @@
+{
+  "assets": "teaching illustrations, not trained watermark parameters or sampled model latents",
+  "seed": 20261102,
+  "frameCount": 49,
+  "frameSize": 384,
+  "source": "TIDE camera-ready Figure 2, robot column",
+  "originalPrompt": "Giant female robot, digital art, mech, unreal engine, highl\u2026",
+  "experimentSeed": null,
+  "spectrum": {
+    "tree": {
+      "ifftImaginaryMax": 7.068787832532228e-16,
+      "outsideMaskError": 0.0,
+      "coefficientCount": 317,
+      "distance": 1.4502738197569949,
+      "threshold": 66.8424027952567,
+      "matches": true,
+      "calibration": "1st percentile of 128 synthetic Gaussian negatives; not a model FPR estimate"
+    },
+    "tide": {
+      "ifftImaginaryMax": 7.98113691988077e-16,
+      "outsideMaskError": 0.0,
+      "coefficientCount": 2752,
+      "distance": 1.4365678020156418,
+      "threshold": 77.40611995214759,
+      "matches": true,
+      "calibration": "1st percentile of 128 synthetic Gaussian negatives; not a model FPR estimate"
+    }
+  },
+  "guidance": [
+    {
+      "overlap": 0.40939264547547494,
+      "curvature": 0.008884164355995816,
+      "strength": 0.9746450329960736,
+      "eta": 0.5853835406863047,
+      "text": 4.2803905262253235,
+      "watermark": 3.219609473774676,
+      "orthogonalityError": 4.851674617611934e-14
+    },
+    {
+      "overlap": 0.46164547164655817,
+      "curvature": 0.008773349882118753,
+      "strength": 0.9736487742210277,
+      "eta": 0.5336520142795461,
+      "text": 4.564913921462496,
+      "watermark": 2.9350860785375037,
+      "orthogonalityError": 5.440092820663267e-14
+    },
+    {
+      "overlap": 0.5074890575435662,
+      "curvature": 0.008654745653166485,
+      "strength": 0.9715033825775997,
+      "eta": 0.48826677809187574,
+      "text": 4.814532720494683,
+      "watermark": 2.6854672795053167,
+      "orthogonalityError": 3.574918139293004e-14
+    },
+    {
+      "overlap": 0.5502447626100107,
+      "curvature": 0.008532076029461488,
+      "strength": 0.9644054725572435,
+      "eta": 0.4459342153150242,
+      "text": 5.047361815767367,
+      "watermark": 2.452638184232633,
+      "orthogonalityError": 9.769962616701378e-15
+    },
+    {
+      "overlap": 0.5751973068016467,
+      "curvature": 0.008408973515031892,
+      "strength": 0.9629676045674098,
+      "eta": 0.42124551566884266,
+      "text": 5.183149663821365,
+      "watermark": 2.316850336178635,
+      "orthogonalityError": 1.509903313490213e-14
+    },
+    {
+      "overlap": 0.5941873727713828,
+      "curvature": 0.008288861326005481,
+      "strength": 0.9585577352604755,
+      "eta": 0.4024628049226263,
+      "text": 5.286454572925555,
+      "watermark": 2.2135454270744446,
+      "orthogonalityError": 9.370282327836321e-14
+    },
+    {
+      "overlap": 0.6038277745551349,
+      "curvature": 0.008174867350593806,
+      "strength": 0.9541395045431609,
+      "eta": 0.392946771844183,
+      "text": 5.338792754856994,
+      "watermark": 2.1612072451430064,
+      "orthogonalityError": 1.2612133559741778e-13
+    },
+    {
+      "overlap": 0.6057802706729271,
+      "curvature": 0.008069768418089707,
+      "strength": 0.948607016623952,
+      "eta": 0.39105126897068687,
+      "text": 5.3492180206612225,
+      "watermark": 2.150781979338778,
+      "orthogonalityError": 4.618527782440651e-14
+    },
+    {
+      "overlap": 0.5973276453617129,
+      "curvature": 0.00797596100513398,
+      "strength": 0.944748228715478,
+      "eta": 0.39947342984807555,
+      "text": 5.302896135835585,
+      "watermark": 2.1971038641644154,
+      "orthogonalityError": 7.105427357601002e-14
+    },
+    {
+      "overlap": 0.5798060973048121,
+      "curvature": 0.007895452837631045,
+      "strength": 0.9415307902170308,
+      "eta": 0.4168893442132805,
+      "text": 5.207108606826957,
+      "watermark": 2.2928913931730426,
+      "orthogonalityError": 1.4210854715202004e-14
+    },
+    {
+      "overlap": 0.5561402212007213,
+      "curvature": 0.007829869190261851,
+      "strength": 0.9369536053347789,
+      "eta": 0.4403979851740407,
+      "text": 5.077811081542777,
+      "watermark": 2.422188918457224,
+      "orthogonalityError": 2.3092638912203256e-14
+    },
+    {
+      "overlap": 0.5224366960319791,
+      "curvature": 0.007780467821566717,
+      "strength": 0.9347143688462619,
+      "eta": 0.4738620554427095,
+      "text": 4.893758695065098,
+      "watermark": 2.606241304934902,
+      "orthogonalityError": 2.6645352591003757e-14
+    },
+    {
+      "overlap": 0.48095061125855604,
+      "curvature": 0.007748157157520641,
+      "strength": 0.9338665551807942,
+      "eta": 0.5150432526330324,
+      "text": 4.667262110518322,
+      "watermark": 2.8327378894816784,
+      "orthogonalityError": 5.773159728050814e-14
+    },
+    {
+      "overlap": 0.4373007822017181,
+      "curvature": 0.00773351332335237,
+      "strength": 0.9325743190927576,
+      "eta": 0.5583643593478239,
+      "text": 4.4289960235869685,
+      "watermark": 3.0710039764130315,
+      "orthogonalityError": 7.283063041541027e-14
+    },
+    {
+      "overlap": 0.406602006859027,
+      "curvature": 0.0077367927526688085,
+      "strength": 0.92619327261265,
+      "eta": 0.5888247099326444,
+      "text": 4.261464095370457,
+      "watermark": 3.238535904629544,
+      "orthogonalityError": 6.394884621840902e-14
+    },
+    {
+      "overlap": 0.35154074821640163,
+      "curvature": 0.007757938271300224,
+      "strength": 0.9329743062064015,
+      "eta": 0.6434480085284265,
+      "text": 3.961035953093654,
+      "watermark": 3.538964046906346,
+      "orthogonalityError": 6.661338147750939e-14
+    },
+    {
+      "overlap": 0.31798487104990414,
+      "curvature": 0.0077965777151725035,
+      "strength": 0.9342478372599519,
+      "eta": 0.6767184199268083,
+      "text": 3.7780486904025548,
+      "watermark": 3.7219513095974452,
+      "orthogonalityError": 2.3092638912203256e-14
+    },
+    {
+      "overlap": 0.2973490632922409,
+      "curvature": 0.007852015292139636,
+      "strength": 0.935109146727473,
+      "eta": 0.6971553148965701,
+      "text": 3.665645768068864,
+      "watermark": 3.834354231931136,
+      "orthogonalityError": 2.5424107263916085e-14
+    },
+    {
+      "overlap": 0.27844778577013973,
+      "curvature": 0.007923217051325593,
+      "strength": 0.9388350792946811,
+      "eta": 0.7158577882990272,
+      "text": 3.56278216435535,
+      "watermark": 3.93721783564465,
+      "orthogonalityError": 2.6645352591003757e-14
+    },
+    {
+      "overlap": 0.2706831264316476,
+      "curvature": 0.008008792990032099,
+      "strength": 0.9421360211256115,
+      "eta": 0.7234992528593032,
+      "text": 3.520754109273833,
+      "watermark": 3.979245890726167,
+      "orthogonalityError": 3.907985046680551e-14
+    },
+    {
+      "overlap": 0.2863558997368337,
+      "curvature": 0.008106979490388744,
+      "strength": 0.9413421938013335,
+      "eta": 0.7078819903907912,
+      "text": 3.6066490528506483,
+      "watermark": 3.8933509471493517,
+      "orthogonalityError": 9.769962616701378e-15
+    },
+    {
+      "overlap": 0.27997057179422363,
+      "curvature": 0.008215626870606507,
+      "strength": 0.9495693858333099,
+      "eta": 0.7141381684204715,
+      "text": 3.5722400736874067,
+      "watermark": 3.9277599263125933,
+      "orthogonalityError": 2.042810365310288e-14
+    },
+    {
+      "overlap": 0.2978107728033283,
+      "curvature": 0.008332197731624857,
+      "strength": 0.9539505575570578,
+      "eta": 0.696362755078318,
+      "text": 3.670004847069251,
+      "watermark": 3.829995152930749,
+      "orthogonalityError": 4.440892098500626e-15
+    },
+    {
+      "overlap": 0.33045607624292545,
+      "curvature": 0.008453782286652944,
+      "strength": 0.9568909551996245,
+      "eta": 0.6639076028763659,
+      "text": 3.848508184179988,
+      "watermark": 3.651491815820012,
+      "orthogonalityError": 1.1546319456101628e-14
+    },
+    {
+      "overlap": 0.3659231154601076,
+      "curvature": 0.008577136736794722,
+      "strength": 0.961678574803825,
+      "eta": 0.6286615775130476,
+      "text": 4.042361323678238,
+      "watermark": 3.457638676321762,
+      "orthogonalityError": 1.9984014443252818e-14
+    }
+  ],
+  "pdfSha256": "7e51c647b7d38e9e3a7d349c552c7dc9213bfaba407dfb647f9514c7fde331ae"
+}

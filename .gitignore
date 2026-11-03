@@ -8,6 +8,14 @@ test-results/
 playwright-report/
 .openai/
 .DS_Store
+output/
+.playwright-mcp/
+__pycache__/
+*.pyc
+docs/design/reference-captures/
+docs/qa/
 docs/qa/frames/
 docs/qa/screenshots/*.png
 docs/qa/*.png
+docs/qa/a-refinement/**/*.png
+docs/qa/editorial/**/*.png

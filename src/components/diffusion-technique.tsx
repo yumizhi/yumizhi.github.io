@@ -1,0 +1,28 @@
+'use client';
+import {Localized} from './language';
+import {asset} from '@/lib/paths';
+import type {DiffusionMode} from '@/lib/diffusion-story';
+
+export function DiffusionTechnique({mode,p,write,remove,frame,verify,scenario,weights,onScenario}:{mode:DiffusionMode;p:number;write:number;remove:number;frame:number;verify:boolean;scenario:string;weights?:{text:number;watermark:number};onScenario:(s:string)=>void}){
+ const number=String(Math.min(24,Math.round(frame))).padStart(2,'0');
+ if(verify&&p>.78)return <div className="tech-key-reference"><span className="tech-kicker"><Localized en="Stored key W" zh="存储的密钥 W"/></span><img src={asset(`/images/diffusion/${mode==='tree'?'tree':'tide'}-key.webp`)} alt="Stored example watermark coefficients"/><p><Localized en="Compare only the selected coefficients." zh="只比较掩码内的系数。"/></p></div>;
+ if(!verify&&((mode==='tide'&&p>.25&&p<.41)||(mode==='tree'&&p>.16&&p<.36)))return <>
+  <div className="tech-injection-note"><span className="tech-kicker"><Localized en="What changes?" zh="究竟改了什么？"/></span><strong><Localized en={write<.1?'Select the frequency band.':write<.95?'Replace it with W.':'The key is now embedded.'} zh={write<.1?'选中这段频率。':write<.95?'用 W 替换它。':'密钥已写入。'}/></strong><p><Localized en="Inside M: replaced." zh="掩码内：替换。"/><br/><Localized en="Outside M: unchanged." zh="掩码外：保留。"/></p></div>
+  <div className="tech-template-label"><span>W</span><p><Localized en={mode==='tide'?'Learned watermark':'Ring-shaped key'} zh={mode==='tide'?'学习得到的水印':'同心环密钥'}/></p>{mode==='tide'&&<small><Localized en="Learned together with cwm, the condition used next." zh="与下一步使用的辅助条件 cwm 联合学习。"/></small>}</div>
+ </>;
+ if(mode==='tide'&&!verify&&p>=.41&&p<.48)return <><div className="tech-injection-note"><span className="tech-kicker"><Localized en="After injection" zh="注入之后"/></span><strong><Localized en="W is in the latent. cwm helps carry it forward." zh="W 已写入，cwm 负责帮助它传播。"/></strong></div><div className="tech-conditions"><span className="tech-kicker"><Localized en="One frozen U-Net" zh="同一个冻结 U-Net"/></span><p><span>∅</span><b>εu</b></p><p><span><Localized en="Robot prompt" zh="机器人 prompt"/></span><b className="text-key">εt</b></p><p><span>c<sub>wm</sub></span><b className="watermark-key">εw</b></p><small><Localized en="Three conditions. Three noise predictions." zh="三种条件，得到三种噪声预测。"/></small></div></>;
+ if(mode==='tide'&&!verify&&p>=.48&&p<.64)return <div className="tech-separation">
+  <div className="tech-history"><div className="tech-history-images">{[Math.max(0,Math.round(frame)-2),Math.max(0,Math.round(frame)-1),Math.round(frame)].map((j,i)=><img key={i} src={asset(`/images/diffusion/residual-history-${String(Math.min(24,j)).padStart(2,'0')}.webp`)} alt="Recent text residual"/>)}</div><p><strong>B<sub>t</sub></strong><Localized en="Recent text updates define the directions to protect." zh="近期文本更新，确定需要保护的方向。"/></p></div>
+  <div className="tech-subtraction">
+   <figure><img src={asset(`/images/diffusion/residual-raw-${number}.webp`)} alt="Full example watermark residual"/><figcaption><b>Δ<sup>wm</sup></b><Localized en="Full watermark update" zh="完整水印更新"/></figcaption></figure>
+   <span className="tech-operator">−</span>
+   <figure className="tech-projection" style={{transform:`translateY(${-remove*12}px)`}}><img style={{opacity:1-remove*.5}} src={asset(`/images/diffusion/residual-projection-${number}.webp`)} alt="Watermark component projected into the text subspace"/><figcaption><b>Π<sub>B</sub>(Δ<sup>wm</sup>)</b><Localized en="Aligned with text · remove" zh="与文本重叠 · 移除"/></figcaption></figure>
+   <span className="tech-operator">=</span>
+   <figure className="tech-retained" style={{transform:`translateY(${(1-remove)*12}px)`}}><img style={{opacity:.22+.78*remove}} src={asset(`/images/diffusion/residual-complement-${number}.webp`)} alt="Orthogonal complement retained for watermark guidance"/><figcaption><b>Δ<sup>wm</sup><sub>null</sub></b><Localized en="Complement · keep" zh="互补分量 · 保留"/></figcaption></figure>
+  </div><p className="tech-takeaway"><Localized en="The next denoising step uses the complement, not the full watermark residual." zh="下一步去噪使用互补分量，不直接使用完整的水印残差。"/></p><span className="tech-footnote"><Localized en="Conceptual tensor maps · not image regions" zh="残差张量示意 · 不是在删掉图像区域"/></span>
+ </div>;
+ if(mode==='tide'&&!verify&&p>=.64&&p<.89)return <><div className="tech-adaptive">
+  <p className="tech-kicker"><Localized en="Try a different trajectory" zh="试着改变当前轨迹"/></p><div role="group" aria-label="Guidance scenario">{[['steady','Steady','平稳'],['overlap','More overlap','更多重叠'],['turn','Sharp turn','急剧转向'],['strong','Strong residual','残差过强']].map(([key,en,zh])=><button key={key} aria-pressed={scenario===key} onClick={()=>onScenario(key)}><Localized en={en} zh={zh}/></button>)}</div><p className="tech-adaptive-reason"><Localized en={scenario==='steady'?'More room for watermark guidance.':scenario==='overlap'?'More semantic overlap → reduce the watermark share.':scenario==='turn'?'Text direction changes sharply → protect text guidance.':'The watermark residual is too strong → scale its weight down.'} zh={scenario==='steady'?'轨迹平稳，允许更多水印引导。':scenario==='overlap'?'语义重叠增大 → 降低水印份额。':scenario==='turn'?'文本方向急剧变化 → 优先保护文本引导。':'水印残差过强 → 降低它的权重。'}/></p>
+ </div>{weights&&<div className="tech-live-weights"><p className="text-key"><Localized en="Text guidance" zh="文本引导"/><strong>{weights.text.toFixed(2)}</strong></p><p className="watermark-key"><Localized en="Watermark guidance" zh="水印引导"/><strong>{weights.watermark.toFixed(2)}</strong></p><small><Localized en="Total budget stays at 7.5" zh="总预算保持 7.5"/></small></div>}</>;
+ return null;
+}

@@ -1,23 +1,22 @@
 'use client';
-import { useState } from 'react';
-import { ArrowUpRight, ArrowRight, Info } from 'lucide-react';
+import {motion,useReducedMotion} from 'motion/react';
+import {motionTokens} from '@/lib/motion';
+import { ArrowUpRight, ArrowRight } from 'lucide-react';
 import type { Paper } from '@/lib/content';
 import { asset } from '@/lib/paths';
 import { TransitionLink } from './providers';
-import { Button } from '@/components/ui/button';
+import { TideInteractiveCover } from './tide/entry';
+import { Localized } from './language';
+
 export function ResearchArt({paper,detail=false}:{paper:Paper;detail?:boolean}){
  if(detail&&paper.image)return <img className="detail-figure" src={asset(paper.image)} width={paper.slug==='tide'?1422:782} height={paper.slug==='tide'?1120:341} alt={paper.imageAlt}/>;
- if(paper.slug==='tide')return <div className="tide-art" aria-label="Two actual generated images from the TIDE paper"><img className="tide-car" src={asset('/images/tide-car.webp')} width="687" height="681" alt="TIDE image: red sports car"/><img className="tide-street" src={asset('/images/tide-street.webp')} width="684" height="681" alt="TIDE image: sunlit city street"/></div>;
- if(paper.image)return <div className="sasbo-art"><img src={asset(paper.image)} alt={paper.imageAlt} width="782" height="341"/></div>;
- return <div className="type-cover"><span>IJCNN 2024</span><strong>Sparse Attack<br/>with Meta-Learning</strong><small>Cover pending</small></div>;
+ if(!paper.image)return null;
+ return <img src={asset(paper.image)} width="782" height="341" alt={paper.imageAlt} loading="lazy"/>;
 }
-export function ResearchCard({paper}:{paper:Paper}){
- const [expanded,setExpanded]=useState(false);
- return <article className={`research-card ${expanded?'is-expanded':''}`} data-testid={`research-card-${paper.slug}`}>
-   <div className="research-image" style={{viewTransitionName:`research-image-${paper.slug}`}}>
-    <div className="research-art"><ResearchArt paper={paper}/></div>
-    <button className="touch-preview" aria-label={`About ${paper.shortTitle}`} aria-expanded={expanded} onClick={()=>setExpanded(!expanded)}><Info size={17}/></button>
-    <div className="research-reveal"><p>{paper.summary}</p><div className="research-actions"><Button asChild size="sm" variant="secondary"><a href={asset(paper.paper)} target="_blank" rel="noreferrer">Paper <ArrowUpRight size={14}/></a></Button><Button asChild size="sm" variant="secondary"><TransitionLink href={`/research/${paper.slug}/`}>Details <ArrowRight size={14}/></TransitionLink></Button>{paper.code&&<a href={paper.code}>Code <ArrowUpRight size={14}/></a>}</div></div>
-   </div><div className="research-caption"><div className="paper-meta">{paper.venue} <span>·</span> {paper.year}</div><h3><TransitionLink href={`/research/${paper.slug}/`} style={{viewTransitionName:`research-title-${paper.slug}`}}>{paper.slug==='tide'?<>TIDE: Trajectory-Aware<br className="wide-break"/> Watermark Propagation</>:paper.title}<ArrowUpRight className="title-arrow" size={21}/></TransitionLink></h3><div className="mobile-card-actions"><TransitionLink href={`/research/${paper.slug}/`}>Details <ArrowRight size={14}/></TransitionLink><a href={asset(paper.paper)} target="_blank" rel="noreferrer">Paper <ArrowUpRight size={14}/></a></div></div>
- </article>;
+export function ResearchCard({paper,sharedLayout=false}:{paper:Paper;sharedLayout?:boolean}){
+ const reduced=useReducedMotion();
+ return <motion.article initial={sharedLayout?false:"waiting"} whileInView="visible" viewport={{once:true,amount:.15}} className={`research-card ${paper.image?'':'text-publication'}`} data-testid={`research-card-${paper.slug}`}>
+  {paper.image&&<motion.div className="research-visual" variants={{waiting:{opacity:reduced?1:.5,y:reduced?0:22},visible:{opacity:1,y:0,transition:{duration:reduced?0:.65,ease:motionTokens.ease}}}}>{paper.slug==='tide'?<TideInteractiveCover/>:paper.image&&<TransitionLink href={`/research/${paper.slug}/`} className="research-image" aria-label={`View ${paper.shortTitle} research details`}><ResearchArt paper={paper}/></TransitionLink>}</motion.div>}
+  <motion.div className="research-caption" variants={{waiting:{opacity:reduced?1:.65,y:reduced?0:12},visible:{opacity:1,y:0,transition:{duration:reduced?0:.55,delay:reduced?0:.08,ease:motionTokens.ease}}}}><motion.p layoutId={sharedLayout?`meta-${paper.slug}`:undefined} className="paper-meta"><span className="venue-name">{paper.venue} {paper.year}</span>{paper.slug==='sasbo'&&<span className="presentation-type"> · Oral</span>}</motion.p><motion.h3 layoutId={sharedLayout?`title-${paper.slug}`:undefined} lang="en"><TransitionLink href={`/research/${paper.slug}/`}>{paper.title}</TransitionLink></motion.h3><motion.p layoutId={sharedLayout?`authors-${paper.slug}`:undefined} className="authors" lang="en">{paper.authors.map((name,i)=><span key={name}>{i>0?', ':''}{name==='Yihan Meng'?<strong>{name}</strong>:name}</span>)}</motion.p><p className="paper-summary"><Localized en={paper.summary} zh={paper.slug==='tide'?'通过轨迹感知的水印引导，减少对扩散图像生成的干扰。':paper.slug==='sasbo'?'使用随机二值优化实现稀疏对抗攻击。':paper.summary}/></p><div className="paper-links"><a href={asset(paper.paper)} target="_blank" rel="noreferrer"><Localized en="Paper" zh="论文"/> <ArrowUpRight size={14}/></a><TransitionLink href={`/research/${paper.slug}/`}><Localized en="Details" zh="详情"/> <ArrowRight size={14}/></TransitionLink>{paper.code&&<a href={paper.code} target="_blank" rel="noreferrer">Code <ArrowUpRight size={14}/></a>}</div></motion.div>
+ </motion.article>;
 }
