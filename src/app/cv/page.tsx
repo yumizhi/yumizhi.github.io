@@ -1,8 +1,8 @@
 import type {Metadata} from 'next';
 import {ArrowUpRight, Mail, Globe, CodeXml} from 'lucide-react';
 import {absoluteURL, asset} from '@/lib/paths';
-import {education, experience, awards, papers, site} from '@/lib/content';
-import {cvResearch, cvIndustry, cvProject, type CVBullet} from '@/lib/cv';
+import {education, experience, awards, site} from '@/lib/content';
+import {cvResearch, cvCollaboration, cvIndustry, cvProject, type CVBullet, type CVResearchEntry} from '@/lib/cv';
 import {CVActions} from '@/components/cv-actions';
 import {Localized} from '@/components/language';
 import './cv.css';
@@ -15,6 +15,17 @@ function emphasis(text:string){
 
 function Bullets({items}:{items:CVBullet[]}){
  return <ul className="resume-bullets">{items.map(item=><li key={item.label.en}><strong><Localized {...item.label}/><Localized en=": " zh="："/></strong><Localized en={emphasis(item.text.en)} zh={emphasis(item.text.zh)}/></li>)}</ul>;
+}
+
+function ResearchEntry({item}:{item:CVResearchEntry}){
+ return <article className="resume-entry">
+  <header className="resume-entry-heading"><h3>{item.paper.shortTitle}<span className="resume-topic"><Localized {...item.topic}/></span></h3><div className="resume-entry-meta"><strong>{item.paper.venue} {item.paper.year}</strong><span><Localized {...item.role}/></span></div></header>
+  <p className="resume-stack"><Localized {...item.keywords}/></p>
+  <a className="resume-paper-title" href={absoluteURL(item.paper.paper)}>{item.paper.title}<ArrowUpRight size={11}/></a>
+  <p className="resume-intro"><Localized {...item.intro}/></p>
+  <Bullets items={item.bullets}/>
+  {item.result&&<p className="resume-result"><strong><Localized {...item.result}/></strong></p>}
+ </article>;
 }
 
 export default function CV(){
@@ -48,14 +59,7 @@ export default function CV(){
 
     <section className="resume-section">
      <h2><Localized en="Selected research" zh="代表性研究"/></h2>
-     {cvResearch.map(item=><article className="resume-entry" key={item.paper.slug}>
-      <header className="resume-entry-heading"><h3>{item.paper.shortTitle}<span className="resume-topic"><Localized {...item.topic}/></span></h3><div className="resume-entry-meta"><strong>{item.paper.venue} {item.paper.year}</strong><span><Localized {...item.role}/></span></div></header>
-      <p className="resume-stack"><Localized {...item.keywords}/></p>
-      <a className="resume-paper-title" href={absoluteURL(item.paper.paper)}>{item.paper.title}<ArrowUpRight size={11}/></a>
-      <p className="resume-intro"><Localized {...item.intro}/></p>
-      <Bullets items={item.bullets}/>
-      {item.result&&<p className="resume-result"><strong><Localized {...item.result}/></strong></p>}
-     </article>)}
+     {cvResearch.map(item=><ResearchEntry item={item} key={item.paper.slug}/>)}
     </section>
 
     <div className="resume-folio"><span><Localized en="Yihan Meng · AI Research & Engineering" zh="蒙一涵 · AI 算法研发"/></span><span>1 / 2</span></div>
@@ -81,9 +85,7 @@ export default function CV(){
     </section>
 
     <section className="resume-section resume-collaboration"><h2><Localized en="Collaborative research" zh="合作研究"/></h2>
-     <header className="resume-entry-heading"><h3><a href={absoluteURL(papers[2].paper)}>Sparse Attack with Meta-Learning <ArrowUpRight size={11}/></a></h3><div className="resume-entry-meta"><strong>IJCNN 2024</strong><span><Localized en="Third author" zh="第三作者"/></span></div></header>
-     <p className="resume-stack"><Localized en="Meta-learning · Transfer attacks · Projection-based sparsification" zh="元学习 · 迁移攻击 · 投影稀疏化"/></p>
-     <p className="resume-intro"><Localized en="Combined meta-training/testing across sampled models with projection-based sparsification. Simulated black-box tasks reduce gradient discrepancies between models, improving sparse perturbation transfer. Evaluated on two image datasets with ablations of the meta-learning component." zh="结合多模型元训练／元测试与投影稀疏化，在元测试中模拟黑盒任务，缓解模型间的梯度差异，提升稀疏扰动的跨模型迁移能力；通过两组图像数据集实验与消融验证方法有效性。"/></p>
+     <ResearchEntry item={cvCollaboration}/>
     </section>
 
     <div className="resume-folio"><span><Localized en="Yihan Meng · AI Research & Engineering" zh="蒙一涵 · AI 算法研发"/></span><span>2 / 2</span></div>

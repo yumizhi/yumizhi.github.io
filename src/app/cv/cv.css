@@ -70,7 +70,8 @@
  #main-content,.cv-page{margin:0!important;padding:0!important;width:100%!important;max-width:none!important}
  #main-content>div{opacity:1!important;transform:none!important}
  .asu-resume{width:auto!important;max-width:none!important;margin:0!important;padding:0!important;font-size:10.7pt;line-height:1.55;background:white}
- html[data-site-language="en"] .asu-resume{font-size:9.5pt;line-height:1.4}
+ html[data-site-language="en"] .asu-resume{font-size:9.5pt;line-height:1.35}
+ html[data-site-language="en"] .asu-resume .resume-running-head{margin-bottom:8pt}
  .asu-resume .resume-sheet{padding:0;min-height:274mm;display:flex;flex-direction:column}
  .asu-resume .resume-sheet+.resume-sheet{margin:0;break-before:page}
  .asu-resume .resume-header{grid-template-columns:minmax(0,1fr) 40pt;gap:12pt}.asu-resume .resume-header>img{width:40pt;height:48pt}

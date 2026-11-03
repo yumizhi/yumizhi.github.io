@@ -1,5 +1,6 @@
 /* Scientific comparisons are composed around one readable example, with an intrinsic height. */
 .research-image{display:block;width:100%;overflow:hidden;border-radius:16px;background:var(--figure-surface);isolation:isolate;}
+.research-image>img{display:block;width:100%;height:auto;}
 .venue-name{color:var(--nju);}.paper-links{flex-wrap:wrap;align-items:center;color:var(--nju);}
 
 /* Project introduction and product workspace. */

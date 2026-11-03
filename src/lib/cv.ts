@@ -2,7 +2,8 @@ import {papers, projects} from './content';
 
 export type CVText = {en:string; zh:string};
 export type CVBullet = {label:CVText; text:CVText};
-export const cvResearch = [
+export type CVResearchEntry = {paper:typeof papers[number]; keywords:CVText; topic:CVText; role:CVText; intro:CVText; bullets:CVBullet[]; result?:CVText};
+export const cvResearch:CVResearchEntry[] = [
  {
   paper:papers[0],
   keywords:{zh:'条件嵌入优化 · 子空间投影 · 自适应引导 · DDIM 反演',en:'Condition embedding optimization · Subspace projection · Adaptive guidance · DDIM inversion'},
@@ -28,6 +29,19 @@ export const cvResearch = [
   result:{zh:'CIFAR-10 定向攻击、ε = 255 下，攻击成功率 100%；平均修改量 ℓ₀ 从 GreedyFool 的 48.99 降至 14.88，减少 69.6%。',en:'On targeted CIFAR-10 at ε = 255, achieved 100% success with mean ℓ₀ of 14.88 versus GreedyFool’s 48.99—a 69.6% reduction.'},
  },
 ];
+
+export const cvCollaboration:CVResearchEntry = {
+ paper:{...papers[2],shortTitle:'SAM'},
+ topic:{zh:'面向跨模型迁移的稀疏扰动优化',en:'Sparse perturbation optimization for cross-model transfer'},
+ role:{zh:'第三作者',en:'Third author'},
+ keywords:{zh:'跨模型元学习 · 集成梯度 · ℓ₀ 投影 · 黑盒迁移',en:'Cross-model meta-learning · Ensemble gradients · ℓ₀ projection · Black-box transfer'},
+ intro:{zh:'针对稀疏扰动容易过拟合源模型、迁移到未知模型后攻击成功率下降的问题，将跨模型元学习与投影稀疏化结合，提高有限像素预算下的迁移能力。',en:'Combined cross-model meta-learning with projection-based sparsification to reduce source-model overfitting and improve transfer to unseen models under a limited pixel budget.'},
+ bullets:[
+  {label:{zh:'跨模型任务构建',en:'Cross-model tasks'},text:{zh:'从替代模型池随机采样元学习任务，在支持模型上聚合集成梯度进行多步更新，再通过留出模型的元测试反馈优化扰动；反复切换模型组合，减少对单一模型梯度方向的依赖。',en:'Sampled tasks from a surrogate-model pool, aggregated support-model gradients for multi-step updates, then refined perturbations through meta-testing on a held-out model. Repeated task sampling reduces reliance on any single model’s gradient direction.'}},
+  {label:{zh:'约束投影与稀疏化',en:'Constrained projection & sparsification'},text:{zh:'每轮更新后，将全局扰动投影到同时满足像素数量与幅度约束的可行域；按像素对投影误差的改善排序保留前 k 项，在控制修改数量的同时尽量保留跨模型迁移信息。',en:'After each update, projected the global perturbation onto joint pixel-count and magnitude constraints. Ranked pixels by reduction in projection error and retained the top k to preserve transfer information within the sparsity budget.'}},
+ ],
+ result:{zh:'CIFAR-10 非定向攻击、ε = 255、50 像素预算下，六个黑盒模型平均 ASR 为 85.5%，单模型 SA 基线为 68.4%。',en:'On untargeted CIFAR-10 at ε = 255 with a 50-pixel budget, mean ASR across six black-box models reached 85.5%, versus 68.4% for the single-model SA baseline.'},
+};
 
 export const cvIndustry = {
  title:{zh:'变电巡检视觉分析系统关键技术自主化研究与应用',en:'IS-6000/VAS · Visual analysis for substation inspection'},
