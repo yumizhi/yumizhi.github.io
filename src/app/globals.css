@@ -8,12 +8,12 @@
  --font-sans:Inter,Arial,"PingFang SC","Microsoft YaHei",sans-serif;
 }
 :root {
- --background:#fcfbfc;--foreground:#29242d;--card:#ffffff;--card-foreground:#18181b;--popover:#ffffff;--popover-foreground:#18181b;
- --primary:#6a005f;--primary-foreground:#ffffff;--secondary:#f3edf3;--secondary-foreground:#3d293e;--muted:#f4f4f5;--muted-foreground:#716875;--accent:#efe3ed;--accent-foreground:#6a005f;--destructive:#b42318;--border:#e4e4e7;--input:#e4e4e7;--ring:#9c5b92;--radius:.625rem;--nju:#6a005f;
- --surface:#ffffff;--figure-surface:#f3eef3;--radius-media:18px;--radius-stage:26px;--radius-window:14px;--font-display:Manrope,'Noto Sans SC Variable',sans-serif;--ease-out:cubic-bezier(.22,1,.36,1);--duration-feedback:180ms;--duration-reveal:320ms;--duration-layout:360ms;color-scheme:light;
+ --background:#ffffff;--foreground:#242424;--card:#ffffff;--card-foreground:#18181b;--popover:#ffffff;--popover-foreground:#18181b;
+ --primary:#6a005f;--primary-foreground:#ffffff;--secondary:#f2f2f2;--secondary-foreground:#333333;--muted:#f4f4f5;--muted-foreground:#646464;--accent:#efe3ed;--accent-foreground:#6a005f;--destructive:#b42318;--border:#e4e4e7;--input:#e4e4e7;--ring:#9c5b92;--radius:.625rem;--nju:#6a005f;
+ --surface:#ffffff;--figure-surface:#f5f5f5;--radius-media:18px;--radius-stage:26px;--radius-window:14px;--font-display:Manrope,'Noto Sans SC Variable',sans-serif;--ease-out:cubic-bezier(.22,1,.36,1);--duration-feedback:180ms;--duration-reveal:320ms;--duration-layout:360ms;color-scheme:light;
 }
 .dark {
- --background:#110e14;--foreground:#f3eff4;--card:#18181b;--card-foreground:#fafafa;--popover:#18181b;--popover-foreground:#fafafa;
+ --background:#121212;--foreground:#f3f3f3;--card:#18181b;--card-foreground:#fafafa;--popover:#18181b;--popover-foreground:#fafafa;
  --primary:#e2b2da;--primary-foreground:#2d1029;--secondary:#27272a;--secondary-foreground:#fafafa;--muted:#18181b;--muted-foreground:#a1a1aa;--accent:#352337;--accent-foreground:#eccbe7;--destructive:#ff948b;--border:#27272a;--input:#3f3f46;--ring:#a1a1aa;--surface:#18181b;--figure-surface:#f5f5f5;--nju:#df9cd5;color-scheme:dark;
 }
 @layer base {

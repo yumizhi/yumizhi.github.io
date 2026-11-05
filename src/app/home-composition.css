@@ -23,6 +23,6 @@ html[data-site-language=zh] .profile h1{font-size:49px;letter-spacing:.035em}
   color: var(--background);
 }
 .home-research .paper-links a:first-child:hover {
-  background: var(--nju);
+  background: color-mix(in srgb, var(--foreground) 84%, var(--background));
   text-decoration: none;
 }
