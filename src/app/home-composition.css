@@ -15,3 +15,14 @@ html[data-site-language=zh] .profile h1{font-size:49px;letter-spacing:.035em}
 @media(max-width:800px){.profile{padding:42px 0 54px}.profile-grid{grid-template-columns:minmax(0,1fr) 120px;gap:34px}.profile h1{font-size:46px}.profile-avatar{width:120px;height:120px;border-radius:18px}.profile-intro,.profile-focus{font-size:15px}.other-paper{grid-template-columns:100px minmax(0,1fr) 17px;gap:20px}.other-paper h3{font-size:16px}html[data-site-language=zh] .profile h1{font-size:42px}}
 @media(max-width:620px){.profile{padding:28px 0 43px}.profile-grid{grid-template-columns:minmax(0,1fr) 76px;gap:18px 16px}.profile h1{grid-column:1;grid-row:1;font-size:38px;align-self:center;margin:0}.profile-avatar{grid-column:2;grid-row:1;width:76px;height:76px;border-radius:14px}.profile-intro{grid-column:1 / -1;font-size:15px;margin-top:0}.profile-focus{grid-column:1 / -1;font-size:14px;margin-top:-10px;line-height:1.8}.profile-links{grid-column:1 / -1;gap:22px;margin-top:0}.other-research{margin-top:24px}.other-paper{grid-template-columns:minmax(0,1fr) 17px;gap:7px 14px;padding:12px 0}.other-paper .paper-meta{grid-column:1 / -1}.other-paper h3{font-size:16px}html[data-site-language=zh] .profile h1{font-size:36px}}
 @media(prefers-reduced-motion:reduce){.other-paper>svg{transition:none}}
+
+.home-research .paper-links a:first-child {
+  padding: 5px 13px;
+  border-radius: 999px;
+  background: var(--foreground);
+  color: var(--background);
+}
+.home-research .paper-links a:first-child:hover {
+  background: var(--nju);
+  text-decoration: none;
+}
