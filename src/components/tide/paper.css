@@ -43,7 +43,7 @@
 .tide-byline sup, .tide-affiliations sup { font-size: .65em; padding-inline: 2px; }
 .tide-affiliations { max-width: 810px; gap: 2px 14px; margin: 9px auto 0; color: var(--paper-caption); font-size: 12px; line-height: 1.65; }
 .tide-corresponding { margin-top: 6px; color: var(--paper-caption); font-size: 11px; }
-.tide-paper-actions { display: flex; gap: 9px; justify-content: center; margin-top: 21px; }
+.tide-paper-actions { display: flex; flex-wrap: wrap; gap: 9px; justify-content: center; margin-top: 21px; }
 .tide-paper-actions a { border-radius: 999px; font-size: 13px; padding-inline: 17px; background: var(--muted); color: var(--paper-ink); }
 .tide-paper-actions a:first-child { background: var(--paper-ink); color: var(--background); }
 .tide-paper-actions a:hover { background: color-mix(in srgb, var(--muted) 88%, var(--paper-ink)); color: var(--paper-ink); }
@@ -173,3 +173,8 @@
   .tide-scene-picker img { width: 100%; height: auto; }
   .tide-table-wrap th, .tide-table-wrap td { padding: 7px 5px; font-size: 12px; }
 }
+.sparse-figure { max-width: 800px; }
+.sparse-results { max-width: 720px; margin-inline: auto; }
+.sparse-results .tide-variant-list { background: var(--paper-gray); margin: 0 0 18px; }
+.sparse-results .tide-table-wrap thead tr:first-child th:not(:first-child) { text-align: right; }
+.sparse-results .tide-table-wrap thead th:first-child { text-align: left; }

@@ -1,13 +1,9 @@
-import { ArrowLeft, Download, FileText } from 'lucide-react';
 import type { Paper } from '@/lib/content';
 import { asset } from '@/lib/paths';
-import { CopyButton } from '../disclosure';
 import { Localized } from '../language';
-import { TransitionLink } from '../providers';
-import { Button } from '../ui/button';
+import { PaperArticle } from '../paper-article';
 import { TideComparison } from './comparison';
-import { PaperNav, PipelineInset } from './paper-controls';
-import './paper.css';
+import { PipelineInset } from './paper-controls';
 
 const authorNotes = ['1,2', '1,3', '4', '1,2', '1,2,*'];
 const affiliations = [
@@ -26,31 +22,9 @@ const verification = [
 
 export function TidePaper({paper}:{paper:Paper}){
   const [methodTitle, modelScope] = paper.title.split(' for ');
-  return <article className="tide-paper">
-    <header className="tide-masthead">
-      <p className="tide-venue">{paper.venue} {paper.year}</p>
-      <h1 lang="en">{methodTitle} <span className="tide-title-scope">for {modelScope}</span></h1>
-      <ul className="tide-byline" aria-label="Authors" lang="en">
-        {paper.authors.map((author,i)=><li key={author}>{author}<sup>{authorNotes[i]}</sup></li>)}
-      </ul>
-      <ol className="tide-affiliations" aria-label="Affiliations" lang="en">
-        {affiliations.map((name,i)=><li key={name}><sup>{i+1}</sup>{name}</li>)}
-      </ol>
-      <p className="tide-corresponding"><Localized en="* Corresponding author" zh="* 通讯作者"/></p>
-      <div className="tide-paper-actions">
-        <Button asChild><a target="_blank" rel="noreferrer" href={asset(paper.paper)}>
-          <FileText size={15}/><Localized en="Paper" zh="论文"/>
-        </a></Button>
-        <Button variant="secondary" asChild><a download href={asset(paper.paper)}>
-          <Download size={15}/><Localized en="Download PDF" zh="下载 PDF"/>
-        </a></Button>
-      </div>
-    </header>
-    <PaperNav/>
-    <section id="abstract" className="tide-abstract tide-bound">
-      <h2><Localized en="Abstract" zh="摘要"/></h2>
-      <div lang="en">{paper.abstract.split(/ (?=We propose TIDE,|Verification uses )/).map(paragraph=><p key={paragraph}>{paragraph}</p>)}</div>
-    </section>
+  return <PaperArticle paper={paper} authorNotes={authorNotes} affiliations={affiliations}
+    abstractBreaks={/ (?=We propose TIDE,|Verification uses )/}
+    title={<>{methodTitle} <span className="tide-title-scope">for {modelScope}</span></>}>
     <section id="method" className="tide-method-band">
       <div className="tide-bound">
         <header className="tide-chapter-head">
@@ -96,15 +70,5 @@ export function TidePaper({paper}:{paper:Paper}){
         </div>
       </div>
     </section>
-    <section className="tide-citation" id="citation">
-      <div className="tide-reading">
-        <div className="tide-bib-heading"><h2>BibTeX</h2><CopyButton text={paper.bibtex}/></div>
-        <pre className="bibtex"><code>{paper.bibtex}</code></pre>
-      </div>
-    </section>
-    <footer className="tide-paper-footer">
-      <TransitionLink href="/research/"><ArrowLeft size={15}/><Localized en="All publications" zh="全部论文"/></TransitionLink>
-      <TransitionLink href="/research/sasbo/">SASBO <span aria-hidden="true">→</span></TransitionLink>
-    </footer>
-  </article>;
+  </PaperArticle>;
 }
