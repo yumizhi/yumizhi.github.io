@@ -19,6 +19,7 @@ export function PaperArticle({paper,title,authorNotes,affiliations,abstractBreak
   const related=papers[nextIndex];
   return <article className="tide-paper">
     <header className="tide-masthead">
+      <TransitionLink className="paper-back" href="/research/"><ArrowLeft size={14}/><Localized en="Research" zh="研究"/></TransitionLink>
       <p className="tide-venue">{paper.venue} {paper.year}{paper.slug==='sasbo'&&' · Oral'}</p>
       <h1 lang="en">{title ?? paper.title}</h1>
       <ul className="tide-byline" aria-label="Authors" lang="en">
@@ -38,7 +39,8 @@ export function PaperArticle({paper,title,authorNotes,affiliations,abstractBreak
         {paper.publisher&&<Button variant="secondary" asChild><a href={paper.publisher} target="_blank" rel="noreferrer"><Localized en="Publisher" zh="出版页面"/><ArrowUpRight size={14}/></a></Button>}
       </div>
     </header>
-    <PaperNav/>
+    <aside className="tide-navigation"><PaperNav/></aside>
+    <div className="tide-document">
     <section id="abstract" className="tide-abstract tide-bound">
       <h2><Localized en="Abstract" zh="摘要"/></h2>
       <div lang="en">{paper.abstract.split(abstractBreaks).map(paragraph=><p key={paragraph}>{paragraph}</p>)}</div>
@@ -54,5 +56,6 @@ export function PaperArticle({paper,title,authorNotes,affiliations,abstractBreak
       <TransitionLink href="/research/"><ArrowLeft size={15}/><Localized en="All publications" zh="全部论文"/></TransitionLink>
       <TransitionLink href={'/research/'+related.slug+'/'}>{related.shortTitle} <span aria-hidden="true">→</span></TransitionLink>
     </footer>
+    </div>
   </article>;
 }

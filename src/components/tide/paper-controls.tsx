@@ -21,7 +21,7 @@ export function PaperNav(){
     const targets = sections.map(({id})=>document.getElementById(id));
     let frame = 0;
     function readPosition(){
-      const top = (nav.current?.getBoundingClientRect().bottom ?? 0) + 42;
+      const top = window.matchMedia('(min-width: 1280px)').matches ? 72 : (nav.current?.getBoundingClientRect().bottom ?? 0) + 28;
       const reached = targets.filter(el=>el && el.getBoundingClientRect().top <= top).pop();
       const atEnd = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
       setCurrent(atEnd ? 'citation' : reached?.id ?? 'abstract');
@@ -38,6 +38,7 @@ export function PaperNav(){
     };
   },[]);
   return <LayoutGroup><nav ref={nav} className="tide-paper-nav" aria-label="Paper sections">
+    <p className="paper-nav-label"><Localized en="On this page" zh="本文内容"/></p>
     {sections.map(s=><a href={'#'+s.id} key={s.id} aria-current={s.id===current?'location':undefined}>
       {s.id===current&&<motion.i layoutId="paper-position" transition={{duration:reduced?0:.22}}/>}
       <span><Localized en={s.en} zh={s.zh}/></span>

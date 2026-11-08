@@ -1,0 +1,25 @@
+/* Wide screens keep navigation beside the document; smaller screens use the header. */
+.home-link-label { display: none; }
+.nav-link { transition: color 160ms ease; }
+.header-actions button { transition: color 160ms ease, background-color 160ms ease; }
+@media screen and (min-width: 1280px) {
+  html { scroll-padding-top: 36px; }
+  body { --navigation-width: 192px; padding-left: var(--navigation-width); }
+  .site-header { position: fixed; inset: 0 auto 0 0; width: var(--navigation-width); background: var(--background); }
+  .header-glass { display: none; }
+  .header-inner { width: auto; height: 100dvh; margin: 0; padding: 32px 20px; flex-direction: column; align-items: stretch; gap: 30px; }
+  .home-link { display: flex; gap: 12px; align-items: center; justify-content: flex-start; width: auto; margin: 0; padding: 6px 12px; }
+  .home-link-label { display: inline; font-size: 13px; font-weight: 550; }
+  .desktop-nav { display: flex; flex-direction: column; align-items: stretch; gap: 5px; }
+  .nav-link { font-size: 13px; padding: 12px; }
+  .nav-link:hover, .nav-link[data-selected] { color: var(--foreground); }
+  .nav-active { inset: 0; border-radius: 8px; }
+  .header-actions { margin-top: auto; justify-content: space-between; }
+  .shell { width: min(1000px, calc(100% - 96px)); }
+  .reading-progress { top: 0; left: var(--navigation-width); }
+  .article-toc { top: 36px; }
+  .profile { padding-top: 54px; }
+}
+@media print {
+  body { padding-left: 0; }
+}
