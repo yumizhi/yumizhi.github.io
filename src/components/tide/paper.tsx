@@ -4,6 +4,7 @@ import { Localized } from '../language';
 import { PaperArticle } from '../paper-article';
 import { TideComparison } from './comparison';
 import { PipelineInset } from './paper-controls';
+import { GuidanceComparison } from './guidance-comparison';
 
 const authorNotes = ['1,2', '1,3', '4', '1,2', '1,2,*'];
 const affiliations = [
@@ -34,6 +35,7 @@ export function TidePaper({paper}:{paper:Paper}){
         <p className="tide-prose"><Localized
           en={<>Once a watermark enters the latent, the remaining denoising steps can weaken it. Strengthening it indiscriminately can also pull the image away from the prompt. TIDE learns a watermark and an auxiliary condition together, then uses <strong>the recent direction of text guidance</strong> to decide how much of the watermark update to keep at each step.</>}
           zh={<>水印写入潜变量之后，还要经过多步去噪。这个过程可能削弱水印，而一味加大水印引导，又可能改变提示词原本要生成的内容。TIDE 联合学习水印和辅助条件，再根据<strong>最近几步的文本引导方向</strong>，决定每一步保留哪些水印更新分量。</>}/></p>
+        <GuidanceComparison/>
         <figure className="tide-overview">
           <a href={asset('/images/tide-paper/overview.webp')} target="_blank" rel="noreferrer">
             <img loading="lazy" width="1800" height="1383" src={asset('/images/tide-paper/overview.webp')}
