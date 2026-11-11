@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Check, Copy } from 'lucide-react';
+import { Localized } from '@/components/language';
 
 export function CopyButton({ text, label = 'Copy BibTeX' }: { text: string; label?: string }) {
   const [copied, setCopied] = useState(false);
@@ -13,7 +14,7 @@ export function CopyButton({ text, label = 'Copy BibTeX' }: { text: string; labe
   return (
     <button type="button" className="pill copy-button" onClick={copy}>
       {copied ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
-      {copied ? 'Copied' : label}
+      {copied ? <Localized en="Copied" zh="已复制" /> : label === 'Copy BibTeX' ? <Localized en="Copy BibTeX" zh="复制 BibTeX" /> : label}
     </button>
   );
 }

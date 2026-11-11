@@ -161,6 +161,7 @@ test('language switch translates the page and persists', async ({ page }) => {
   await page.getByRole('button', { name: 'Switch to Chinese' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-site-language', 'zh');
   await expect(page.getByRole('heading', { name: '实验结果' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '复制 BibTeX' })).toBeVisible();
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('蒙一涵');
   await page.getByRole('button', { name: 'Switch to English' }).click();
@@ -256,20 +257,22 @@ test('old links and the static 404 resolve', async ({ page }) => {
   await expect(page.getByText('This address has no page.')).toBeVisible();
 });
 
-test('layout shift on the homepage stays low', async ({ page }) => {
-  await page.addInitScript(() => {
-    const metrics = { cls: 0 };
-    (window as unknown as { labMetrics: typeof metrics }).labMetrics = metrics;
-    new PerformanceObserver(list => {
-      for (const entry of list.getEntries()) {
-        if (!(entry as PerformanceEntry & { hadRecentInput?: boolean }).hadRecentInput) metrics.cls += (entry as PerformanceEntry & { value: number }).value;
-      }
-    }).observe({ type: 'layout-shift', buffered: true });
+for (const viewport of sizes) {
+  test(`layout shift on the homepage stays low at ${viewport.width}px`, async ({ page }) => {
+    await page.addInitScript(() => {
+      const metrics = { cls: 0 };
+      (window as unknown as { labMetrics: typeof metrics }).labMetrics = metrics;
+      new PerformanceObserver(list => {
+        for (const entry of list.getEntries()) {
+          if (!(entry as PerformanceEntry & { hadRecentInput?: boolean }).hadRecentInput) metrics.cls += (entry as PerformanceEntry & { value: number }).value;
+        }
+      }).observe({ type: 'layout-shift', buffered: true });
+    });
+    await page.setViewportSize(viewport);
+    await page.goto('/');
+    await page.evaluate(() => document.fonts.ready);
+    await page.waitForTimeout(800);
+    const metrics = await page.evaluate(() => (window as unknown as { labMetrics: { cls: number } }).labMetrics);
+    expect(metrics.cls).toBeLessThan(0.1);
   });
-  await page.setViewportSize(sizes[0]);
-  await page.goto('/');
-  await page.evaluate(() => document.fonts.ready);
-  await page.waitForTimeout(800);
-  const metrics = await page.evaluate(() => (window as unknown as { labMetrics: { cls: number } }).labMetrics);
-  expect(metrics.cls).toBeLessThan(0.1);
-});
+}

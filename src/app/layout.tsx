@@ -6,6 +6,7 @@ import '@fontsource-variable/newsreader/wght-italic.css';
 import '@fontsource-variable/noto-serif-sc';
 import '@fontsource-variable/jetbrains-mono';
 import './globals.css';
+import localFont from 'next/font/local';
 import { Providers } from '@/components/providers';
 import { Header } from '@/components/site/header';
 import { Footer } from '@/components/site/footer';
@@ -21,7 +22,14 @@ export const metadata:Metadata={
  twitter:{card:'summary_large_image'},robots:{index:true,follow:true},icons:{icon:asset('/images/nju-seal.svg')},
 };
 export const viewport:Viewport={width:'device-width',initialScale:1,themeColor:[{media:'(prefers-color-scheme: light)',color:'#faf8f4'},{media:'(prefers-color-scheme: dark)',color:'#141316'}]};
+// The Latin faces go through next/font so they are preloaded and get a metric-matched fallback;
+// the @fontsource imports above still supply the other scripts through unicode-range.
+const inter=localFont({src:'../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2',weight:'100 900',variable:'--font-inter',display:'swap',adjustFontFallback:'Arial'});
+const newsreader=localFont({src:[
+ {path:'../../node_modules/@fontsource-variable/newsreader/files/newsreader-latin-wght-normal.woff2',weight:'200 800',style:'normal'},
+ {path:'../../node_modules/@fontsource-variable/newsreader/files/newsreader-latin-wght-italic.woff2',weight:'200 800',style:'italic'},
+],variable:'--font-newsreader',display:'swap',adjustFontFallback:'Times New Roman'});
 export default function RootLayout({children}:{children:React.ReactNode}){
  const index=[...coreSearch,...getWritingEntries().map(p=>({title:p.title,kind:'Writing',href:p.href,external:p.external,keywords:`${p.category} ${p.description}`}))];
- return <html lang="en" data-site-language="en" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{__html:"(function(){var l=localStorage.getItem('homepage-language')==='zh'?'zh':'en';document.documentElement.lang=l;document.documentElement.dataset.siteLanguage=l;})();"}}/></head><body><Providers><a className="skip-link" href="#main-content">Skip to content</a><Header index={index}/><main id="main-content" tabIndex={-1}>{children}</main><Footer/></Providers><Script id="analytics" strategy="afterInteractive">{`if(location.hostname==='yumizhi.github.io'){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${site.analytics}');var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=${site.analytics}';document.head.appendChild(s);}`}</Script><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify({'@context':'https://schema.org','@type':'Person',name:site.name,alternateName:site.chineseName,url:site.url,jobTitle:'Ph.D. Candidate',affiliation:{'@type':'CollegeOrUniversity',name:'Nanjing University'},sameAs:[site.github,site.scholar]})}}/></body></html>;
+ return <html lang="en" data-site-language="en" className={`${inter.variable} ${newsreader.variable}`} suppressHydrationWarning><head><script dangerouslySetInnerHTML={{__html:"(function(){var l=localStorage.getItem('homepage-language')==='zh'?'zh':'en';document.documentElement.lang=l;document.documentElement.dataset.siteLanguage=l;})();"}}/></head><body><Providers><a className="skip-link" href="#main-content">Skip to content</a><Header index={index}/><main id="main-content" tabIndex={-1}>{children}</main><Footer/></Providers><Script id="analytics" strategy="afterInteractive">{`if(location.hostname==='yumizhi.github.io'){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${site.analytics}');var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=${site.analytics}';document.head.appendChild(s);}`}</Script><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify({'@context':'https://schema.org','@type':'Person',name:site.name,alternateName:site.chineseName,url:site.url,jobTitle:'Ph.D. Candidate',affiliation:{'@type':'CollegeOrUniversity',name:'Nanjing University'},sameAs:[site.github,site.scholar]})}}/></body></html>;
 }

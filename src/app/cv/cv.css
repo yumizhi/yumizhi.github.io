@@ -3,7 +3,7 @@
 .cv-page{max-width:1010px}
 .cv-page-toolbar{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:36px 0 28px}
 .cv-page-toolbar>p{font-size:13px;color:var(--muted-foreground)}
-.asu-resume{width:100%;max-width:900px;margin:auto;padding:0;background:transparent;color:#28242b;font:14px/1.65 Arial,'PingFang SC','Microsoft YaHei',sans-serif;--resume-accent:#6a005f}
+.asu-resume{width:100%;max-width:900px;margin:auto;padding:0;background:transparent;color:#28242b;font:14px/1.65 Arial,'PingFang SC','Microsoft YaHei','Noto Sans SC Variable',sans-serif;--resume-accent:#6a005f}
 .asu-resume *{box-sizing:border-box}
 .asu-resume h1,.asu-resume h2,.asu-resume h3,.asu-resume p,.asu-resume ul{margin:0;letter-spacing:normal;text-wrap:initial}
 .asu-resume a{color:inherit;text-decoration:none}

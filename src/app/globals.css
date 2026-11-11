@@ -40,6 +40,24 @@
  * Paper and ink. One brand hue (Nanjing University violet) for identity and
  * links; each paper adds a signature hue used only inside its own figures.
  */
+/* next/font matches Arial and Times New Roman; these repeat its metrics for the Liberation fonts on Linux. */
+@font-face {
+  font-family: 'Inter Fallback Liberation';
+  src: local('Liberation Sans'), local('Arimo');
+  ascent-override: 89.79%;
+  descent-override: 22.36%;
+  line-gap-override: 0%;
+  size-adjust: 107.89%;
+}
+@font-face {
+  font-family: 'Newsreader Fallback Liberation';
+  src: local('Liberation Serif'), local('Tinos');
+  ascent-override: 70.13%;
+  descent-override: 25.29%;
+  line-gap-override: 0%;
+  size-adjust: 104.8%;
+}
+
 :root {
   --paper: #faf8f4;
   --paper-raised: #ffffff;
@@ -84,9 +102,9 @@
   --ring: var(--violet);
   --radius: 0.625rem;
 
-  --font-text: 'Inter Variable', 'Noto Sans SC Variable', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
-  --font-display: 'Newsreader Variable', 'Noto Serif SC Variable', 'Songti SC', Georgia, serif;
-  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', Menlo, 'Noto Sans SC Variable', 'PingFang SC', 'Microsoft YaHei', monospace;
+  --font-text: var(--font-inter), 'Inter Fallback Liberation', 'Inter Variable', 'Noto Sans SC Variable', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-display: var(--font-newsreader), 'Newsreader Fallback Liberation', 'Newsreader Variable', 'Noto Serif SC Variable', 'Songti SC', Georgia, serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', 'Noto Sans SC Variable', 'PingFang SC', 'Microsoft YaHei', monospace;
 
   --shell: 1200px;
   --gutter: 56px;
