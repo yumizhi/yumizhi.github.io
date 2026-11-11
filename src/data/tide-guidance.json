@@ -1,0 +1,137 @@
+[
+ {
+  "step": 35,
+  "conflict": 0.0658,
+  "curvature": 0,
+  "ratio": 0.0028,
+  "eta": 0.9342,
+  "text": 3.9969,
+  "watermark": 3.5031
+ },
+ {
+  "step": 36,
+  "conflict": 0.1359,
+  "curvature": 0.0342,
+  "ratio": 0.0028,
+  "eta": 0.807,
+  "text": 4.4736,
+  "watermark": 3.0264
+ },
+ {
+  "step": 37,
+  "conflict": 0.1147,
+  "curvature": 0.0265,
+  "ratio": 0.0028,
+  "eta": 0.8395,
+  "text": 4.3518,
+  "watermark": 3.1482
+ },
+ {
+  "step": 38,
+  "conflict": 0.1105,
+  "curvature": 0.0264,
+  "ratio": 0.0029,
+  "eta": 0.8438,
+  "text": 4.3359,
+  "watermark": 3.1641
+ },
+ {
+  "step": 39,
+  "conflict": 0.1255,
+  "curvature": 0.0315,
+  "ratio": 0.003,
+  "eta": 0.8211,
+  "text": 4.4207,
+  "watermark": 3.0793
+ },
+ {
+  "step": 40,
+  "conflict": 0.0976,
+  "curvature": 0.0339,
+  "ratio": 0.003,
+  "eta": 0.8433,
+  "text": 4.3378,
+  "watermark": 3.1622
+ },
+ {
+  "step": 41,
+  "conflict": 0.1836,
+  "curvature": 0.0261,
+  "ratio": 0.0029,
+  "eta": 0.7748,
+  "text": 4.5943,
+  "watermark": 2.9057
+ },
+ {
+  "step": 42,
+  "conflict": 0.1635,
+  "curvature": 0.0226,
+  "ratio": 0.0029,
+  "eta": 0.7995,
+  "text": 4.5017,
+  "watermark": 2.9983
+ },
+ {
+  "step": 43,
+  "conflict": 0.1442,
+  "curvature": 0.0198,
+  "ratio": 0.003,
+  "eta": 0.8225,
+  "text": 4.4155,
+  "watermark": 3.0845
+ },
+ {
+  "step": 44,
+  "conflict": 0.1287,
+  "curvature": 0.0187,
+  "ratio": 0.0031,
+  "eta": 0.8393,
+  "text": 4.3525,
+  "watermark": 3.1475
+ },
+ {
+  "step": 45,
+  "conflict": 0.1253,
+  "curvature": 0.0206,
+  "ratio": 0.0032,
+  "eta": 0.8393,
+  "text": 4.3526,
+  "watermark": 3.1474
+ },
+ {
+  "step": 46,
+  "conflict": 0.1017,
+  "curvature": 0.0254,
+  "ratio": 0.0034,
+  "eta": 0.8539,
+  "text": 4.2979,
+  "watermark": 3.2021
+ },
+ {
+  "step": 47,
+  "conflict": 0.1414,
+  "curvature": 0.0347,
+  "ratio": 0.0038,
+  "eta": 0.801,
+  "text": 4.4962,
+  "watermark": 3.0038
+ },
+ {
+  "step": 48,
+  "conflict": 0.1498,
+  "curvature": 0.0386,
+  "ratio": 0.0039,
+  "eta": 0.7871,
+  "text": 4.5483,
+  "watermark": 2.9517
+ },
+ {
+  "step": 49,
+  "conflict": 0.0875,
+  "curvature": 0.0772,
+  "ratio": 0.0041,
+  "eta": 0.782,
+  "text": 4.5677,
+  "watermark": 2.9323
+ }
+]

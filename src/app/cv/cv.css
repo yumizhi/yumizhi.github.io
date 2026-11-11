@@ -57,7 +57,7 @@
 .asu-resume .resume-award-list li{display:inline-flex;align-items:baseline;gap:6px}
 .asu-resume .resume-award-list time{color:#706573}
 .asu-resume .resume-award-list li:first-child>span{font-weight:600}
-.asu-resume .resume-folio{display:flex;justify-content:space-between;margin-top:28px;font-size:10px;color:#867c89}
+.asu-resume .resume-folio{display:flex;justify-content:space-between;margin-top:28px;font-size:10px;color:#6f6672}
 @media(max-width:620px){
  .cv-page-toolbar{flex-wrap:wrap;padding:25px 0;gap:12px}
  .asu-resume .resume-award-list{font-size:12px;gap:4px 18px}
