@@ -49,7 +49,7 @@ Reference access did not support reliable third-party hover measurement. The fol
 - Abstract height animates between zero and measured content height. It supports interruption.
 - Theme colors transition for 220ms. Reduced motion removes translation/scale and uses immediate feedback; content remains available.
 
-See `tokens.md`, `../qa/README.md`, and `../qa/animations/` for final parameters and evidence.
+See `direction.md`, `../qa/README.md`, and `../qa/animations/` for final parameters and evidence.
 
 ## UI elements and engineering grounding
 

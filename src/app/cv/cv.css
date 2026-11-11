@@ -3,7 +3,7 @@
 .cv-page{max-width:1010px}
 .cv-page-toolbar{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:36px 0 28px}
 .cv-page-toolbar>p{font-size:13px;color:var(--muted-foreground)}
-.asu-resume{width:100%;max-width:900px;margin:auto;padding:0;background:transparent;color:#28242b;font:14px/1.65 Arial,'PingFang SC','Microsoft YaHei',sans-serif;--resume-accent:#6a005f}
+.asu-resume{width:100%;max-width:900px;margin:auto;padding:0;background:transparent;color:#28242b;font:14px/1.65 Arial,'PingFang SC','Microsoft YaHei','Noto Sans SC Variable',sans-serif;--resume-accent:#6a005f}
 .asu-resume *{box-sizing:border-box}
 .asu-resume h1,.asu-resume h2,.asu-resume h3,.asu-resume p,.asu-resume ul{margin:0;letter-spacing:normal;text-wrap:initial}
 .asu-resume a{color:inherit;text-decoration:none}
@@ -57,7 +57,7 @@
 .asu-resume .resume-award-list li{display:inline-flex;align-items:baseline;gap:6px}
 .asu-resume .resume-award-list time{color:#706573}
 .asu-resume .resume-award-list li:first-child>span{font-weight:600}
-.asu-resume .resume-folio{display:flex;justify-content:space-between;margin-top:28px;font-size:10px;color:#867c89}
+.asu-resume .resume-folio{display:flex;justify-content:space-between;margin-top:28px;font-size:10px;color:#6f6672}
 @media(max-width:620px){
  .cv-page-toolbar{flex-wrap:wrap;padding:25px 0;gap:12px}
  .asu-resume .resume-award-list{font-size:12px;gap:4px 18px}

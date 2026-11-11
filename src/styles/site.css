@@ -1,0 +1,227 @@
+/* Shell, header, footer and the small primitives every page shares. */
+
+.shell {
+  width: min(var(--shell), 100% - 2 * var(--gutter));
+  margin-inline: auto;
+}
+
+/* Small-caps mono label: section kickers, figure numbers, data captions. */
+.label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+html[data-site-language="zh"] .label { letter-spacing: 0.12em; }
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+}
+html[data-site-language="zh"] .display { letter-spacing: 0; line-height: 1.25; font-weight: 500; }
+
+/* Text link: a hairline that thickens into the brand hue. */
+.link {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--rule-strong);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  transition: text-decoration-color var(--fast), color var(--fast);
+}
+.link:hover { color: var(--violet); text-decoration-color: currentColor; }
+
+.arrow-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.arrow-link svg { transition: transform var(--fast) var(--ease-out); }
+.arrow-link:hover { color: var(--violet); }
+.arrow-link:hover svg { transform: translate(2px, -2px); }
+.arrow-link[data-direction="right"]:hover svg { transform: translateX(3px); }
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 16px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background-color var(--fast), border-color var(--fast), color var(--fast);
+}
+.pill:hover { border-color: var(--ink); }
+.pill[data-variant="solid"] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.pill[data-variant="solid"]:hover { background: var(--violet); border-color: var(--violet); }
+.dark .pill[data-variant="solid"]:hover { color: var(--paper); }
+
+/* ---------- Header ---------- */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  height: var(--header-height);
+  background: color-mix(in srgb, var(--paper) 82%, transparent);
+  backdrop-filter: saturate(1.6) blur(18px);
+  -webkit-backdrop-filter: saturate(1.6) blur(18px);
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--medium), background-color var(--medium);
+}
+.site-header[data-scrolled="true"] { border-bottom-color: var(--rule); }
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  height: 100%;
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-right: auto;
+  font-family: var(--font-display);
+  font-size: 19px;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+.wordmark-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 2px solid var(--violet);
+  align-self: center;
+}
+
+.desktop-nav { display: flex; gap: 4px; }
+.nav-link {
+  position: relative;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  color: var(--ink-2);
+  transition: color var(--fast), background-color var(--fast);
+}
+.nav-link:hover { color: var(--ink); background: var(--paper-sunk); }
+.nav-link[aria-current="page"] { color: var(--ink); }
+.nav-link[aria-current="page"]::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 2px;
+  height: 1.5px;
+  background: var(--violet);
+}
+
+.header-actions { display: flex; align-items: center; gap: 2px; }
+.icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink-2);
+  transition: color var(--fast), background-color var(--fast);
+}
+.icon-button:hover { color: var(--ink); background: var(--paper-sunk); }
+.language-switch { width: auto; padding: 0 10px; font-size: 12.5px; font-weight: 500; }
+.mobile-menu { display: none; }
+
+.sheet-nav { display: grid; margin-top: 12px; padding: 0 16px; }
+.sheet-nav a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--font-display);
+  font-size: 24px;
+}
+.sheet-nav a[aria-current="page"] { color: var(--violet); }
+
+@media (max-width: 760px) {
+  .desktop-nav { display: none; }
+  .mobile-menu { display: inline-grid; }
+  .header-inner { gap: 8px; }
+}
+
+/* ---------- Footer ---------- */
+
+.site-footer {
+  margin-top: 120px;
+  padding: 40px 0 48px;
+  border-top: 1px solid var(--rule);
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) repeat(2, minmax(0, 1fr));
+  gap: 32px;
+}
+.footer-note {
+  max-width: 36ch;
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 1.35;
+}
+.footer-column h2 { margin-bottom: 12px; }
+.footer-column ul { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; font-size: 14px; }
+.footer-column a:hover { color: var(--violet); }
+.footer-legal {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 48px;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+@media (max-width: 700px) {
+  .site-footer { margin-top: 80px; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .footer-note { grid-column: 1 / -1; }
+  .footer-legal { flex-direction: column; }
+}
+
+/* ---------- Page heading shared by the index pages ---------- */
+
+.page-heading { padding: 72px 0 40px; }
+.page-heading h1 { margin-top: 14px; font-size: clamp(40px, 6vw, 68px); }
+.page-heading > p:not(.label) {
+  max-width: 58ch;
+  margin-top: 20px;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+@media (max-width: 560px) {
+  .page-heading { padding: 44px 0 28px; }
+  .page-heading > p:not(.label) { font-size: 16px; }
+}
+
+.section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 14px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--rule);
+}
+.section-heading h2 { font-size: clamp(26px, 3vw, 34px); }

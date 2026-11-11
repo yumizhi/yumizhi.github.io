@@ -1,37 +1,47 @@
 'use client';
 
-import {useState} from 'react';
-import {motion, AnimatePresence} from 'motion/react';
-import {ArrowUpRight} from 'lucide-react';
-import {FilterTabs} from './filter-tabs';
-import {TransitionLink} from './providers';
-import {Localized} from './language';
-import {motionTokens} from '@/lib/motion';
-import type {WritingEntry} from '@/lib/posts';
+import { useState } from 'react';
+import { ArrowUpRight } from 'lucide-react';
+import { FilterTabs } from './filter-tabs';
+import { TransitionLink } from './providers';
+import { Localized } from './language';
+import type { WritingEntry } from '@/lib/posts';
 
-const categoryNames: Record<string,string> = {'All':'全部','Research notes':'研究笔记'};
+const categoryNames: Record<string, string> = { All: '全部', 'Research notes': '研究笔记' };
 
-export function WritingIndex({posts}:{posts:WritingEntry[]}) {
-  const [category,setCategory] = useState('All');
-  const categories = [...new Set(posts.map(p=>p.category))];
-  return <>
-    {categories.length>1&&<FilterTabs value={category} onChange={setCategory} label="Writing categories" className="writing-filters" options={['All',...categories].map(c=>({value:c,label:<Localized en={c} zh={categoryNames[c]??c}/>}))}/>}
-    <motion.div layout className="writing-index">
-      <AnimatePresence initial={false} mode="popLayout">
-        {posts.filter(p=>category==='All'||p.category===category).map(p=>
-          <motion.article layout key={p.slug} className="writing-row" initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} exit={{opacity:0,y:0,transition:{duration:.16}}} transition={{duration:motionTokens.feedback}}>
-            <div>
-              {p.date?<small><time dateTime={p.date}>{p.date}</time></small>:<small>Notion</small>}
-              <span className="post-category"><Localized en={p.category} zh={categoryNames[p.category]??p.category}/></span>
-            </div>
-            <div lang={p.language}>
-              <h2><TransitionLink href={p.href} target={p.external?'_blank':undefined} rel={p.external?'noreferrer':undefined}>{p.title}</TransitionLink></h2>
-              <p>{p.description}</p>
-            </div>
-            <TransitionLink href={p.href} target={p.external?'_blank':undefined} rel={p.external?'noreferrer':undefined} aria-label={`Read ${p.title}`}><ArrowUpRight size={20}/></TransitionLink>
-          </motion.article>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  </>;
+export function WritingIndex({ posts }: { posts: WritingEntry[] }) {
+  const [category, setCategory] = useState('All');
+  const categories = [...new Set(posts.map(post => post.category))];
+  return (
+    <>
+      {categories.length > 1 && (
+        <div className="filter-toolbar">
+          <FilterTabs
+            value={category}
+            onChange={setCategory}
+            label="Writing categories"
+            options={['All', ...categories].map(name => ({ value: name, label: <Localized en={name} zh={categoryNames[name] ?? name} /> }))}
+          />
+        </div>
+      )}
+      <ul className="entry-list writing-index">
+        {posts.filter(post => category === 'All' || post.category === category).map(post => (
+          <li key={post.slug}>
+            <TransitionLink className="entry" href={post.href} target={post.external ? '_blank' : undefined} rel={post.external ? 'noreferrer' : undefined}>
+              <span className="label">
+                {post.date ? <time dateTime={post.date}>{post.date}</time> : 'Notion'}
+                <br />
+                <Localized en={post.category} zh={categoryNames[post.category] ?? post.category} />
+              </span>
+              <span className="entry-body" lang={post.language}>
+                <strong className="display">{post.title}</strong>
+                <span>{post.description}</span>
+              </span>
+              <ArrowUpRight size={18} aria-hidden="true" />
+            </TransitionLink>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
 }
