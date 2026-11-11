@@ -37,8 +37,9 @@ export function MaskLab() {
   const state = useMemo(() => {
     const probability = cells.map(cell => Math.round(sigmoid(cell.start + (cell.drift * progress) / 100) * 1000) / 1000);
     const sampled = probability.map((value, index) => noise(index, 10 + draw) < value);
-    const threshold = [...probability].sort((a, b) => b - a)[k - 1];
-    const kept = probability.map(value => value >= threshold);
+    const ranked = probability.map((value, index) => [value, index]).sort((a, b) => b[0] - a[0] || a[1] - b[1]);
+    const top = new Set(ranked.slice(0, k).map(([, index]) => index));
+    const kept = probability.map((_, index) => top.has(index));
     return {
       probability,
       sampled,
