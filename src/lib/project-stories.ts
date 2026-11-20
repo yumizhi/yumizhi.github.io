@@ -9,6 +9,7 @@ export type ProjectStep = StoryBlock & {
 };
 
 export type ProjectStory = {
+  example: Bilingual;
   designTitle: Bilingual;
   design: StoryBlock[];
   implementationTitle: Bilingual;
@@ -16,10 +17,49 @@ export type ProjectStory = {
   steps?: ProjectStep[];
   workflowTitle?: Bilingual;
   verification: Bilingual;
+  checks: StoryBlock[];
 };
 
 export const projectStories: Record<string, ProjectStory> = {
   'epub-toolkit': {
+    example: {
+      en: 'Take two volumes that both contain chapters/01.xhtml and reference the same font. The collection should have two distinct chapters, one shared font, and enough information to rebuild either volume on its own.',
+      zh: '假设两卷书都包含 chapters/01.xhtml，也都引用内容相同的字体。合集中应该保留两个独立章节、共用一份字体，同时留下足够的信息，让两卷都能独立重建。',
+    },
+    workflowTitle: { en: 'Follow the chapter paths through merge and split', zh: '沿着章节路径查看合并与拆分' },
+    steps: [
+      {
+        id: 'collect',
+        label: { en: 'Input', zh: '原始分卷' },
+        title: { en: 'Read two self-contained books', zh: '读取两卷各自独立的书' },
+        body: { en: 'Each package defines its own resource paths and reading order. The same path in a different archive can point to different content.', zh: '每卷的包文档分别规定资源路径和阅读顺序。两个包里的同名路径可能指向完全不同的内容。' },
+        output: { en: 'Two independent package maps', zh: '两份独立的包结构' },
+      },
+      {
+        id: 'merge',
+        label: { en: 'Merge', zh: '合为一书' },
+        title: { en: 'Separate chapter paths and pool the font', zh: '分开章节路径，让两卷共用字体' },
+        body: { en: 'The engine namespaces chapter paths, maps identical font bytes to a shared destination, and rewrites references before writing the collection.', zh: '引擎按卷区分章节路径，把字节相同的字体映射到同一个位置，再重写引用并保存合集。' },
+        output: { en: 'A new EPUB plus its merge record', zh: '新 EPUB 与合并记录' },
+      },
+      {
+        id: 'restore',
+        label: { en: 'Split', zh: '拆回分卷' },
+        title: { en: 'Follow the mapping back to each volume', zh: '沿着映射还原每一卷' },
+        body: { en: 'The split engine uses the stored mapping to copy the font into each output and point each reconstructed chapter to its local resource path.', zh: '拆分引擎按已保存的映射，把共用字体放回每个输出文件，并让重建的章节重新指向本卷资源。' },
+        output: { en: 'Two independently readable EPUBs', zh: '两本可独立阅读的 EPUB' },
+      },
+    ],
+    checks: [
+      {
+        title: { en: 'A pooled resource still resolves after splitting', zh: '资源合并去重后，拆开仍能正确引用' },
+        body: { en: 'The resource tests merge books with shared binaries and nested CSS references. They read the merged files, split the collection, then resolve the restored references again.', zh: '资源测试用包含共用二进制资源和嵌套 CSS 引用的电子书执行合并，检查合集中的文件，再拆分并重新解析恢复后的引用。' },
+      },
+      {
+        title: { en: 'The archive boundary stays explicit', zh: '遇到超出支持范围的 EPUB 时明确提示' },
+        body: { en: 'Compatibility tests exercise missing resources, fixed-layout books and media overlays. A merge record is required for volume reconstruction.', zh: '兼容性测试包含缺失资源、固定版式和媒体叠加包。重建分卷时，引擎要求合集包含合并记录。' },
+      },
+    ],
     designTitle: { en: 'Let readers check the book before exporting', zh: '先确认阅读顺序，再导出' },
     design: [
       {
@@ -67,6 +107,20 @@ export const projectStories: Record<string, ProjectStory> = {
     },
   },
   originmark: {
+    example: {
+      en: 'Start with the ceramic teapot from the Studio demo. Its generation produces a clean reference and a marked image. In the verification example, the marked file returns a TIDE detection, while credential and issuer information remain separate.',
+      zh: '从演示里的陶瓷茶壶出发。生成环节产出无水印参考图和带水印图。验证这张图时，报告给出 TIDE 水印结果，同时单独报告内容凭证与签发者信息。',
+    },
+    checks: [
+      {
+        title: { en: 'The workflow follows the same artifact', zh: '验证沿着同一份图像产物进行' },
+        body: { en: 'The TrustMark protection check validated the signed file and matched its recovered payload to the registered release. The Studio walkthrough carried the generated artifact through to that check and exported the verification report as PDF.', zh: 'TrustMark 保护验收核对了签名文件，并将恢复的水印载荷与已登记的发布记录匹配。工作台演示沿用前面生成的产物完成检查，并导出验证报告。' },
+      },
+      {
+        title: { en: 'Interrupted computation has its own outcome', zh: '计算中断会留下独立的运行结果' },
+        body: { en: 'Reliability checks interrupted the TIDE runner and observed the current job fail. The worker remained available and the subsequent detection ran successfully.', zh: '可靠性检查主动中断 TIDE 计算进程，当前任务记录为失败，处理进程仍然可用，随后一次检测成功完成。' },
+      },
+    ],
     designTitle: { en: 'Keep the image at the center of the workflow', zh: '以同一张图贯穿生成、保护和验证' },
     design: [
       {
@@ -140,6 +194,20 @@ export const projectStories: Record<string, ProjectStory> = {
     },
   },
   'personal-agent': {
+    example: {
+      en: 'A member asks for a recurring inspection brief for a sample pump. Days later, opening the report has to answer three questions: which plan started the run, which records it used, and where the result was delivered.',
+      zh: '一位成员请助手定期整理演示泵组的巡检简报。隔几天打开报告时，仍要能回答三个问题：哪份计划启动了本次执行、报告用到了哪些资料、结果投递到了哪里。',
+    },
+    checks: [
+      {
+        title: { en: 'A real clock triggers the scheduled run', zh: '按真实时钟触发定时任务' },
+        body: { en: 'The demo used synthetic pump data and waited for the scheduled minute. It recorded the schedule entry, associated application run, report sources and web inbox receipt.', zh: '演示使用合成的泵组数据，等待真实排期时间到来，并记录了调度实例、关联应用运行、报告来源和网页收件箱回执。' },
+      },
+      {
+        title: { en: 'Version changes and approvals stay visible', zh: '换版和审批都有单独状态' },
+        body: { en: 'The acceptance scenarios exercised a changed application version, revoked access, rejected approval and pause/resume. The record retains these outcomes alongside normal completion.', zh: '验收场景覆盖了应用换版、撤销权限、拒绝审批和暂停后恢复。执行记录会区分这些结果与正常完成。' },
+      },
+    ],
     designTitle: { en: 'Keep a task findable after the conversation ends', zh: '对话结束后，任务还能被找回来' },
     design: [
       {

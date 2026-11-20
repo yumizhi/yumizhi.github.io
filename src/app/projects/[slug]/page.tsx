@@ -8,7 +8,7 @@ import { ProjectGallery } from '@/components/project-gallery';
 import { ProjectStage } from '@/components/project-stage';
 import { Button } from '@/components/ui/button';
 import { Localized } from '@/components/language';
-import { ProjectCaseStudy } from '@/components/project-case-study';
+import { ProjectCaseExample, ProjectCaseStudy } from '@/components/project-case-study';
 import { ProjectCaseContents } from '@/components/project-case-contents';
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator } from '@/components/ui/coss/breadcrumb';
 import '../../portfolio-editorial.css';
@@ -36,6 +36,7 @@ export default async function Project({params}:{params:Promise<{slug:string}>}) 
     {p.repo&&<Button asChild variant="outline"><a href={p.repo} target="_blank" rel="noreferrer">GitHub <ArrowUpRight size={16}/></a></Button>}
     {p.release&&<Button asChild variant="ghost"><a href={p.release} target="_blank" rel="noreferrer"><Localized en="Releases" zh="版本发布"/> <ArrowUpRight size={16}/></a></Button>}
    </div>}
+   <ProjectCaseExample slug={p.slug} />
    {!p.repo && <p className="project-source-note"><Localized en={p.technology} zh={p.technologyZh??p.technology} /></p>}
   </header>
   <ProjectCaseContents />
