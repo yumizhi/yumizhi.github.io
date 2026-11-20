@@ -20,22 +20,22 @@ test('home conveys identity and research in the first desktop viewport',async({p
  const box=await study.boundingBox();expect(box!.y+box!.height).toBeLessThan(900);
  await expect(page.getByRole('link',{name:'Scholar',exact:true})).toHaveAttribute('href',/sMZ0X6sAAAAJ/);
 });
-test('TIDE preview redraws the measured guidance as sampling advances', async ({ page }) => {
+test('TIDE playback can be interrupted and shows each conceptual stage', async ({ page }) => {
  await page.goto('/');
  const tide = page.getByTestId('research-card-tide');
+ const preview = tide.locator('.ph-preview');
  await expect(tide.getByRole('link', { name: 'PDF', exact: true })).toHaveAttribute('href', /tide-neurips-2026\.pdf/);
- const slider = tide.getByRole('slider', { name: 'Diffusion sampling step' });
- await slider.focus();
- await page.keyboard.press('End');
- await expect(slider).toHaveValue('49');
- const final = await tide.locator('canvas').evaluate(canvas => (canvas as HTMLCanvasElement).toDataURL());
- await page.keyboard.press('Home');
- await expect(slider).toHaveValue('35');
- await expect.poll(() => tide.locator('canvas').evaluate(canvas => (canvas as HTMLCanvasElement).toDataURL())).not.toBe(final);
- await tide.getByRole('button', { name: 'Preview guidance steps' }).click();
- await expect(tide.getByRole('button', { name: 'Pause guidance animation' })).toBeVisible();
- await expect(slider).toHaveValue('49', { timeout: 5000 });
- await expect(tide.getByRole('button', { name: 'Preview guidance steps' })).toBeVisible();
+ await expect(tide.getByRole('img', { name: 'Illustration of the TIDE denoising trajectory' })).toBeVisible();
+ await tide.getByRole('button', { name: 'Play trajectory' }).click();
+ await expect(preview).toHaveAttribute('data-stage', 'denoise');
+ await expect(preview).toHaveAttribute('data-stage', 'inject', { timeout: 4500 });
+ await tide.getByRole('button', { name: 'Pause trajectory' }).click();
+ await tide.getByRole('button', { name: 'Guide', exact: true }).click();
+ await expect(preview).toHaveAttribute('data-stage', 'guide');
+ await expect(tide.getByRole('button', { name: 'Guide', exact: true })).toHaveAttribute('aria-pressed', 'true');
+ await page.emulateMedia({ reducedMotion: 'reduce' });
+ await tide.getByRole('button', { name: 'Next trajectory stage' }).click();
+ await expect(preview).toHaveAttribute('data-stage', 'denoise');
 });
 test('research filters, search, empty state, and compact list',async({page})=>{
  await page.goto('/research/');
@@ -84,10 +84,12 @@ test('reduced motion steps through TIDE without playing the sequence', async ({ 
  await page.emulateMedia({ reducedMotion: 'reduce' });
  await page.goto('/');
  const tide = page.getByTestId('research-card-tide');
- const preview = tide.getByRole('button', { name: 'Preview guidance steps' });
+ const preview = tide.getByRole('button', { name: 'Next trajectory stage' });
  await preview.click();
- await expect(tide.getByRole('slider')).toHaveValue('36');
- await expect(preview).toBeVisible();
+ await expect(tide.locator('.ph-preview')).toHaveAttribute('data-stage', 'denoise');
+ await preview.click();
+ await expect(tide.locator('.ph-preview')).toHaveAttribute('data-stage', 'inject');
+ await expect(tide.getByRole('button', { name: 'Pause trajectory' })).toHaveCount(0);
 });
 for(const route of ['/','/research/','/research/tide/','/projects/epub-toolkit/','/resources/','/cv/'])test(`accessibility ${route}`,async({page})=>{
  await page.goto(route);const results=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(results.violations).toEqual([]);
@@ -128,31 +130,52 @@ test('project detail switches real screens and expands the selected view',async(
 });
 
 
-test('portrait and publication thumbnails align within the same reading column', async ({ page }) => {
+test('publication previews share a size and shift from two columns to a single reading column', async ({ page }) => {
  await page.goto('/');
  for (const width of [1440, 1024, 768, 620, 390, 320]) {
   await page.setViewportSize({ width, height: 900 });
   const portrait = (await page.locator('.ph-portrait').boundingBox())!;
-  const name = (await page.locator('#my-name').boundingBox())!;
   const column = (await page.locator('.ph-shell').boundingBox())!;
-  expect(column.width).toBeLessThanOrEqual(704);
-  for (const slug of ['tide', 'sasbo']) {
-   const row = page.getByTestId(`research-card-${slug}`);
-   const figure = (await row.locator('.ph-study-media').boundingBox())!;
-   const copy = (await row.locator('header').boundingBox())!;
-   const frame = (await row.locator('.ph-preview').boundingBox())!;
-   const action = (await row.getByRole('link', { name: 'Read the study' }).boundingBox())!;
-   const description = (await row.locator('.ph-paper-description').boundingBox())!;
-   expect(frame.width).toBeCloseTo(frame.height, 0);
-   expect(frame.width).toBeCloseTo(portrait.width, 0);
-   expect(figure.x).toBeCloseTo(portrait.x, 0);
-   expect(copy.x).toBeCloseTo(name.x, 0);
-   expect(action.height).toBeGreaterThanOrEqual(28);
-   expect(action.y - description.y - description.height).toBeLessThan(14);
+  const tide = (await page.getByTestId('research-card-tide').locator('.ph-preview').boundingBox())!;
+  const sasbo = (await page.getByTestId('research-card-sasbo').locator('.ph-preview').boundingBox())!;
+  expect(column.width).toBeLessThanOrEqual(816);
+  expect(tide.x).toBeCloseTo(portrait.x, 0);
+  expect(tide.width).toBeCloseTo(sasbo.width, 0);
+  expect(tide.height).toBeCloseTo(sasbo.height, 0);
+  expect(tide.height).toBeCloseTo(tide.width * 220 / 416, 0);
+  if (width > 624) {
+   expect(tide.y).toBeCloseTo(sasbo.y, 0);
+   expect(sasbo.x - tide.x - tide.width).toBeGreaterThan(20);
+  } else {
+   expect(tide.x).toBeCloseTo(sasbo.x, 0);
+   expect(sasbo.y).toBeGreaterThan(tide.y + tide.height);
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
  }
 });
+
+test('the reader switches papers from a deep section and returns to its entry list', async ({ page }) => {
+ await page.goto('/');
+ await page.getByTestId('research-card-tide').getByRole('link', { name: 'Read the study' }).click();
+ await expect(page.getByRole('link', { name: 'Back to home' })).toHaveAttribute('href', '/#publications');
+ await page.getByRole('link', { name: 'Discussion', exact: true }).click();
+ const picker = page.getByRole('button', { name: /switch publication/i });
+ await expect(picker).toBeInViewport();
+ await picker.focus();
+ await page.keyboard.press('Enter');
+ await expect(page.getByRole('menuitem', { name: /TIDE/ })).toHaveAttribute('aria-current', 'page');
+ await page.keyboard.press('Escape');
+ await expect(picker).toBeFocused();
+ await picker.click();
+ await page.getByRole('menuitem', { name: /SASBO/ }).click();
+ await expect(page).toHaveURL(/research\/sasbo\/\?from=home$/);
+ await page.getByRole('link', { name: 'Back to home' }).click();
+ await expect(page).toHaveURL(/\/#publications$/);
+ await expect(page.getByRole('heading', { name: 'Research', exact: true })).toBeInViewport();
+ await page.goto('/research/tide/');
+ await expect(page.getByRole('group', { name: 'Publication navigation' }).getByRole('link', { name: 'All publications' })).toHaveAttribute('href', '/research/');
+});
+
 test('product poster stays composed and its interface has inner framing',async({page})=>{
  for(const width of [1440,820,768,620,504,390,320]){
   await page.setViewportSize({width,height:900});await page.goto('/projects/');await page.locator('.product-story').scrollIntoViewIfNeeded();await page.waitForTimeout(500);
@@ -221,19 +244,23 @@ test('continuous viewport resize preserves all preview states and inner margins'
 });
 
 
-test('SASBO toggles the flower perturbation map without shifting its frame', async ({ page }) => {
+test('SASBO compares the pixel map with pointer and keyboard in a stable frame', async ({ page }) => {
  await page.goto('/');
  const sasbo = page.getByTestId('research-card-sasbo');
- const button = sasbo.getByRole('button', { name: 'Pixel map' });
+ const slider = sasbo.getByRole('slider', { name: 'Drag to compare the image and pixel map' });
  const frame = sasbo.locator('.ph-preview');
  await page.evaluate(() => document.fonts.ready);
- await button.scrollIntoViewIfNeeded();
+ await slider.scrollIntoViewIfNeeded();
  const before = await frame.boundingBox();
- await button.focus();
- await page.keyboard.press('Enter');
- await expect(button).toHaveAttribute('aria-pressed', 'true');
- await expect(sasbo.locator('.ph-flower-reveal')).toHaveCSS('clip-path', 'inset(0px)');
+ await slider.focus();
+ await page.keyboard.press('ArrowLeft');
+ await expect(slider).toHaveAttribute('aria-valuenow', '58');
+ const handle = (await sasbo.locator('.ph-compare-handle').boundingBox())!;
+ expect((handle.x + handle.width / 2 - before!.x) / before!.width).toBeCloseTo(.58, 2);
+ await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2);
+ await page.mouse.down();
+ await page.mouse.move(handle.x - 54, handle.y + handle.height / 2, { steps: 8 });
+ await page.mouse.up();
+ expect(Number(await slider.getAttribute('aria-valuenow'))).toBeLessThan(50);
  expect(await frame.boundingBox()).toEqual(before);
- await page.keyboard.press('Enter');
- await expect(button).toHaveAttribute('aria-pressed', 'false');
 });

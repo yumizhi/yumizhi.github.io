@@ -1,6 +1,7 @@
 import { ArrowRight, ArrowUpRight, FileText, Mail } from 'lucide-react';
 import { HomeBackground } from '@/components/home-background';
-import { EpubPlate, SasboPlate, TidePlate } from '@/components/home/research-plates';
+import { EpubPlate, SasboPlate } from '@/components/home/research-plates';
+import { TidePlate } from '@/components/home/tide-preview';
 import { Localized } from '@/components/language';
 import { PaperTitle } from '@/components/paper-title';
 import { Button } from '@/components/ui/coss/button';
@@ -15,7 +16,7 @@ const epub = projects.find(project => project.slug === 'epub-toolkit');
 
 function PaperFeature({ paper }: { paper: Paper }) {
   const tide = paper.slug === 'tide';
-  const url = `/research/${paper.slug}/`;
+  const url = `/research/${paper.slug}/?from=home`;
   const titleId = `home-${paper.slug}-title`;
 
   return (
