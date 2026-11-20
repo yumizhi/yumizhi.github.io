@@ -14,7 +14,6 @@ export type ProjectStory = {
   design: StoryBlock[];
   implementationTitle: Bilingual;
   implementationLead: Bilingual;
-  implementation: StoryBlock[];
   steps?: ProjectStep[];
   workflowTitle?: Bilingual;
   verification: Bilingual;
@@ -83,15 +82,6 @@ export const projectStories: Record<string, ProjectStory> = {
       en: 'In this example, both volumes contain chapters/01.xhtml and byte-identical copies of one font. The merger preserves both chapters and stores the font once. Splitting copies it back into each volume and restores its local links.',
       zh: '这个例子里，两卷书都有 chapters/01.xhtml，也各自带了一份相同的字体。合并时保留两个章节，字体只存一份。重新拆卷时，再把字体放回各卷，恢复原有的引用。',
     },
-    implementation: [
-      {
-        title: { en: 'Restored local links', zh: '拆分后恢复本地链接' },
-        body: {
-          en: 'Within the collection, the two chapters live under v1/ and v2/. A stylesheet can now reach the common font through a different relative path. The split tool follows the saved mapping to place the font back in each output and restores the stylesheet’s local reference.',
-          zh: '合集中，两份章节分别位于 v1/ 和 v2/。样式表可能已经改用一条新的相对路径访问同一份字体。拆分引擎按记录把字体放回各卷原来的位置，再恢复样式表中的指向。',
-        },
-      },
-    ],
     verification: {
       en: 'Interoperability tests cover merging with one CLI and splitting with the other. Resource tests exercise duplicate assets and nested relative references. Recovery requires a merge record written by the Toolkit and targets reflowable EPUBs.',
       zh: '互操作测试覆盖了一个命令行实现合并、另一个实现拆分的场景，资源测试覆盖重复资源和多层相对引用。恢复原卷需要 Toolkit 写入的合并记录，支持范围以可重排 EPUB 为主。',
@@ -167,15 +157,6 @@ export const projectStories: Record<string, ProjectStory> = {
         output: { en: 'Evidence and verification report', zh: '独立证据与验证报告' },
       },
     ],
-    implementation: [
-      {
-        title: { en: 'A release tied to the downloaded file', zh: '发布记录对应实际下载文件' },
-        body: {
-          en: 'The protected PNG and the generated PNG have separate artifact records in the library. Verify reads the bytes it receives. In the demo, the TrustMark payload recovered from the signed file matched the registered release. That match links the file back to the protection run.',
-          zh: '生成的 PNG 与保护之后的 PNG 在素材库里各有一条记录。验证以收到的文件为准。演示里，工具从已签名文件中读回 TrustMark 载荷，并匹配到登记的发布记录。沿着这条记录就能回到保护操作。',
-        },
-      },
-    ],
     verification: {
       en: 'On the demo environment, the recorded browser walkthrough generated and verified a TIDE image, reused an artifact for TrustMark protection, and exported the verification report. The interface distinguishes a detected signal from a claim about authorship or ownership.',
       zh: '演示环境中的浏览器验收走通了 TIDE 生成与验证、复用产物进行 TrustMark 保护，以及导出验证报告。界面将是否检出信号与作者身份或所有权的主张分别呈现。',
@@ -249,15 +230,6 @@ export const projectStories: Record<string, ProjectStory> = {
           zh: '报告保留指向本次运行所用资料的引用，投递记录保存去向与回执。从交付结果可以返回对应的执行记录。',
         },
         output: { en: 'Cited report and delivery receipt', zh: '带引用的报告与投递回执' },
-      },
-    ],
-    implementation: [
-      {
-        title: { en: 'Run state in the workspace', zh: '工作区里的执行状态' },
-        body: {
-          en: 'A run can be waiting for approval while the chat that created the plan is closed. The workbench reads the saved step state and shows the pending action. A completed report and a successful delivery have their own records, so the workspace can show a finished run before the report reaches its destination.',
-          zh: '创建计划的对话关掉以后，任务仍可能在等审批。工作区读取已保存的步骤状态，展示待处理的操作。报告生成和投递成功分别留有记录，因此界面也能显示已经执行完、还在等待发送的任务。',
-        },
       },
     ],
     verification: {
