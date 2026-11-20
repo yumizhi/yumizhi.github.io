@@ -34,7 +34,7 @@ export function SasboMaskMath() {
     </figure>
     <p className="tide-prose"><Localized
       en="A coordinate in this formulation is one entry of the flattened image tensor. Neighboring channels can therefore behave independently. If the selected entry belongs to the red channel of a pixel, the green and blue entries at the same location need not change with it. The dog comparison above shows the result of this design visually. The altered locations are scattered, and even at a marked location the edit may live in a single channel."
-      zh="这里的一个坐标是展平后图像张量中的一项，因此同一像素的不同通道可以独立变化。如果选中的是某个像素的红色通道，同一处的绿色和蓝色通道可以保持原值。前面的狗图展示了这种设计的结果：改动位置散落在图上，即使在标出的位置，也可能只有一个通道被改。"
+      zh="这里的一个坐标是展平后图像张量中的一项，因此同一像素的不同通道可以独立变化。如果选中的是某个像素的红色通道，同一处的绿色和蓝色通道可以保持原值。前面的狗图里，改动位置散落在图上。即使在标出的位置，也可能只有一个通道被改。"
     /></p>
     <p className="tide-prose"><Localized
       en="Keeping the two variables separate also changes the search problem. With the mask fixed, every admitted amplitude can slide continuously between two bounds. With the amplitudes fixed, switching one gate changes the classifier input by the full amount assigned to that entry. A derivative with respect to the binary gate is unavailable. We can instead make its probability continuous, while still sending genuine binary masks to the classifier."
@@ -52,7 +52,7 @@ export function SasboArmMath() {
     \end{aligned}`} />
     <p className="tide-prose"><Localized
       en="Both tests select the coordinate with probability pⱼ. They share the same draw, so the lower and upper shaded intervals determine which two settings will be compared. In the special case where every other coordinate is held fixed, a draw in the overlap selects the entry in both masks. A draw outside both intervals selects it in neither. Those cases contribute zero to the loss difference. The informative draws switch the entry on in one mask and off in the other."
-      zh="两种测试选中该坐标的概率都是 pⱼ，而且用的都是同一个随机数。图中下端和上端的阴影分别决定两张掩码选哪些位置。先固定其他坐标，只看这一项。随机数落进重叠区时，两张掩码都打开开关；落在两个区间之外时，两个开关都关闭。这两种情况下损失之差都是零。有效的比较来自只打开其中一个开关的抽样。"
+      zh="两种测试选中该坐标的概率都是 pⱼ，而且用的都是同一个随机数。图中下端和上端的阴影分别决定两张掩码选哪些位置。先固定其他坐标，只看这一项。随机数落进重叠区时，两张掩码都打开开关。落在两个区间之外时，两个开关都关闭。这两种情况下损失之差都是零。有效的比较来自只打开其中一个开关的抽样。"
     /></p>
     <SasboArm />
     <PaperEquation number="5, 8" math={tex`\begin{aligned}
@@ -80,7 +80,19 @@ export function SasboArmMath() {
       zh="如果打开开关能降低损失，L₁−L₀ 就为负。随机数落在只有下端掩码选中的区域时，下端对应 L₁，居中的随机数为负。落在只有上端选中的区域时，两项损失互换，居中的随机数也换成正号。两类抽样得到同号的梯度，经梯度下降会把开关的概率往上推。很多坐标一起参与时，每次损失值来自一整张掩码，因此配对估计能看到开关共同变化的影响，同时免去枚举所有组合。稀疏正则项直接依赖选择概率，单独求导即可。"
     /></p>
     <p className="tide-prose"><Localized
-      en="The paired estimate needs only forward loss evaluations for the mask step. SASBO as a whole uses white-box access: the amplitude step differentiates the classifier with respect to the input. The distinction is useful when reading the method. ARM solves the discrete part of a white-box optimization, even though this particular gradient estimator never backpropagates through a binary draw."
+      en="We can check the expectation directly when p is less than one half. Only the two tails contribute. In the lower tail, the loss difference is L₀−L₁. Integrating the centered draw over that tail gives negative one half of p(1−p). In the upper tail the two signs reverse, giving an equal contribution. Their sum gives the derivative above. With p above one half, the overlap contributes zero and the two exclusive intervals have length 1−p, which gives the same result."
+      zh="当 p 小于一半时，可以把期望直接算一遍。只有两个尾部区间有贡献。下端的损失差是 L₀−L₁，居中后的随机数在这个区间积分，结果为 −p(1−p) 的一半。上端的两个符号同时反过来，贡献正好相等。两项相加就是上面的导数。p 大于一半时，中间的重叠区贡献为零，两边独占区长度都变成 1−p，算出的导数依然相同。"
+    /></p>
+    <PaperEquation math={tex`\begin{aligned}
+      \int_{0}^{p}(u-\tfrac12)\,du &= -\tfrac12 p(1-p) \\
+      \int_{1-p}^{1}(u-\tfrac12)\,du &= \phantom{-}\tfrac12 p(1-p)
+    \end{aligned}`} />
+    <p className="tide-prose"><Localized
+      en="Being unbiased is a property of the average over draws. A single pair is still noisy, and sampled masks do not directly produce the final sparse budget. The probability update learns which positions to try. Ranking then makes a firm choice before the continuous magnitude step, and the final classifier evaluation checks that the proposed sparse image actually changes the decision."
+      zh="无偏说的是许多次抽样的平均值。单次估计仍会波动，随机掩码里的激活数量也不会刚好等于最终预算。概率更新学的是哪些位置值得试。幅度更新前，先按排名选定坐标。最终这张稀疏图是否改变了判断，还要重新交给分类器核对。"
+    /></p>
+    <p className="tide-prose"><Localized
+      en="The paired estimate needs only forward loss evaluations for the mask step. The amplitude step differentiates the classifier with respect to the input, so the complete algorithm still assumes white-box access."
       zh="掩码更新里，配对估计只需要前向计算损失。SASBO 整体仍是白盒方法，因为幅度更新要对分类器输入求梯度。ARM 处理的是白盒优化里的离散部分，估计时无需穿过二值抽样做反向传播。"
     /></p>
   </>;

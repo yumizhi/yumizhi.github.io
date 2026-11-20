@@ -89,7 +89,16 @@ export function SamProjectionMath() {
       en="The outer step can propose changes throughout the image, including at pixels that were untouched in the previous task. To compress that proposal, compare two possible outcomes at each pixel. We can restore all three channels to the original values, or we can keep the proposed changes after clipping each channel to the allowed amplitude. The choice is made for the whole pixel because SAM counts a changed spatial position once, even if all three channels at that position change."
       zh="外层更新可以在整张图上提出改动，包括上一轮还未动过的位置。要把这次提案压回预算内，每个像素有两种去处。一种是把三个通道全部恢复到原值，另一种是把各通道的改动裁剪到允许的幅度再保留。这个决策以整个像素为单位，因为在 SAM 里，同一个位置即使改了三个通道，也只占一份像素预算。"
     /></p>
-    <PaperEquation number="7–10" math={tex`\begin{aligned}
+    <PaperEquation number="7" math={tex`\begin{aligned}
+      \min_z\;&\Vert v-z\Vert_F^2 \\
+      \text{s.t. }&|z_{ij}-x_{ij}|\le\epsilon, \\
+      &\#\{i:z_{i,:}\ne x_{i,:}\}\le k
+    \end{aligned}`} />
+    <p className="tide-prose"><Localized
+      en="The squared distance in this objective is between the new sparse image z and the candidate v. Both constraints use the original image x as their reference. Keeping those references separate helps explain the clipping rule. A candidate channel already within its allowed interval can be copied exactly, giving zero distance to the proposal there. If the proposal crosses either boundary, the closest allowed value is that boundary. For a chosen pixel, clipping performs this calculation for each of its three channels."
+      zh="目标函数的平方距离量的是新稀疏图 z 和提案 v 的差，两项约束量的却是 z 相对原图 x 的改动。分清参照，就能看出为什么用裁剪。若候选通道仍在允许区间里，可以照用，离提案的距离就是零。越过上界或下界时，离提案最近的可行值就是那条边界。对于选中的像素，裁剪分别落实到它的三个通道。"
+    /></p>
+    <PaperEquation number="9–10" math={tex`\begin{aligned}
       d_{ij} &= v_{ij}-x_{ij} \\
       \bar d_{ij} &= \operatorname{clip}_{[-\epsilon,\epsilon]}(d_{ij}) \\
       S_i &= \sum_{j\in\{R,G,B\}}\!

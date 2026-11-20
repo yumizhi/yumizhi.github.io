@@ -35,14 +35,26 @@ export function TideInjectionMath() {
       <figcaption><Localized en="Only the highlighted coefficients are replaced. The other entries carry over from the current denoising state." zh="高亮位置由水印系数替换，其余位置沿用当前去噪状态的系数。" /></figcaption>
     </figure>
     <p className="tide-prose"><Localized
-      en={<>The inverse transform mixes the changed coefficients throughout the latent. For the next denoising step, this is an actual change of input. One prompt and seed therefore yield a useful pair: run the text-only sampler once for the clean reference, then write the template into the matching intermediate state. The pair isolates the consequence of the write and the steps that follow from it. There is a second use for the pair during training, when the model needs an inexpensive way to tell whether the two samples are already drifting apart.</>}
-      zh={<>逆变换会把发生变化的频率混合回整个潜变量，下一步去噪接收到的输入随之改变。固定提示词和种子，就能做出一组对照：跑一次纯文本引导得到无水印参考，再从同一个中间状态写入模板。这组对照把差异限定在写入与余下的采样步骤。训练时也能利用它，以较低开销判断两张图在注入当下是否已经开始偏离。</>}
+      en="The inverse transform mixes the changed coefficients throughout the latent. For the next denoising step, this is an actual change of input. Holding the prompt and seed fixed gives us a pair. We run the text-only sampler for the clean reference and write the template into the matching intermediate state in the second run. The pair isolates the consequence of the write and the steps that follow from it. There is a second use for the pair during training, when the model needs an inexpensive way to tell whether the two samples are already drifting apart."
+      zh="逆变换会把发生变化的频率混合回整个潜变量，下一步去噪接收到的输入随之改变。固定提示词和种子后，先跑一次纯文本引导得到无水印参考，再从同一个中间状态写入模板。这组对照把差异限定在写入与余下的采样步骤。训练时也能利用它，以较低开销判断两张图在注入当下是否已经开始偏离。"
     /></p>
   </>;
 }
 
 export function TideTrainingMath() {
   return <>
+    <PaperEquation number="3–4" math={tex`\begin{aligned}
+      \widehat z_{0,\tau}^{\mathrm{wm}}
+        &=\frac{\widetilde z_\tau
+        -\sqrt{1-\bar\alpha_\tau}\,\widehat\epsilon_\tau^{\mathrm{wm}}}
+        {\sqrt{\bar\alpha_\tau}} \\
+      \widehat x_{0,\tau}^{\mathrm{wm}}
+        &=\operatorname{Dec}(\widehat z_{0,\tau}^{\mathrm{wm}})
+    \end{aligned}`} />
+    <p className="tide-prose"><Localized
+      en="The one-step estimate gives training a picture to compare before completing a whole denoising run. At the injection step, the U-Net predicts the noise component of the modified latent. The numerator subtracts that prediction with the timestep’s noise scale. Dividing by the signal scale gives an estimate in clean latent units, which the VAE decodes. The full run predicts noise again in every remaining step as its input changes, which can give a different result even when it starts from the same injection point. The short-term comparison uses the same estimator on both sides to keep that source of error in common."
+      zh="单步估计让训练在跑完整条轨迹之前，就有一张能拿来对比的图。到达注入步，U-Net 预测修改后潜变量里的噪声分量。分子按当前步的噪声尺度减掉这项预测，再除以信号尺度，得到对干净潜变量的估计，然后用 VAE 解码。即使出发点相同，这张图也可能与完整去噪得到的成图不同，因为往后每一步都会根据新输入重新预测噪声。短程比较两边使用同一种估计器，让这部分误差保持在共同条件里。"
+    /></p>
     <PaperEquation number="5–7" math={tex`\begin{gathered}
       \begin{aligned}
       d(x,y)&=\lambda_{\mathrm{pix}}\Vert x-y\Vert_2^2 \\
@@ -54,8 +66,17 @@ export function TideTrainingMath() {
       \end{aligned}
     \end{gathered}`} />
     <p className="tide-prose"><Localized
-      en="The pixel term reacts to changes in decoded values. The SSIM term also pulls on local structure. Both losses start from the same decoded one-step watermarked prediction, so their distinction lies in the target on the right. A small short-term loss says that the immediate predictions still resemble each other. The clean prediction at that step can itself have imperfect structure, so the finished clean image provides a second anchor. The detection margin creates a different constraint: a nearly unchanged image can still be useful if its masked coefficients are easier to distinguish from those of its clean counterpart."
-      zh="像素项会响应解码值的变化，SSIM 项则同时约束局部结构。两项损失左边都是同一张带水印的单步预测，区别在右边的比较对象。短程损失小说明注入后的即时预测仍然接近无水印预测。可这个时刻的无水印预测本身也可能有结构误差，所以还要用完整的无水印成图作为第二个参照。检测间隔关心的是另一件事：即使图像看着几乎一样，只要掩码内的系数更容易区分，水印仍有用。"
+      en="The pixel term reacts to changes in decoded values. The SSIM term also pulls on local structure. Both losses start from the same decoded one-step watermarked prediction, so their distinction lies in the target on the right. A small short-term loss says that the immediate predictions still resemble each other. The clean prediction at that step can itself have imperfect structure, so the finished clean image provides a second anchor. The detection margin asks whether the masked coefficients remain distinguishable even when the decoded images look alike."
+      zh="像素项会响应解码值的变化，SSIM 项则同时约束局部结构。两项损失左边都是同一张带水印的单步预测，区别在右边的比较对象。短程损失小说明注入后的即时预测仍然接近无水印预测。可这个时刻的无水印预测本身也可能有结构误差，所以还要用完整的无水印成图作为第二个参照。检测间隔则用来区分两张外观接近的图像在掩码内的系数。"
+    /></p>
+    <PaperEquation number="9" math={tex`\begin{aligned}
+      D^+ &= D_{\mathrm{wm}}(\widehat z^{\mathrm{wm}}_{0,\tau}; W,M) \\
+      D^- &= D_{\mathrm{wm}}(\widehat z^{\mathrm{clean}}_{0,\tau}; W,M) \\
+      \mathcal L_{\mathrm{det}} &= \max(0, m + D^+ - D^-)
+    \end{aligned}`} />
+    <p className="tide-prose"><Localized
+      en="The margin matters when both branches match the watermark to some degree. Take two clean predictions with the same watermarked distance. In the first pair, the clean prediction is already farther by at least the margin, so the detection loss contributes nothing. In the second pair, the clean prediction is closer to the template and the distance gap is insufficient. That pair still pushes the training objective. This comparison uses clean and watermarked latents from the same step and acts alongside the image-space losses. At verification time, the detector processes a single queried image and scores it against a cutoff calibrated on clean images."
+      zh="两路都和模板有一定相似度时，间隔损失才显出作用。设两组带水印预测与模板的距离相同。第一组里，无水印预测至少再远出一个间隔，检测损失为零。第二组的无水印预测更接近模板，距离差还不够，这一组便继续提供训练信号。这个比较用的是同一步的两路潜变量，与图像空间的重建损失一起训练。到了实际检测，验证器一次只收到一张待测图，判定用的是无水印样本校准出的阈值。"
     /></p>
   </>;
 }
@@ -110,8 +131,8 @@ export function TideGuidanceMath() {
        &+g_t^{\mathrm{wm}}\Delta^{\mathrm{wm}}_{t,\mathrm{null}}
     \end{aligned}`} />
     <p className="tide-prose"><Localized
-      en="The two weights always add to s, and the prompt keeps at least its reserved share. This is a statement about weights, not a bound on how far the next latent travels. Each residual has a different magnitude, and DDIM still applies its timestep-dependent update. The rule limits competition with recent text directions. Agreement with the clean image distribution is evaluated using paired images and distribution-level metrics."
-      zh="两路权重始终加起来等于 s，文本至少得到预留的份额。这个等式约束的是权重，下一步潜变量走多远还要看两路残差的幅度，以及 DDIM 在当前步如何更新。引导规则约束的是水印与近期文本方向的竞争；成图分布是否仍接近无水印结果，要靠逐图对照和分布指标来检验。"
+      en="The two weights always add to s, and the prompt keeps at least its reserved share. The distance the latent moves also depends on the magnitudes being weighted and the timestep-dependent DDIM update. The rule limits competition with recent text directions. Agreement with the clean image distribution is evaluated using paired images and distribution-level metrics."
+      zh="两路权重始终加起来等于 s，文本至少得到预留的份额。这个等式约束的是权重，下一步潜变量走多远还要看两路残差的幅度，以及 DDIM 在当前步如何更新。引导规则约束了水印与近期文本方向的竞争。成图分布是否仍接近无水印结果，要靠逐图对照和分布指标来检验。"
     /></p>
   </>;
 }
@@ -125,7 +146,7 @@ export function TideVerificationMath() {
     \end{aligned}`} />
     <p className="tide-prose"><Localized
       en="Suppose inversion recovers one written coefficient almost exactly, while a second is shifted by an edit. The first contributes almost no error, the second contributes its absolute mismatch, and everything outside the write mask contributes zero. Those errors are averaged over the selected coefficients. The resulting distance is useful only against the clean distribution of the same statistic. A cutoff chosen from its lower tail determines how often an unmarked image can pass; the reported true-positive rate tells us how many watermarked images pass that very cutoff."
-      zh="假设反演几乎恢复了第一个写入系数，第二个系数受编辑影响发生偏移。第一处几乎不计误差，第二处计入差值的绝对量，掩码外全部跳过。最后把误差除以选中系数的数量。得到的距离需要和无水印图上的同一统计量对照。阈值取在无水印距离分布的低端，控制无水印图偶然通过的比例；真阳性率则数清带水印的图中有多少能通过同一个阈值。"
+      zh="假设反演几乎恢复了第一个写入系数，第二个系数受编辑影响发生偏移。第一处几乎不计误差，第二处计入差值的绝对量，掩码外全部跳过。最后把误差除以选中系数的数量。得到的距离需要和无水印图上的同一统计量对照。阈值取在无水印距离分布的低端，控制无水印图偶然通过的比例。真阳性率则衡量带水印的图中有多少能通过同一个阈值。"
     /></p>
   </>;
 }
