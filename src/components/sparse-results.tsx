@@ -34,31 +34,8 @@ const sasbo:Dataset[] = [
     headings:sasboColumns, rows:[['PGD-ℓ₀ + ℓ∞','100%','48.01'],['SparseFool','100%','22.03'],['GreedyFool','100%','12.29'],['SASBO','100%','3.95']],
   },
 ];
-const targets = ['ResNeXt50 32×4d','ResNet50','DenseNet161','GoogLeNet','MobileNetV2','MnasNet1.0'];
-function transferRows(sa:number[],sam:number[]){
-  const rate=(n:number)=>n.toFixed(1)+'%';
-  const mean=(values:number[])=>values.reduce((a,b)=>a+b)/values.length;
-  return [...targets.map((name,i)=>[name,rate(sa[i]),rate(sam[i])]),
-    ['Mean',rate(mean(sa)),rate(mean(sam))]];
-}
-const samColumns = [{en:'Black-box target',zh:'黑盒目标模型'},{en:'SA',zh:'SA'},{en:'SAM',zh:'SAM'}];
-const sam:Dataset[] = [
-  {
-    id:'50',tab:{en:'50 pixels · ε = 255',zh:'50 像素 · ε = 255'},
-    explanation:{en:'With a budget of 50 pixels, mean attack success on the six unseen models is 85.5% for SAM and 68.4% for the VGG19-only SA baseline.',zh:'预算为 50 个像素时，SAM 在六个未参与优化的模型上的平均成功率为 85.5%，仅使用 VGG19 的 SA 基线为 68.4%。'},
-    caption:{en:'Table VI · CIFAR-10 untargeted attack success, ℓ₀ = 50, ε = 255',zh:'表 VI · CIFAR-10 非定向攻击成功率，ℓ₀ = 50，ε = 255'},
-    headings:samColumns, rows:transferRows([67.2,64.3,68.2,73.8,67.3,69.8],[88.5,88.1,91.5,86.6,79.4,78.8]),
-  },
-  {
-    id:'300',tab:{en:'300 pixels · ε = 16',zh:'300 像素 · ε = 16'},
-    explanation:{en:'This setting allows more pixels to change but limits each change to ε = 16. SAM transfers more often than the single-model SA baseline on all six targets.',zh:'这一设置允许修改更多像素，同时把每处改动的幅度限制在 ε = 16。在六个目标模型上，SAM 的迁移成功率均高于单模型 SA 基线。'},
-    caption:{en:'Table VI · CIFAR-10 untargeted attack success, ℓ₀ = 300, ε = 16',zh:'表 VI · CIFAR-10 非定向攻击成功率，ℓ₀ = 300，ε = 16'},
-    headings:samColumns,rows:transferRows([31.3,23.2,25.8,20.8,24.4,28.2],[43.9,50.8,48.5,45.8,43.3,57]),
-  },
-];
-
-export function SparseResults({study}:{study:'sasbo'|'sam'}){
-  const datasets=study==='sasbo'?sasbo:sam;
+export function SparseResults(){
+  const datasets = sasbo;
   const [selected,setSelected]=useState(datasets[0].id);
   const reduced=useReducedMotion();
   const d=datasets.find(dataset=>dataset.id===selected)!;
@@ -72,16 +49,16 @@ export function SparseResults({study}:{study:'sasbo'|'sam'}){
     <Tabs.Content value={selected}>
       <p className="tide-prose"><Localized {...d.explanation}/></p>
       <ComparisonChart
-        title={study==='sasbo'?{en:'Fewer changes, the same success rate',zh:'同样成功，改动更少'}:{en:'Success on six unseen classifiers',zh:'六个未知分类器上的攻击成功率'}}
-        note={study==='sasbo'?{en:'Mean ℓ₀ · CIFAR-10 · ε = 255 · 100% success for all methods · lower is better',zh:'平均 ℓ₀ · CIFAR-10 · ε = 255 · 均为 100% 成功率 · 越低越好'}:{en:'CIFAR-10 · untargeted transfer · higher is better',zh:'CIFAR-10 · 非定向迁移攻击 · 越高越好'}}
-        series={study==='sasbo'?[{label:{en:'Mean ℓ₀',zh:'平均 ℓ₀'}}]:[{label:{en:'SA · single model',zh:'SA · 单模型'}},{label:{en:'SAM · meta-learning',zh:'SAM · 元学习'},accent:true}]}
-        rows={study==='sasbo'?d.rows.map(([label,,value])=>({label,values:[Number(value)],accent:label==='SASBO'})):d.rows.filter(([label])=>label!=='Mean').map(([label,sa,sam])=>({label,values:[parseFloat(sa),parseFloat(sam)]}))}
-        maximum={study==='sasbo'?60:100} decimals={study==='sasbo'?2:1} suffix={study==='sasbo'?'':'%'}/>
+        title={{en:'Fewer changes, the same success rate',zh:'同样成功，改动更少'}}
+        note={{en:'Mean ℓ₀ · CIFAR-10 · ε = 255 · 100% success for all methods · lower is better',zh:'平均 ℓ₀ · CIFAR-10 · ε = 255 · 均为 100% 成功率 · 越低越好'}}
+        series={[{label:{en:'Mean ℓ₀',zh:'平均 ℓ₀'}}]}
+        rows={d.rows.map(([label,,value])=>({label,values:[Number(value)],accent:label==='SASBO'}))}
+        maximum={60} decimals={2}/>
       <details className="result-data"><summary><Localized en="View the numerical results" zh="查看完整数值"/></summary>
       <div className="tide-table-wrap"><table>
         <caption><Localized {...d.caption}/></caption>
         <thead><tr>{d.headings.map(h=><th scope="col" key={h.en}><Localized {...h}/></th>)}</tr></thead>
-        <tbody>{d.rows.map(([name,...values])=><tr key={name}><th scope="row">{name==='Mean'?<Localized en="Mean" zh="平均"/>:name}</th>
+        <tbody>{d.rows.map(([name,...values])=><tr key={name}><th scope="row">{name}</th>
           {values.map((value,i)=><td key={i}>{value}</td>)}</tr>)}</tbody>
       </table></div>
       </details>

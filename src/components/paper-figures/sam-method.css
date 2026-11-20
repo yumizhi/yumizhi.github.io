@@ -1,0 +1,32 @@
+.sam-method h3 {
+  margin-bottom: 12px;
+  color: var(--figure-ink);
+  font-size: clamp(17px, 2vw, 20px);
+  font-weight: 670;
+  line-height: 1.28;
+  text-wrap: pretty;
+}
+.sam-method svg {
+  display: block;
+  width: 100%;
+  background: var(--figure-panel);
+  border: 1px solid var(--figure-edge);
+  border-radius: 10px;
+}
+.sam-method-baseline { fill: none; stroke: var(--figure-line); stroke-width: 1; }
+.sam-support-path, .sam-query-path, .sam-query-signal, .sam-projection-path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-width: 2.4;
+}
+.sam-support-path { stroke: var(--figure-blue); }
+.sam-query-path, .sam-query-signal { stroke: var(--figure-rust); }
+.sam-query-signal { stroke-dasharray: 4 4; stroke-width: 1.4; }
+.sam-projection-path { stroke: var(--figure-accent); }
+.sam-method-labels { fill: var(--figure-ink); font-size: 12px; font-weight: 610; }
+.sam-support-label { fill: var(--figure-blue); }
+.sam-query-label { fill: var(--figure-rust); }
+.sam-projection-label, .sam-pixels { fill: var(--figure-accent); }
+@container paper-figure (max-width: 465px) {
+  .sam-method-labels { font-size: 16px; }
+}

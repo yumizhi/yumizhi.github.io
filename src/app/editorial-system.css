@@ -1,6 +1,6 @@
 /* Common editorial system: neutral reading surfaces, restrained NJU purple. */
 :root {
-  --editorial-shell-width: 980px;
+  --editorial-shell-width: 51rem;
   --editorial-copy-width: 654px;
   --editorial-gutter: 24px;
   --editorial-font: -apple-system, BlinkMacSystemFont, 'Inter Variable', 'Noto Sans SC Variable', sans-serif;
@@ -15,8 +15,9 @@
   --editorial-reading: 700px;
 }
 .dark { --editorial-surface: #1c1c1e; --editorial-soft: #161719; --editorial-link: #d6b1da; --foreground: #f5f5f7; --muted-foreground: #a1a1a6; }
+html { scrollbar-gutter: stable; }
 body { font-family: var(--editorial-font); }
-.shell, .editorial-shell, .header-inner { width: min(var(--editorial-shell-width), calc(100% - 2 * var(--editorial-gutter))); }
+.shell, .editorial-shell, .header-inner, .ph-shell { width: min(var(--editorial-shell-width), calc(100% - 2 * var(--editorial-gutter))); }
 .editorial-shell { margin-inline: auto; }
 .header-inner { height: 52px; }
 .site-header { background: color-mix(in srgb,var(--background) 90%,transparent); backdrop-filter: blur(18px); }
@@ -50,7 +51,6 @@ body { font-family: var(--editorial-font); }
 .motion-filters button[data-state=on], .motion-filters button[data-state=on]:hover { color: var(--background); }
 .directory-page .page-heading { max-width: var(--editorial-copy-width); padding: 64px 0 15px; }
 .directory-page .page-heading h1 { font-size: clamp(40px, 4.8vw, 56px); }
-.directory-page .page-heading > p { margin-top: 21px; font-size: 21px; line-height: 1.5; text-wrap: pretty; }
 .directory-page .result-count { font-size: 12px; }
 .directory-page .resource-row h2 { font-weight: 650; letter-spacing: -.01em; }
 .directory-page .resource-row p, .directory-page .resource-type { font-size: 13px; }
@@ -86,7 +86,6 @@ body { font-family: var(--editorial-font); }
 }
 @media(max-width:760px) {
  .directory-page .page-heading { padding-top: 43px; }
- .directory-page .page-heading > p { font-size: 19px; margin-top: 18px; }
  .product-story { min-height: auto; padding: 32px; }
  .product-story .product-description { font-size: 15px; }
  .product-story .product-copy h3 { font-size: 36px; }
@@ -119,3 +118,12 @@ body { font-family: var(--editorial-font); }
 }
 
 @media (max-width: 370px) { :root { --editorial-gutter: 20px; } }
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  .site-page-enter { animation: site-page-enter .2s cubic-bezier(.22, 1, .36, 1); }
+}
+
+@keyframes site-page-enter {
+  from { opacity: .76; }
+  to { opacity: 1; }
+}

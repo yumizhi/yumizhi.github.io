@@ -1,5 +1,5 @@
 .portfolio-home {
-  --ph-paper: #fff;
+  --ph-paper: var(--background);
   --ph-ink: #222124;
   --ph-muted: #55535c;
   --ph-line: #e8e5e9;
@@ -14,42 +14,15 @@
 }
 
 .dark .portfolio-home {
-  --ph-paper: #171619;
   --ph-ink: #f4f3f5;
   --ph-muted: #c3bdc6;
   --ph-line: #3e3840;
 }
 
-body:has(.portfolio-home) { background: #fff; }
-.dark body:has(.portfolio-home) { background: #171619; }
-.site-header[data-home] { background: #fff; border: 0; }
-.dark .site-header[data-home] { background: #171619; }
-.site-header[data-home] .header-glass { display: none; }
-
-.site-header[data-home] .header-inner,
-body:has(.portfolio-home) .site-footer,
-.ph-shell { inline-size: min(44rem, calc(100% - 2.5rem)); }
-
 body:has(.portfolio-home) .site-footer {
   margin-block-start: 0;
   padding-block: .75rem 1.5rem;
 }
-
-.site-header[data-home] .header-inner { height: 54px; gap: .75rem; }
-
-.site-header[data-home] .home-link {
-  width: auto;
-  height: 36px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--nju);
-  font-weight: 620;
-}
-
-.site-header[data-home] .home-link svg { width: 16px; height: 16px; }
-.site-header[data-home] .home-link-label { display: inline; font-size: .8125rem; }
-.site-header[data-home] .nav-link { padding-inline: .5rem; }
 
 .ph-shell {
   margin-inline: auto;
@@ -193,9 +166,6 @@ body:has(.portfolio-home) .site-footer {
 .ph-notes svg { color: var(--ph-accent); flex: none; }
 
 @media (max-width: 38.75rem) {
-  .site-header[data-home] .header-inner,
-  body:has(.portfolio-home) .site-footer,
-  .ph-shell { inline-size: calc(100% - 2.25rem); }
   .ph-records { grid-template-columns: 1fr; }
 }
 
@@ -279,11 +249,6 @@ body:has(.portfolio-home) .site-footer {
   .ph-paper-links .ph-study-action { padding-inline: .5rem; }
 }
 
-/* The profile, gallery and section links share one outer reading column. */
-.site-header[data-home] .header-inner,
-body:has(.portfolio-home) .site-footer,
-.ph-shell { inline-size: min(51rem, calc(100% - 2.75rem)); }
-
 .portfolio-home {
   --ph-column-gap: clamp(.875rem, 3vw, 1.75rem);
   --ph-section-gap: clamp(2.65rem, 6vw, 4rem);
@@ -311,9 +276,6 @@ body:has(.portfolio-home) .site-footer,
 .portfolio-home #publications { scroll-margin-top: 4rem; }
 
 @media (max-width: 39rem) {
-  .site-header[data-home] .header-inner,
-  body:has(.portfolio-home) .site-footer,
-  .ph-shell { inline-size: calc(100% - 2.25rem); }
   .ph-study-list { grid-template-columns: 1fr; row-gap: 2.125rem; }
   .ph-study { gap: .75rem; }
 }

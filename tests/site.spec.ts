@@ -77,31 +77,51 @@ test('the paper opens with its overview and keeps the original abstract and cita
  await page.getByRole('button',{name:'Copy BibTeX'}).first().click();await expect(page.getByRole('button',{name:'Copied',exact:true}).first()).toBeVisible();
  expect(await page.evaluate(()=>navigator.clipboard.readText())).toContain('meng2026tide');
 });
-test('paper figures support playback, stage selection, and reduced motion', async ({ page }) => {
+test('paper figures show trajectory, paired masks, and the SAM query update inline', async ({ page }) => {
+ await page.emulateMedia({ reducedMotion: 'reduce' });
  await page.goto('/research/tide/#trajectory-figure');
  const trajectory = page.locator('#trajectory-figure');
- await trajectory.getByRole('button', { name: 'Play animation', exact: true }).click();
- await expect(trajectory).toHaveAttribute('data-playing', 'true');
- await trajectory.getByRole('button', { name: 'Pause animation', exact: true }).click();
- await expect(trajectory).toHaveAttribute('data-playing', 'false');
- await trajectory.getByRole('button', { name: 'Guide', exact: true }).press('Enter');
- await expect(trajectory).toHaveAttribute('data-step', '3');
+ await expect(trajectory).toHaveAttribute('data-stage', '2');
  await expect(trajectory.locator('.trajectory-guided')).toHaveCSS('opacity', '1');
+ await expect(trajectory.getByRole('button')).toHaveCount(0);
 
- await page.emulateMedia({ reducedMotion: 'reduce' });
  await page.goto('/research/sasbo/#mask-figure');
- const mask = page.locator('#mask-figure');
- await mask.getByRole('button', { name: 'Next stage', exact: true }).click();
- await expect(mask).toHaveAttribute('data-step', '1');
- await expect(mask).toHaveAttribute('data-playing', 'false');
- await mask.getByRole('button', { name: 'Revisit', exact: true }).click();
- await expect(mask.locator('.mask-cell[data-old="true"]').first()).toBeVisible();
+ const masks = page.locator('#mask-figure');
+ for (const tail of ['lower', 'upper']) {
+   await expect(masks.locator(`[data-tail="${tail}"] .arm-track[data-selected="true"]`).first()).toBeVisible();
+   await expect(masks.locator(`[data-tail="${tail}"] .arm-track[data-selected="false"]`).first()).toBeVisible();
+ }
+ await expect(page.getByRole('link', { name: 'Complete figure' })).toHaveAttribute('href', '/images/sasbo-original.webp');
 
  await page.goto('/research/sparse-meta-learning/#handoff-figure');
  const handoff = page.locator('#handoff-figure');
- await expect(handoff.locator('.sam-query-role')).toContainText('Model C');
- await handoff.getByRole('button', { name: 'Resample', exact: true }).click();
- await expect(handoff.locator('.sam-query-role')).toContainText('Model A');
+ await expect(handoff.getByRole('img', { name: 'The image states in one SAM task' })).toBeVisible();
+ await expect(handoff.locator('.sam-query-signal')).toBeVisible();
+ await expect(page.getByRole('link', { name: 'Table VI in the paper' })).toHaveAttribute('href', '/files/sparse-meta-learning-ijcnn-2024.pdf');
+});
+test('home and the directories share their outside edges during navigation', async ({ page }) => {
+ await page.setViewportSize({ width: 1440, height: 900 });
+ await page.goto('/');
+ const home = page.getByRole('link', { name: 'Home', exact: true });
+ const initialButton = (await home.boundingBox())!;
+ const initialPage = (await page.locator('.ph-shell').boundingBox())!;
+ const nav = page.getByRole('navigation', { name: 'Main navigation' });
+
+ for (const [path, label] of [['research', 'Research'], ['projects', 'Projects'], ['writing', 'Writing'], ['resources', 'Resources']]) {
+   await nav.getByRole('link', { name: label, exact: true }).click();
+   await expect(page).toHaveURL(new RegExp('/' + path + '/$'));
+   await expect(page.locator('.site-page-enter')).toHaveCSS('animation-name', 'site-page-enter');
+   await expect(page.locator('.directory-page .page-heading > p')).toHaveCount(0);
+   const button = (await home.boundingBox())!;
+   const column = (await page.locator('.directory-page').boundingBox())!;
+   expect([button.x, button.y, button.width, button.height]).toEqual([initialButton.x, initialButton.y, initialButton.width, initialButton.height]);
+   expect([column.x, column.width]).toEqual([initialPage.x, initialPage.width]);
+ }
+
+ await page.emulateMedia({ reducedMotion: 'reduce' });
+ await home.click();
+ await expect(page).toHaveURL(new URL('/', page.url()).href);
+ await expect(page.locator('.site-page-enter')).toHaveCSS('animation-name', 'none');
 });
 test('resource preview has native open/download and useful empty category',async({page})=>{
  await page.goto('/resources/');await page.getByRole('button',{name:'Preview TIDE — NeurIPS 2026',exact:true}).click();const dialog=page.getByRole('dialog');await expect(dialog).toBeVisible();await expect(dialog.getByRole('link',{name:'Open PDF'})).toHaveAttribute('href',/tide-neurips-2026.pdf/);await expect(dialog.getByRole('link',{name:'Download',exact:true})).toHaveAttribute('download','');
