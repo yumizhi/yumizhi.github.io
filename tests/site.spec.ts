@@ -141,6 +141,11 @@ test('project showcases work on mobile and only public software links to source'
   const detail = page.locator('.project-detail');
   await expect(detail).toContainText('Source code is private.');
   await expect(detail.locator('a[href*="github.com"]')).toHaveCount(0);
+  if (project.slug === 'personal-agent') {
+   await expect(detail.getByRole('tab', { name: 'Chat', exact: true })).toHaveAttribute('aria-selected', 'true');
+   await detail.getByRole('tab', { name: 'Assistants', exact: true }).click();
+   await expect(detail.locator('.stage-capture[aria-hidden="false"] img')).toHaveAttribute('src', /personal-agent-assistants/);
+  }
   await detail.getByRole('tab', { name: project.tab, exact: true }).click();
   await expect(detail.locator('.stage-capture[aria-hidden="false"] img')).toHaveAttribute('src', new RegExp(project.asset));
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
