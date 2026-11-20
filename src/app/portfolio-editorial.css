@@ -24,8 +24,8 @@
   overflow: visible;
   border-radius: 0;
 }
-.project-directory .product-copy h3 { font: 700 32px/1.12 var(--editorial-font); color: var(--portfolio-ink); letter-spacing: -.012em; }
-.project-directory .product-copy h3 a:hover { text-decoration: underline; text-underline-offset: .12em; text-decoration-thickness: .05em; }
+.project-directory .product-copy h2 { font: 700 32px/1.12 var(--editorial-font); color: var(--portfolio-ink); letter-spacing: -.012em; }
+.project-directory .product-copy h2 a:hover { text-decoration: underline; text-underline-offset: .12em; text-decoration-thickness: .05em; }
 .project-directory .product-copy .product-description { margin-top: 15px; max-width: 38ch; color: var(--portfolio-secondary); font-size: 17px; line-height: 1.55; }
 .project-directory .product-copy .product-actions { margin-top: 21px; gap: 22px; }
 .project-directory .product-copy .product-actions a { min-height: 32px; font-size: 14px; color: var(--portfolio-link); }
@@ -37,8 +37,6 @@
 .project-directory .product-poster { border-radius: 16px; padding: 36px 26px 26px; background: var(--portfolio-surface); }
 .project-directory .poster-workspace { border-radius: 12px; padding: 14px; box-shadow: 0 12px 30px #00000012; }
 .project-directory .poster-result { border-radius: 12px; padding: 11px; box-shadow: 0 12px 35px #00000018; }
-.project-directory .project-secondary { padding: 0; background: transparent; }
-.project-directory .project-secondary .project-copy h3 { font: 700 30px/1.15 var(--editorial-font); }
 
 .portfolio-editorial.project-detail .breadcrumb { padding-top: 30px; color: var(--portfolio-secondary); font-size: 12px; }
 .portfolio-editorial.project-detail .breadcrumb a { color: var(--portfolio-link); }
@@ -120,7 +118,7 @@
   .portfolio-editorial .portfolio-heading > p:not(.eyebrow) { font-size: 19px; margin-top: 18px; }
   .portfolio-editorial .project-index { margin-top: 37px; }
   .project-directory .product-story { gap: 26px; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
-  .project-directory .product-copy h3 { font-size: 28px; }
+  .project-directory .product-copy h2 { font-size: 28px; }
   .project-directory .product-copy .product-description { font-size: 16px; }
   .project-directory .product-copy .product-actions { gap: 12px 20px; }
   .project-directory .product-poster { padding: 26px 16px 18px; }
@@ -179,4 +177,10 @@
 
 @media (max-width: 680px) {
   .portfolio-editorial .epub-reassembly-flow { grid-template-columns: minmax(0, 1fr); gap: 15px; }
+}
+
+.portfolio-editorial.project-detail .portfolio-heading > .project-source-note {
+  margin-block-start: .9rem;
+  color: var(--portfolio-secondary);
+  font-size: .8125rem;
 }

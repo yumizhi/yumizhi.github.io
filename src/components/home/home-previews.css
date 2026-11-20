@@ -1,92 +1,3 @@
-.ph-books {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 60% 30%, #ebe4f3, #c6b7dc);
-}
-.ph-book {
-  display: grid;
-  place-items: center;
-  position: absolute;
-  inset-block-start: 19%;
-  inset-inline-start: 50%;
-  inline-size: 32%;
-  block-size: 64%;
-  border-radius: 3px 5px 5px 3px;
-  border-inline-start: 4px solid #fff2;
-  border-block-end: 4px solid #f3e9f4;
-  box-shadow: 0 5px 12px #21192e38;
-  font: 660 clamp(.8125rem, 1.6vw, 1.5rem)/1 var(--ph-display);
-}
-.ph-book::after {
-  content: "";
-  position: absolute;
-  inset-block-end: -3px;
-  inset-inline: 0 2px;
-  block-size: 3px;
-  background: repeating-linear-gradient(to bottom, #ede5f1 0 1px, #d6c7de 1px 2px);
-}
-.ph-book--a {
-  transform: translateX(-93%) rotate(-12deg);
-  background: #654579;
-  color: #fff;
-}
-.ph-book--b {
-  transform: translateX(-10%) rotate(12deg);
-  background: #f4eff9;
-  color: #573c6a;
-}
-.ph-book--collection {
-  inline-size: 37%;
-  transform: translateX(-50%) scale(.88);
-  background: #49305e;
-  color: #f6eaff;
-  opacity: 0;
-}
-.ph-books[data-merged="true"] .ph-book--a,
-.ph-books[data-merged="true"] .ph-book--b {
-  transform: translateX(-50%) rotate(0deg) scale(.92);
-  opacity: 0;
-}
-.ph-books[data-merged="true"] .ph-book--collection {
-  transform: translateX(-50%) scale(1);
-  opacity: 1;
-}
-.ph-loose-page {
-  position: absolute;
-  inset-block-start: 24%;
-  inset-inline-start: 50%;
-  inline-size: 30%;
-  block-size: 58%;
-  border-radius: 1px 3px 3px 1px;
-  background: repeating-linear-gradient(to bottom, #fcf8ff 0 7px, #eadff0 7px 8px);
-  box-shadow: 0 2px 5px #34254933;
-  opacity: 0;
-}
-.ph-loose-page--a { --page-start: translateX(-96%) rotate(-12deg); --page-turn: -38deg; }
-.ph-loose-page--b { --page-start: translateX(-10%) rotate(12deg); --page-turn: 38deg; }
-
-@keyframes ph-page-join {
-  0% { opacity: 0; transform: var(--page-start); }
-  28% { opacity: 1; transform: translate(-53%, -12%) rotate(var(--page-turn)); }
-  70% { opacity: .94; transform: translate(-49%, -5%) rotate(3deg); }
-  100% { opacity: 0; transform: translateX(-50%) rotate(0deg); }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .ph-book { transition: opacity 160ms ease, transform 540ms cubic-bezier(.22,.72,.19,1); }
-  .ph-books[data-merged="true"] :is(.ph-book--a, .ph-book--b) { transition-delay: 240ms, 0ms; }
-  .ph-books[data-merged="true"] .ph-book--collection { transition-delay: 440ms, 340ms; }
-  .ph-books[data-started="true"] .ph-loose-page { animation: ph-page-join 600ms ease both; }
-  .ph-books[data-started="true"][data-merged="false"] .ph-loose-page { animation-name: ph-page-split; }
-}
-@keyframes ph-page-split {
-  0% { opacity: 0; transform: translateX(-50%) rotate(0deg); }
-  30% { opacity: .94; transform: translate(-49%, -5%) rotate(3deg); }
-  72% { opacity: 1; transform: translate(-53%, -12%) rotate(var(--page-turn)); }
-  100% { opacity: 0; transform: var(--page-start); }
-}
-
-
 .ph-preview {
   position: relative;
   isolation: isolate;
@@ -114,14 +25,13 @@
   justify-content: space-between;
   gap: .5rem;
 }
-.ph-tide-controls .ph-tide-play,
-.ph-preview .ph-book-toggle {
+.ph-tide-controls .ph-tide-play {
   color: #632570;
   background: #fff;
   border-radius: .625rem;
   box-shadow: 0 1px 1px #35164321, 0 3px 10px #35164316;
 }
-.ph-tide-controls .ph-tide-play:hover, .ph-preview .ph-book-toggle:hover { background: #f9f4fa; }
+.ph-tide-controls .ph-tide-play:hover { background: #f9f4fa; }
 .ph-tide-controls .ph-tide-play { min-inline-size: 2.125rem; min-block-size: 2.125rem; }
 .ph-tide-segments.site-segments[data-slot="segmented-control"] {
   background: #e9ddef;
@@ -190,14 +100,7 @@
 }
 .ph-sasbo-slider [role="slider"]:focus-visible .ph-compare-handle { outline: 2px solid #e9b9f0; outline-offset: 3px; }
 
-.ph-preview--epub { aspect-ratio: 1.45; }
-.ph-books { background: radial-gradient(ellipse at 60% 36%, #f5eff8, #d6c5e4); }
-.ph-preview .ph-book-toggle { position: absolute; inset: auto .5rem .5rem; margin-inline: auto; width: fit-content; }
-.ph-book { inset-block-start: 12%; inline-size: 27%; block-size: 59%; }
-.ph-book--collection { inline-size: 31%; }
-.ph-loose-page { inset-block-start: 17%; inline-size: 25%; block-size: 52%; }
-
 @media (pointer: coarse) {
-  .ph-tide-controls .ph-tide-play, .ph-preview .ph-book-toggle { min-block-size: 2.5rem; }
+  .ph-tide-controls .ph-tide-play { min-block-size: 2.5rem; }
   .ph-tide-segments.site-segments [data-slot="segmented-control-item"] { min-block-size: 2rem; }
 }

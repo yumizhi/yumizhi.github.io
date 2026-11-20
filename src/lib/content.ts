@@ -54,12 +54,14 @@ export const papers: Paper[] = [
 ];
 export type Project = {
  slug:string;title:string;category:string;year:number;summary:string;description:string;image:string;imageAlt:string;gallery:string[];
- repo:string;demo?:string;release?:string;features:{title:string;titleZh:string;description:string;descriptionZh:string}[];technology:string;categoryZh?:string;summaryZh?:string;descriptionZh?:string;technologyZh?:string;
+ repo?:string;demo?:string;release?:string;features:{title:string;titleZh:string;description:string;descriptionZh:string}[];technology:string;categoryZh?:string;summaryZh?:string;descriptionZh?:string;technologyZh?:string;
+ cardSummary?:{en:string;zh:string};
  previews?:{id:string;label:string;labelZh?:string;image:string;width:number;height:number;mobile?:string;mobileWidth?:number;mobileHeight?:number;alt:string;caption?:string;captionZh?:string}[];
 };
 export const projects:Project[] = [{
   slug: 'epub-toolkit', title: 'EPUB Toolkit', category: 'Open-source software', categoryZh:'开源软件', year: 2026,
   summaryZh:'将多卷 EPUB 整理为一本，保留后续拆回单册所需的来源记录。支持目录与元数据检查，书籍在浏览器本地处理。',
+  cardSummary: { en: 'Merge EPUB volumes and split collections back into individual books in your browser.', zh: '在浏览器里合并 EPUB 分卷，也可以把合集拆回单册。' },
   summary: 'Organize EPUB volumes into a collection that can be split back into individual books. Inspect navigation and metadata, with all book processing kept in your browser.',
   description: 'Arrange volumes in reading order, choose a grouped or continuous table of contents, then download a single EPUB. A collection merged with the toolkit can later be split back into individual books.',
   descriptionZh: '按阅读顺序排列分卷，选择按书分组或连续的章节目录，导出一个 EPUB。使用本工具合并的合集，还可以重新拆分为单册。',
@@ -82,6 +84,52 @@ export const projects:Project[] = [{
   technology: 'The web app supports offline use. Python and Node.js command-line tools are also available.',
   technologyZh:'支持离线使用，也提供 Python 和 Node.js 命令行工具。',
 
+}, {
+  slug: 'originmark', title: 'OriginMark', category: 'Image provenance', categoryZh: '图像溯源', year: 2026,
+  summary: 'Generate and protect images, then inspect their watermark and provenance evidence.',
+  summaryZh: '在同一个工作台生成带水印的图像、保护已有图片，并核查来源证据。',
+  description: 'OriginMark brings image generation and provenance into one workflow. Generate a marked image with TIDE or protect an existing image, then inspect what a verifier can recover from the resulting file.',
+  descriptionZh: 'OriginMark 将图像生成和溯源串成一个工作流。用 TIDE 生成带水印的图像，或给已有图片添加保护，再检查验证工具能从输出文件中找回哪些证据。',
+  image: '/images/projects/originmark-cover.webp',
+  imageAlt: 'A ceramic teapot and pitcher from the OriginMark demonstration workspace',
+  gallery: [],
+  previews: [
+    { id: 'generate', label: 'Generate', labelZh: '生成', image: '/images/projects/originmark-generate.webp', width: 868, height: 716,
+      alt: 'OriginMark comparison canvas with clean and watermarked TIDE outputs', caption: 'A clean and watermarked pair in the demo workspace.', captionZh: '演示空间中的无水印与带水印图像对照。' },
+    { id: 'verify', label: 'Verify', labelZh: '验证', image: '/images/projects/originmark-verify.webp', width: 972, height: 690,
+      alt: 'OriginMark verification preview with separate watermark and content-credential results', caption: 'Watermark evidence and content credentials are reported separately.', captionZh: '水印证据和内容凭证分别呈现。' },
+  ],
+  features: [
+    { title: 'Generate', titleZh: '生成图像', description: 'Compare clean and TIDE-watermarked images from the same generation setup.', descriptionZh: '对照同一生成设置下的无水印与 TIDE 水印图像。' },
+    { title: 'Protect', titleZh: '保护图片', description: 'Apply a watermark to an existing image and inspect the resulting artifact.', descriptionZh: '给已有图片添加水印，查看处理后的图像。' },
+    { title: 'Verify', titleZh: '查看证据', description: 'Read watermark evidence and signed content credentials as separate checks.', descriptionZh: '分别查看水印证据和签名内容凭证。' },
+  ],
+  technology: 'Source code is private.',
+  technologyZh: '源码暂未公开。',
+}, {
+  slug: 'personal-agent', title: 'Personal Agent', category: 'Agent workspace', categoryZh: '智能体工作台', year: 2026,
+  summary: 'Chat or delegate work in one workspace, then follow each task from its schedule to its result.',
+  summaryZh: '在同一个工作台聊天或交办任务，从执行安排一路跟进到最终结果。',
+  description: 'Personal Agent has two modes. Chat keeps recent conversations and model choice in view. Agent lets you find an assistant, schedule recurring work, and open a result with the recorded steps behind it. Search connects conversations, assistants, tasks, and reports.',
+  descriptionZh: 'Personal Agent 有两种模式。聊天模式支持继续历史会话并选择模型，Agent 模式可以找到助手、安排定时任务，并从交付报告回看实际的执行步骤。全局搜索串起会话、助手、任务和成果。',
+  image: '/images/projects/personal-agent-assistants.webp',
+  imageAlt: 'Personal Agent assistant directory with Chat and Agent modes',
+  gallery: [],
+  previews: [
+    { id: 'chat', label: 'Chat', labelZh: '聊天', image: '/images/projects/personal-agent-workspace.webp', width: 1120, height: 695,
+      alt: 'Personal Agent chat home with the Chat and Agent mode switch', caption: 'Chat and Agent open from the same workspace.', captionZh: '同一个工作台可以切换聊天与 Agent 模式。' },
+    { id: 'assistants', label: 'Assistants', labelZh: '助手', image: '/images/projects/personal-agent-assistants.webp', width: 1025, height: 570,
+      alt: 'Personal Agent demo assistant directory with actions for chatting and scheduling work', caption: 'Start a conversation with an assistant or schedule work from its entry.', captionZh: '从助手目录发起会话或安排定时工作。' },
+    { id: 'runs', label: 'Run history', labelZh: '执行记录', image: '/images/projects/personal-agent-runs.webp', width: 487, height: 734,
+      alt: 'Personal Agent demo run panel with completed execution steps and a delivery receipt', caption: 'A demo task with recorded execution steps and its delivery receipt.', captionZh: '演示任务的实际执行步骤和交付回执。' },
+  ],
+  features: [
+    { title: 'Chat', titleZh: '聊天', description: 'Resume an earlier conversation or choose an available model in the composer.', descriptionZh: '继续之前的会话，或在输入区选择可用模型。' },
+    { title: 'Delegate', titleZh: '交办任务', description: 'Find an assistant and start a conversation or schedule recurring work.', descriptionZh: '找到合适的助手，发起会话或安排定时工作。' },
+    { title: 'Review results', titleZh: '回看结果', description: 'Find a delivered result and inspect the steps that produced it.', descriptionZh: '打开已交付成果并回看对应的执行步骤。' },
+  ],
+  technology: 'Source code is private.',
+  technologyZh: '源码暂未公开。',
 }];
 export type Resource = { id: string; title: string; type: 'Paper'|'CV'|'Slides'|'Poster'; year: number; file: string; preview: string; size: string; description: string };
 export const resources: Resource[] = [
