@@ -10,18 +10,6 @@ import { projectStories } from '@/lib/project-stories';
 import { projectChapters } from '@/lib/project-chapters';
 import './project-case-study.css';
 
-export function ProjectCaseExample({ slug }: { slug: string }) {
-  const story = projectStories[slug];
-  if (!story) return null;
-
-  return (
-    <aside className="case-example" aria-label="Case example">
-      <strong><Localized en="The example" zh="本文用例" /></strong>
-      <p><Localized {...story.example} /></p>
-    </aside>
-  );
-}
-
 export function ProjectCaseStudy({ project }: { project: Project }) {
   const story = projectStories[project.slug];
   const chapters = projectChapters[project.slug];
@@ -33,7 +21,7 @@ export function ProjectCaseStudy({ project }: { project: Project }) {
         <header className="project-story-heading">
           <span className="case-section-label"><Localized en="Design" zh="产品设计" /></span>
           <h2 id="case-design"><Localized {...story.designTitle} /></h2>
-          <p><Localized en={project.description} zh={project.descriptionZh ?? project.description} /></p>
+          <p><Localized {...story.example} /></p>
         </header>
         <div className="case-prose">
           {story.design.map(block => (
@@ -61,6 +49,7 @@ export function ProjectCaseStudy({ project }: { project: Project }) {
         <header className="project-story-heading">
           <span className="case-section-label"><Localized en="Implementation" zh="技术实现" /></span>
           <h2 id="case-implementation"><Localized {...story.implementationTitle} /></h2>
+          <p><Localized {...story.implementationLead} /></p>
         </header>
 
         {story.steps && story.workflowTitle && <ProjectCaseFlow slug={project.slug} steps={story.steps} title={story.workflowTitle} />}
@@ -101,7 +90,7 @@ export function ProjectCaseStudy({ project }: { project: Project }) {
 
       <section className="case-section case-verification" id="verification" tabIndex={-1} aria-labelledby="case-verification">
         <header className="project-story-heading">
-          <h2 id="case-verification"><Localized en="What we verified" zh="实际验证了什么" /></h2>
+          <h2 id="case-verification"><Localized en="Validation results" zh="验收结果" /></h2>
           <p><Localized {...story.verification} /></p>
         </header>
         <ProjectCaseEvidence checks={story.checks} />
