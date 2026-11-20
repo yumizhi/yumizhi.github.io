@@ -1,0 +1,231 @@
+.worked-panel {
+  padding: clamp(13px, 3vw, 24px);
+  background: var(--figure-panel);
+  border: 1px solid var(--figure-edge);
+  border-radius: 10px;
+  font-size: .875rem;
+  line-height: 1.35;
+}
+
+.worked-panel strong { font-weight: 625; }
+
+.tide-spectrum {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: end;
+  gap: clamp(9px, 2vw, 17px);
+}
+
+.tide-spectrum > svg {
+  align-self: end;
+  margin-bottom: 13px;
+  color: var(--figure-muted);
+}
+
+.spectrum-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 3px;
+  margin-top: 9px;
+}
+
+.spectrum-strip span {
+  display: grid;
+  place-content: center;
+  min-height: 43px;
+  border-radius: 4px;
+  color: var(--figure-muted);
+  background: var(--figure-backing);
+  font-family: "KaTeX_Main", Georgia, serif;
+  font-size: 1rem;
+}
+
+.spectrum-strip sub { font-size: .7em; }
+
+.spectrum-strip span[data-masked="true"] {
+  color: var(--figure-accent);
+  background: color-mix(in srgb, var(--figure-accent) 12%, var(--figure-panel));
+  box-shadow: inset 0 -2px var(--figure-accent);
+}
+
+.budget-heading, .projection-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  column-gap: 14px;
+  row-gap: 7px;
+}
+
+.budget-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 15px;
+  color: var(--figure-muted);
+  font-size: .75rem;
+}
+
+.budget-key > span, .budget-rows > div { display: flex; align-items: center; gap: 7px; }
+
+.budget-key i {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  background: var(--figure-blue);
+}
+
+.budget-key [data-branch="watermark"] { background: var(--figure-accent); }
+.budget-rows { display: grid; gap: 13px; margin-top: 18px; }
+
+.budget-rows > div > span {
+  width: 11rem;
+  color: var(--figure-muted);
+  font-size: .8125rem;
+}
+
+.budget-rail {
+  display: flex;
+  flex: 1;
+  gap: 2px;
+  height: 14px;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.budget-rail > i:first-child { flex: 1; background: var(--figure-blue); }
+.budget-rail > i:last-child { width: 36%; background: var(--figure-accent); }
+.budget-rail[data-step="turn"] > i:last-child { width: 15%; }
+
+.worked-panel table {
+  width: 100%;
+  border-spacing: 0 4px;
+  table-layout: fixed;
+  font-size: .8125rem;
+}
+
+.worked-panel th, .worked-panel td {
+  padding: 6px 3px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.worked-panel thead th { color: var(--figure-muted); font-weight: 550; }
+.worked-panel tbody th { font-weight: 610; }
+
+.sasbo-product th:first-child {
+  width: 33%;
+  padding-inline-start: 0;
+  text-align: start;
+}
+
+.sasbo-product td {
+  border-inline: 2px solid var(--figure-panel);
+  border-radius: 5px;
+  background: var(--figure-backing);
+  color: var(--figure-muted);
+  font: 1rem/1.3 "KaTeX_Main", Georgia, serif;
+}
+
+.sasbo-product tr[data-result="true"] td[data-active="true"] {
+  color: var(--figure-accent);
+  background: color-mix(in srgb, var(--figure-accent) 13%, var(--figure-panel));
+  font-weight: 700;
+}
+
+.sam-handoff { max-width: min(46rem, 100%); }
+.sam-board { --query-surface: color-mix(in srgb, var(--figure-rust) 12%, var(--figure-panel)); }
+
+.sam-evaluate, .sam-commit {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 16px minmax(0, 1fr) 16px minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+}
+
+.sam-evaluate > div, .sam-commit > div {
+  display: grid;
+  place-content: center;
+  gap: 7px;
+  min-height: 78px;
+  padding: 8px 5px;
+  border-radius: 5px;
+  background: var(--figure-backing);
+  text-align: center;
+}
+
+.sam-evaluate > [data-query], .sam-commit > div:first-child {
+  color: var(--figure-rust);
+  background: var(--query-surface);
+}
+
+.sam-commit > div:first-child { grid-area: 1 / 5; }
+.sam-commit > svg { grid-area: 1 / 4; rotate: 180deg; }
+.sam-commit > div:nth-child(3) { grid-area: 1 / 3; }
+.sam-commit > svg:nth-child(4) { grid-area: 1 / 2; }
+.sam-commit > .sam-next-task {
+  grid-area: 1 / 1;
+  justify-items: center;
+  color: var(--figure-muted);
+  background: transparent;
+}
+.sam-evaluate > svg, .sam-commit > svg { color: var(--figure-muted); }
+
+.sam-query-signal {
+  display: flex;
+  justify-content: center;
+  width: calc((100% - 68px) / 3);
+  margin-inline-start: auto;
+  padding-block: 4px;
+  color: var(--figure-rust);
+}
+
+.sam-math { font: 1rem/1.35 "KaTeX_Main", Georgia, serif; }
+.sam-math sub { font-size: .7em; }
+
+.sam-projection table { margin-top: 8px; }
+.sam-projection th:first-child { width: 14%; }
+.sam-projection tbody tr[data-retained="true"] { background: color-mix(in srgb, var(--figure-accent) 10%, var(--figure-panel)); }
+.sam-projection tbody th, .sam-projection tbody td { padding-block: 9px; }
+.sam-projection tbody tr > :first-child { border-radius: 5px 0 0 5px; }
+.sam-projection tbody tr > :last-child { border-radius: 0 5px 5px 0; }
+.sam-projection tr[data-retained="true"] :is(th, .sam-math) { color: var(--figure-accent); }
+
+.channel-group {
+  display: inline-flex;
+  gap: 3px;
+  white-space: nowrap;
+  font: .9375rem/1.3 "KaTeX_Main", Georgia, serif;
+}
+
+.channel-group > span {
+  display: grid;
+  place-items: center;
+  width: 1.45em;
+  height: 1.5em;
+  border-radius: 3px;
+  color: var(--channel-color);
+  background: color-mix(in srgb, var(--channel-color) 13%, var(--figure-panel));
+}
+
+.channel-group > [data-channel="0"] { --channel-color: var(--figure-rust); }
+.channel-group > [data-channel="1"] { --channel-color: #3e6b59; }
+.channel-group > [data-channel="2"] { --channel-color: var(--figure-blue); }
+.dark .channel-group > [data-channel="1"] { --channel-color: #9fd5bd; }
+.channel-group > [data-zero="true"] { color: var(--figure-muted); background: var(--figure-backing); }
+
+@container paper-figure (max-width: 440px) {
+  .tide-spectrum { grid-template-columns: 1fr; }
+  .tide-spectrum > svg { rotate: 90deg; margin: 0 0 0 2px; }
+  .spectrum-strip span { min-height: 33px; }
+  .budget-rows > div { display: grid; gap: 5px; }
+  .budget-rows > div > span { width: auto; }
+  .sam-evaluate, .sam-commit { column-gap: 4px; }
+  .sam-query-signal { width: calc((100% - 48px) / 3); }
+  .sam-evaluate > div, .sam-commit > div { min-height: 65px; font-size: .6875rem; }
+  .sam-commit > div { padding-inline: 2px; }
+  .sam-commit > div:first-child .sam-math { font-size: .75rem; }
+  .sam-projection table { font-size: .6875rem; }
+  .sam-projection .sam-math { font-size: .8125rem; }
+  .channel-group { gap: 2px; font-size: .75rem; }
+  .channel-group > span { width: 1.3em; }
+}

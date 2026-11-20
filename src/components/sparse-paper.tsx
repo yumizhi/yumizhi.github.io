@@ -3,9 +3,9 @@ import { asset } from '@/lib/paths';
 import { Localized } from './language';
 import { PaperArticle } from './paper-article';
 import { SparseResults } from './sparse-results';
-import { SamMethod } from './paper-figures/sam-method';
+import { SamProjectionMath, SamTaskMath } from './paper-figures/sam-method';
 import { SasboEvidence } from './paper-figures/sasbo-evidence';
-import { SasboArm } from './paper-figures/sasbo-arm';
+import { SasboAmplitudeMath, SasboArmMath, SasboMaskMath } from './paper-figures/sasbo-math';
 import { EssayProse } from './paper-figures/essay-prose';
 import { sasboChapters, samChapters } from './paper-figures/essay-chapters';
 import { sasboEvidence, samEvidence } from './paper-figures/essay-evidence';
@@ -60,19 +60,16 @@ export function SparsePaper({paper}:{paper:Paper}){
         <h2><Localized {...study.method}/></h2></header>
       <p className="tide-prose"><Localized {...study.problem}/></p>
       {id==='sasbo' ? <>
+        <SasboMaskMath/>
         <EssayProse chapters={sasboChapters.slice(0, 1)}/>
-        <SasboArm/>
-        <p className="tide-prose"><Localized
-          en="For a coordinate with selection probability p, the same uniform draw u enters both masks. The lower mask selects it when u is below p. The upper mask selects it when u is above 1 − p. Each mask has the same marginal selection probability. They are coupled because both tests use the same draw."
-          zh="设一个坐标的选择概率为 p，两张掩码都使用同一个均匀随机样本 u。低端掩码在 u 小于 p 时选中它，高端掩码在 u 大于 1 − p 时选中它。单看任何一张掩码，选中该坐标的概率都是 p。两张掩码使用的是同一份随机样本，因此它们的选择是相关的。"/></p>
-        <p className="tide-prose"><Localized
-          en="During this estimate, the magnitudes stay fixed. The classifier is evaluated on each masked image, yielding two loss values. Their difference, weighted by each centered draw, estimates how the expected loss changes with the selection logit. This part uses forward loss evaluations. The overall method also uses classifier gradients when it subsequently optimizes the magnitudes."
-          zh="这次估计里，扰动幅度先保持固定。分类器分别计算两张掩码图的损失。把两次损失之差乘以各坐标居中后的随机样本，就能估计改变坐标选择参数会怎样影响期望损失。这里用的是前向损失值。完整方法在后续优化扰动幅度时还会用到分类器的梯度。"/></p>
+        <SasboArmMath/>
         <EssayProse chapters={sasboChapters.slice(1)}/>
+        <SasboAmplitudeMath/>
       </> : <>
-        <EssayProse chapters={samChapters.slice(0, 2)}/>
-        <SamMethod original={paper.image}/>
-        <EssayProse chapters={samChapters.slice(2)}/>
+        <EssayProse chapters={samChapters.slice(0, 1)}/>
+        <SamTaskMath/>
+        <SamProjectionMath/>
+        <EssayProse chapters={samChapters.slice(1)}/>
       </>}
     </div></section>
     <section id="examples" className="tide-results tide-bound">

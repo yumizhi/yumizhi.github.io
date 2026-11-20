@@ -83,32 +83,6 @@ export const sasboChapters: EssayChapter[] = [
       },
     ],
   },
-  {
-    title: { en: 'The next round can change its mind', zh: '下一轮可以改选位置' },
-    body: [
-      {
-        en: 'The published mask shows where an iteration of this search finally landed. During the search, a location can lose its place when the magnitudes change. This is the reason to alternate. The usefulness of a coordinate depends on both its possible magnitude and what the other coordinates are doing. A location that was a good choice on its own can contribute little once a neighboring part of the image has changed.',
-        zh: '论文的扰动图只留下了搜索结束后的位置。搜索过程中，原来入选的坐标也可能在幅度更新后退出。这正是交替更新的用处。一处坐标能起多大作用，取决于它能改多少，也取决于其他坐标已经做了什么。某个位置单独看很有用，附近图像发生变化后，继续保留它的收益可能就很小了。',
-      },
-      {
-        en: 'ARM supplies a way to update the probabilities along the way. It compares losses from paired binary masks that share the same random draw. Because the sampled decisions stay binary, the values fed to the classifier correspond to complete candidate masks. The estimator turns their loss differences into information about which selection probabilities should change. The next threshold therefore uses a revised ordering.',
-        zh: 'ARM 给了概率更新一条路。它让两个二值掩码共享同一次随机抽样，再比较各自带来的损失。送给分类器的仍是完整的离散候选。估计器把它们的损失差异转化成更新选择概率的信息，所以下一轮决定阈值时，用的是已经调整过的排名。',
-      },
-    ],
-  },
-  {
-    title: { en: 'Successful masks can often be made smaller', zh: '找到有效扰动之后，还能缩小掩码' },
-    body: [
-      {
-        en: 'A run that succeeds with its initial allowance has cleared one bar. There is still a smaller-budget comparison to make. SASBO keeps the learned ranking and tests tighter thresholds by binary search. This uses the work already done to find useful coordinates, while checking that the smaller mask still attains the classification objective.',
-        zh: '用初始预算找到一组有效扰动，只完成了第一件事。还可以拿它和更小的预算比较。SASBO 保留学到的坐标排序，用二分搜索尝试更紧的阈值。这样既利用了前面找有效位置的结果，也会检查缩小后的掩码是否仍能达到分类目标。',
-      },
-      {
-        en: 'The table below holds the amplitude allowance and attack objective fixed within each comparison. That makes the number of surviving entries meaningful. In the paper’s tighter amplitude setting, the count needed for success rises substantially. A good reading of the result keeps two constraints in view at once: how many entries moved and how far any single entry was allowed to move.',
-        zh: '下面的表在每组比较里固定分类目标和幅度上限，这才让留下多少非零项变得可比。论文把幅度限制再收紧后，保持成功所需的坐标明显变多。看这个结果时，最好把两类约束放在一起：一共动了多少项，以及任何一项最多能动多远。',
-      },
-    ],
-  },
 ];
 
 export const samChapters: EssayChapter[] = [
@@ -122,32 +96,6 @@ export const samChapters: EssayChapter[] = [
       {
         en: 'In the first part of a SAM task, several support classifiers see the same image and their gradients are combined. This gives the perturbation a shared update direction to follow for that part of the task. The models can disagree locally, and the weighted combination limits how much one of them determines the proposal on its own.',
         zh: 'SAM 每轮先让几个支持模型看同一张图，再合并它们提供的梯度。这样，扰动在这一阶段沿着共同提出的方向更新。即使模型对部分位置意见不一致，一个模型也只能按它的权重影响这个提议。',
-      },
-    ],
-  },
-  {
-    title: { en: 'The query model sees the proposed image', zh: '查询模型接手的是改过的图' },
-    body: [
-      {
-        en: 'At this point a second model evaluation does more than contribute another vote. The query classifier is brought in after the support updates. It sees the proposed image, whose local gradients can differ from those at the beginning of the round. The support move therefore creates the place at which query feedback is measured.',
-        zh: '这时再引入另一个模型，起到的作用比多投一票更具体。查询模型是在支持集更新之后加入的。它看的是改过的图，这个位置附近的梯度可能和本轮开始时不一样。支持集先走出的那几步，决定了查询反馈在什么位置取得。',
-      },
-      {
-        en: 'Algorithm 1 uses the query gradient evaluated there to update the input carried into the task. The path through the support models changes the point of evaluation. The query direction is what guides the outer update. This is the part of meta-learning SAM borrows: propose an adaptation on one group, then use its behavior on a different member of the pool to shape what persists.',
-        zh: '论文算法 1 在那个位置取得查询梯度，再用这个方向更新本轮开始时接到的图像。支持集走过的路径改变的是评价点，真正指导外层更新的是在那里得到的查询方向。这里借用元学习的一点是，先用一组模型做适应，再让另一组反馈决定哪些改动会被带走。',
-      },
-    ],
-  },
-  {
-    title: { en: 'Projection makes the next task sparse again', zh: '投影把稠密更新放回预算内' },
-    body: [
-      {
-        en: 'An image gradient can propose changes across much of the input. SAM needs the next task to start from an image that already fits the sparse budget. For each pixel, it can restore the original RGB values or keep a change clipped to the allowed amplitude. These options leave different squared errors relative to the dense proposal.',
-        zh: '图像梯度可能在大部分位置都提出改动。SAM 希望下一轮拿到的图已经满足稀疏预算。对每个像素，可以恢复原本的 RGB 值，也可以保留裁剪到幅度上限内的改动。两种做法离稠密提议有不同的平方误差。',
-      },
-      {
-        en: 'The relevant score is how much error keeping the pixel would save. A pixel can have a large proposed change, yet the amount it recovers once clipped may be modest. Ranking the savings spends the budget on the changes that best preserve the dense update under the constraints. The resulting sparse image is handed on to the next task, so later feedback can revise the solution we would actually keep.',
-        zh: '真正用来排名的是保留该像素能省掉多少误差。一处位置提议的改动可能很大，但裁剪后能够保留下来的效果未必同样大。按省掉的误差分配名额，就能在约束内尽可能接近稠密更新。把投影后的稀疏图交给下一轮，后续模型的反馈就会直接作用到这张最终能保留的图上。',
       },
     ],
   },

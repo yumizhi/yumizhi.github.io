@@ -95,9 +95,24 @@ test('paper figures show trajectory, paired masks, and the SAM query update inli
 
  await page.goto('/research/sparse-meta-learning/#handoff-figure');
  const handoff = page.locator('#handoff-figure');
- await expect(handoff.getByRole('img', { name: 'The image states in one SAM task' })).toBeVisible();
+ await expect(handoff.getByText('Support proposal', { exact: true })).toBeVisible();
  await expect(handoff.locator('.sam-query-signal')).toBeVisible();
+ await expect(page.locator('#projection-example tbody tr[data-retained="true"] th')).toHaveText('B');
  await expect(page.getByRole('link', { name: 'Table VI in the paper' })).toHaveAttribute('href', '/files/sparse-meta-learning-ijcnn-2024.pdf');
+});
+test('worked paper equations fit the mobile reading column', async ({ page }) => {
+ await page.setViewportSize({ width: 320, height: 800 });
+ for (const slug of ['tide', 'sasbo', 'sparse-meta-learning']) {
+   await page.goto(`/research/${slug}/`);
+   const prose = page.locator('#method .tide-prose').first();
+   await expect(prose).toHaveCSS('text-align', 'justify');
+   const equations = page.locator('.paper-equation-math');
+   expect(await equations.count()).toBeGreaterThan(2);
+   for (const equation of await equations.all()) {
+     await expect(equation.locator('math')).toHaveCount(1);
+     expect(await equation.evaluate(el => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(1);
+   }
+ }
 });
 test('home and the directories share their outside edges during navigation', async ({ page }) => {
  await page.setViewportSize({ width: 1440, height: 900 });
