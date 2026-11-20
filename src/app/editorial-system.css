@@ -1,6 +1,6 @@
 /* Common editorial system: neutral reading surfaces, restrained NJU purple. */
 :root {
-  --editorial-shell-width: 980px;
+  --editorial-shell-width: 51rem;
   --editorial-copy-width: 654px;
   --editorial-gutter: 24px;
   --editorial-font: -apple-system, BlinkMacSystemFont, 'Inter Variable', 'Noto Sans SC Variable', sans-serif;
