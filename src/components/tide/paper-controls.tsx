@@ -6,10 +6,11 @@ import { Localized } from '../language';
 
 type Section = { id: string; en: string; zh: string };
 const baseSections: Section[] = [
-  { id: 'abstract', en: 'Abstract', zh: '摘要' },
+  { id: 'overview', en: 'Overview', zh: '导读' },
   { id: 'method', en: 'Method', zh: '方法' },
   { id: 'examples', en: 'Results', zh: '实验结果' },
   { id: 'discussion', en: 'Discussion', zh: '讨论' },
+  { id: 'abstract', en: 'Abstract', zh: '摘要' },
   { id: 'citation', en: 'BibTeX', zh: '引用' },
 ];
 const tideSections: Section[] = [
@@ -20,7 +21,7 @@ const tideSections: Section[] = [
 
 export function PaperNav({ expanded = false }: { expanded?: boolean }) {
   const sections = expanded ? tideSections : baseSections;
-  const [current, setCurrent] = useState('abstract');
+  const [current, setCurrent] = useState('overview');
   const nav = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
 
@@ -32,7 +33,7 @@ export function PaperNav({ expanded = false }: { expanded?: boolean }) {
       const top = (nav.current?.getBoundingClientRect().bottom ?? 52) + 38;
       const reached = targets.filter(element => element && element.getBoundingClientRect().top <= top).pop();
       const atEnd = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
-      setCurrent(atEnd ? 'citation' : reached?.id ?? 'abstract');
+      setCurrent(atEnd ? 'citation' : reached?.id ?? 'overview');
       frame = 0;
     }
 

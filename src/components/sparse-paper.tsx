@@ -12,21 +12,19 @@ const studies = {
     affiliations:['State Key Laboratory for Novel Software Technology, Department of Computer Science and Technology, Nanjing University'],
     breaks:/ (?=In this paper,|Once the perturbed coordinates )/,
     method:{en:'Choosing where to perturb an image',zh:'稀疏攻击中的坐标选择'},
-    problem:{en:'A small change and a sparse change are different constraints. An attack can alter almost every pixel by a tiny amount, or change only a few locations more substantially. In the sparse case, choosing those locations is a discrete search problem: a pixel is either selected or left untouched. Ordinary gradient descent does not directly optimize that decision.',
-      zh:'改动很小与改动很少，是两种不同的约束。前者可以在几乎所有像素上施加微小扰动，后者则要求只动极少的位置。稀疏攻击的难点因此落在位置选择上：一个像素要么被选中，要么不变，这是一个无法直接用普通梯度下降处理的离散搜索问题。'},
+    problem:{en:'Once a location is chosen, a gradient can tell us which way to change its value. Replacing that location with another changes the set of coordinates the attack is allowed to use. SASBO gives those two decisions separate variables so the search can revisit either one.',
+      zh:'一个位置选定后，梯度可以告诉我们往哪个方向调整它的值。若想换到另一个位置，变的就是整组允许改动的坐标。SASBO 用两类变量分别表示位置和幅度，让两者在搜索中都可以重新调整。'},
     mechanism:{en:'Separate the location from the magnitude',zh:'把改动位置与改动幅度分开'},
-    insight:{en:'ARM estimates the gradient of the expected attack objective with respect to the Bernoulli parameters. SASBO ranks the resulting probabilities and selects coordinates using a threshold set by the sparsity budget. It alternates these discrete selections with continuous magnitude updates.',
-      zh:'ARM 估计期望攻击目标相对于伯努利参数的梯度。SASBO 对更新后的概率排序，按稀疏预算确定阈值，选出离散坐标，再与连续的幅度更新交替进行。'},
-    lead:{en:'A sparse attack has two choices to make at each pixel: whether to change it and by how much. SASBO models the first choice as a Bernoulli variable and uses an ARM gradient estimate to learn its probability. With the coordinates fixed, gradient descent then adjusts the perturbation magnitudes.',
-      zh:'每个像素都有两个选择：改不改，以及改多少。SASBO 用一个二值随机变量表示前者，通过 ARM 梯度估计学习它被选中的概率。位置确定后，再用梯度下降调整这些位置上的扰动幅度。'},
-    detail:{en:'The final binary search reduces the coordinate budget while checking attack success. In the original paper figure above, black regions remain unchanged and colored points identify perturbed channels.',
-      zh:'最后通过二分搜索缩减坐标预算，并检查攻击是否仍然成功。上方原论文图中，坐标图的黑色区域保持不变，彩色点表示受到扰动的颜色通道。'},
+    insight:{en:'Each sampled mask is binary, but its expected objective varies with the selection probabilities. ARM estimates the gradient of that expectation with respect to the Bernoulli parameters. The mask can then be revised as the attack learns which coordinates are useful.',
+      zh:'每次采样得到的掩码都是二值的，但它的期望目标会随选择概率连续变化。ARM 估计这个期望对伯努利参数的梯度，使搜索能随着优化进展重新选择坐标。'},
+    lead:{en:'Giving each coordinate a selection probability turns the mask into a distribution over possible selections. Each candidate mask can still be applied to the image and evaluated on its own.',
+      zh:'给每个坐标一个被选中的概率，就能在多种位置组合之间搜索。每次抽出的掩码仍是一组确定的坐标，可以直接应用到图像上，交给分类器判断。'},
     optimization:{en:'Turning probabilities into a sparse attack',zh:'从概率得到稀疏扰动'},
-    optimizationText:{en:'The probability model makes coordinate learning possible, but the attack still needs a concrete set of coordinates. SASBO sorts the probabilities and applies a threshold determined by the current budget. Magnitudes are then optimized at the selected coordinates, subject to the amplitude limit. Alternating these updates lets the method revisit the selection as the perturbation changes.',
-      zh:'概率模型让坐标选择可以学习，但实际攻击仍需要一组确定的位置。SASBO 对概率排序，依据当前预算设置阈值；再在选中的坐标上优化幅度，并限制每次改动的大小。交替更新使位置选择能够随扰动变化重新调整。'},
-    discussion:{en:'What sparsity tells us',zh:'稀疏性说明了什么'},
-    discussionText:{en:'The comparison separates two requirements: reaching an adversarial class and doing so with fewer altered entries. It does not make magnitude irrelevant. With ε reduced from 255 to 10 on CIFAR-10, SASBO’s mean ℓ₀ for untargeted attacks rises from 3.95 to 144.21, while success remains 100%. A sparse result should therefore be read together with its amplitude constraint.',
-      zh:'这组对比分开了两个要求：让分类器出错，以及用更少的非零扰动做到这一点。幅度限制仍然重要。在 CIFAR-10 的非定向攻击中，将 ε 从 255 收紧到 10 后，SASBO 的平均 ℓ₀ 从 3.95 增至 144.21，成功率仍为 100%。因此，阅读稀疏性结果时需要同时看幅度约束。'},
+    optimizationText:{en:'At each round SASBO ranks the probabilities and takes the highest-ranked coordinates allowed by the budget. It updates their magnitudes within the amplitude limit, then revisits the selection. A final binary search checks whether a smaller budget still produces a successful perturbation.',
+      zh:'SASBO 每轮按概率排序，选出预算允许的最高排名坐标。在幅度上限内更新这些坐标的值之后，再重新选择位置。最后用二分搜索检查，换成更小的坐标预算能否仍让分类器出错。'},
+    discussion:{en:'Tighter amplitude limits spread the changes',zh:'幅度收紧，扰动分散到更多位置'},
+    discussionText:{en:'The CIFAR-10 results put the two budgets in perspective. Tightening the amplitude cap from 255 to 10 leaves untargeted success at 100%, but raises SASBO’s mean ℓ₀ from 3.95 to 144.21. Under the tighter cap, the successful changes are spread across more coordinates. Both quantities are needed to describe how sparse the attack actually is.',
+      zh:'CIFAR-10 的结果显示了两种约束怎样相互影响。把幅度上限从 255 收紧到 10，SASBO 的非定向攻击成功率仍为 100%，平均 ℓ₀ 却由 3.95 升至 144.21。单点能改动的幅度越小，要达到同样的成功率，就需要动用更多坐标。'},
     scope:{en:'The method assumes white-box access to the attacked classifier. Its coordinate search is evaluated on CIFAR-10 and ImageNet; the paper does not establish transferability to unseen classifiers or a running-time advantage. The related SAM study examines the separate problem of transfer across models.',
       zh:'方法需要访问被攻击分类器的输出与梯度。论文在 CIFAR-10 与 ImageNet 上评估坐标优化，没有据此建立对未知模型的迁移能力或运行速度优势。相关工作 SAM 进一步研究的是跨模型迁移这一问题。'},
     result:{en:'Sparsity at the same attack success rate',zh:'相同成功率下的扰动数量'},
@@ -38,21 +36,19 @@ const studies = {
     affiliations:['Department of Computer Science and Technology, Nanjing University','Huazhong University of Science and Technology'],
     breaks:/ (?=SAM leverages|Experimental evaluations )/,
     method:{en:'Learning a perturbation that transfers',zh:'让稀疏扰动迁移到未知模型'},
-    problem:{en:'A white-box attack can follow a classifier’s gradients directly. A transfer attack has a harder requirement: the resulting image must also fool a model whose gradients were never available. With only a few pixels to change, concentrating all the optimization on one surrogate can waste that limited budget on its particular weaknesses.',
-      zh:'白盒攻击可以直接沿分类器的梯度寻找扰动。迁移攻击多了一层要求：生成的图像还要让无法获取梯度的模型出错。当只能修改少量像素时，如果始终围绕单一替代模型优化，有限的预算就可能集中在该模型特有的弱点上。'},
+    problem:{en:'The support models each see the same input. SAM takes a weighted average of their gradients to find a direction useful across that group. After the support updates, the held-out query model evaluates the resulting image and supplies a correction for the next round.',
+      zh:'支持集里的模型各自看到同一张输入图像。SAM 将它们的梯度加权平均，得到用于这组模型的更新方向。支持集更新结束后，留出的查询模型再评价这张图，并提供下一轮更新所需的反馈。'},
     mechanism:{en:'Cross-model feedback during optimization',zh:'在优化中引入跨模型反馈'},
-    insight:{en:'The support and query roles change as tasks are sampled. The held-out query model is still a known surrogate, so its gradient can inform the meta-update; it simulates transfer within the optimization process. The truly unseen target models are reserved for the final evaluation. What is optimized here is the adversarial input, not a newly trained classifier.',
-      zh:'随着任务重新采样，模型轮流承担支持与查询角色。查询模型仍是已知替代模型，可以用它的梯度完成元更新；它的作用是在优化内部模拟迁移。真正未知的目标模型只用于最终评估。这里优化的是对抗输入，而不是重新训练一个分类器。'},
-    lead:{en:'A perturbation tuned to one classifier can lose its effect on another. SAM repeatedly samples a task from a pool of surrogate models, combines the support models’ gradients, then tests the update on a model held out from that support set. The figure illustrates the meta-training and meta-testing idea behind this design.',
-      zh:'针对一个分类器优化的扰动，换个模型就可能失效。SAM 从替代模型池中反复抽取任务，先综合支持模型的梯度来更新扰动，再用这一轮留出的模型检验更新方向。下图展示了这种做法借用的元训练与元测试思想。'},
-    detail:{en:'After an update, the perturbation is projected back into the pixel and magnitude budgets. The projection retains the pixels that would incur the largest error if removed. The black-box targets used for evaluation sit outside the surrogate pool.',
-      zh:'每次更新后，算法将扰动投影回像素数量和幅度约束内，优先保留删除后会带来最大投影误差的位置。最终评估迁移能力的黑盒模型独立于替代模型池。'},
+    insight:{en:'The query model comes from the accessible surrogate pool, so its gradients can inform the next update. The classifiers stay fixed throughout. What changes from one sampled task to the next is the perturbation and the assignment of support and query roles.',
+      zh:'查询模型来自可访问的替代模型池，它的梯度也可以参与下一次更新。整个过程中分类器都保持固定。随着任务重新采样，变化的是图像扰动，以及各模型承担的角色。'},
+    lead:{en:'The paper figure shows the split that motivates this design. In a meta-learning task, the support set supplies an update and the query set tests it. SAM gives those roles to classifiers and uses the query model’s feedback to refine the image perturbation.',
+      zh:'下图画出了这项设计借用的元学习分工。支持集提供更新，查询集检验这次更新。SAM 将这两种角色分给不同的分类器，再用查询模型的反馈修正图像扰动。'},
     optimization:{en:'Keeping the pixel budget through every task',zh:'在每个任务后满足像素预算'},
     optimizationText:{en:'The support updates and query feedback first produce a dense adversarial input. Projection clips each channel to the allowed magnitude, then scores a pixel by how much of that dense change it would retain. Only the highest-scoring k pixels keep their clipped values; all remaining pixels return to the original image. This projected input becomes the starting point of the next sampled task.',
       zh:'支持集更新与查询反馈先得到一个稠密对抗输入。投影把每个通道裁剪到允许的幅度，再根据保留一个像素能够还原多少稠密改动来打分。只有得分最高的 k 个像素保留裁剪后的值，其余位置恢复原图；得到的稀疏输入继续参与下一个采样任务。'},
-    discussion:{en:'Fitting one model versus transferring to others',zh:'单模型拟合与跨模型迁移'},
-    discussionText:{en:'The ablation keeps the gradient attack and sparsification procedure, but removes meta-training and meta-testing. Its SA baseline uses VGG19 alone. At the 50-pixel budget, SA is slightly stronger on VGG19 itself (91.8% versus 89.9%), while SAM is stronger on all six unseen targets. The gain is in transfer, rather than a higher score on the model that supplied the gradients.',
-      zh:'消融实验保留梯度攻击与稀疏化过程，移除元训练和元测试，得到只使用 VGG19 的 SA 基线。50 像素预算下，SA 在 VGG19 本身略高（91.8% 对 89.9%），SAM 则在六个未知目标模型上都更高。这里的收益体现在迁移能力，而不是提供梯度的模型上的攻击分数。'},
+    discussion:{en:'The gains appear on unseen models',zh:'收益出现在未见过的模型上'},
+    discussionText:{en:'The ablation shows where the cross-model feedback helps. SA, which uses only VGG19 and the same sparsification procedure, reaches 91.8% on VGG19 with a 50-pixel budget. SAM reaches 89.9% there and surpasses SA on all six held-out target models. Changing the evaluation model reverses the comparison.',
+      zh:'消融实验显示了跨模型反馈的收益在哪里。SA 只用 VGG19，沿用相同的稀疏化过程。在 50 像素预算下，SA 在 VGG19 上的成功率为 91.8%，SAM 为 89.9%。换到独立评估的六个目标模型，SAM 的成功率都更高。'},
     scope:{en:'SAM requires several accessible surrogate classifiers. The pixel budget is specified in advance, and the paper evaluates untargeted attacks on standard classifiers. It does not search for the minimum pixel count separately for each image or report the additional runtime of the sampled-model updates.',
       zh:'SAM 需要多个可访问的替代分类器，并预先指定像素预算。论文评估的是标准分类器上的非定向攻击，没有逐图搜索最少像素数量，也没有报告多模型任务更新带来的额外运行时间。'},
     result:{en:'Transfer to unseen classifiers',zh:'未参与优化的模型上的攻击成功率'},
@@ -64,36 +60,39 @@ const studies = {
 export function SparsePaper({paper}:{paper:Paper}){
   const id=paper.slug==='sasbo'?'sasbo':'sam';
   const study=studies[id];
-  return <PaperArticle paper={paper} authorNotes={study.notes} affiliations={study.affiliations} abstractBreaks={study.breaks}>
-    <section id="method" className="tide-method-band"><div className="tide-bound">
-      <header className="tide-chapter-head"><p className="tide-kicker"><Localized en="Method" zh="研究方法"/></p>
-        <h2><Localized {...study.method}/></h2></header>
-      <p className="tide-prose"><Localized {...study.problem}/></p>
-      <h3 className="paper-subsection"><Localized {...study.mechanism}/></h3>
-      <p className="tide-prose"><Localized {...study.lead}/></p>
-      {paper.image&&<figure className="tide-overview sparse-figure">
+  const originalFigure = paper.image && (
+      <figure className="tide-overview sparse-figure">
         <img loading="lazy" width={paper.imageWidth} height={paper.imageHeight} src={asset(paper.image)} alt={paper.imageAlt}/>
         <figcaption>
-          <span lang="en">{paper.imageCaption}</span>
+          <span><strong><Localized en="Figure 1." zh="图 1。" /></strong>{' '}<Localized {...paper.imageCaption}/></span>
           <span className="paper-figure-actions">
             <a href={asset(paper.image)} target="_blank" rel="noreferrer"><Localized en="Open full-size figure" zh="查看完整原图" /><ArrowUpRight size={13} aria-hidden="true" /></a>
           </span>
         </figcaption>
-      </figure>}
+      </figure>
+  );
+  return <PaperArticle paper={paper} authorNotes={study.notes} affiliations={study.affiliations}
+    abstractBreaks={study.breaks} overviewFigure={id==='sasbo' && originalFigure}>
+    <section id="method" className="tide-method-band"><div className="tide-bound">
+      <header className="tide-chapter-head">
+        <h2><Localized {...study.method}/></h2></header>
+      <p className="tide-prose"><Localized {...study.problem}/></p>
+      <h3 className="paper-subsection"><Localized {...study.mechanism}/></h3>
+      <p className="tide-prose"><Localized {...study.lead}/></p>
+      {id==='sam' && originalFigure}
       <p className="tide-prose tide-demo-intro"><Localized {...study.insight}/></p>
       <SparseMethodComparison study={id}/>
-      <p className="tide-prose tide-demo-intro"><Localized {...study.detail}/></p>
       <h3 className="paper-subsection"><Localized {...study.optimization}/></h3>
       <p className="tide-prose"><Localized {...study.optimizationText}/></p>
     </div></section>
     <section id="examples" className="tide-results tide-bound">
-      <header className="tide-chapter-head"><p className="tide-kicker"><Localized en="Results" zh="实验结果"/></p>
+      <header className="tide-chapter-head">
         <h2><Localized {...study.result}/></h2></header>
       <SparseResults study={id}/>
       <p className="tide-prose tide-demo-intro"><Localized {...study.interpretation}/></p>
     </section>
     <section id="discussion" className="tide-results tide-bound">
-      <header className="tide-chapter-head"><p className="tide-kicker"><Localized en="Discussion" zh="讨论"/></p>
+      <header className="tide-chapter-head">
         <h2><Localized {...study.discussion}/></h2></header>
       <p className="tide-prose"><Localized {...study.discussionText}/></p>
       <p className="tide-prose"><Localized {...study.scope}/></p>
