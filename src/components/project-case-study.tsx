@@ -7,7 +7,7 @@ import { ProjectCaseFlow } from './project-case-flow';
 import { ProjectArchitecture } from './project-architecture';
 import { projects, type Project } from '@/lib/content';
 import { projectStories } from '@/lib/project-stories';
-import { projectChapters } from '@/lib/project-chapters';
+import { projectChapters, type Chapter } from '@/lib/project-chapters';
 import './project-case-study.css';
 
 export function ProjectCaseStudy({ project }: { project: Project }) {
@@ -55,14 +55,7 @@ export function ProjectCaseStudy({ project }: { project: Project }) {
         {story.steps && story.workflowTitle && <ProjectCaseFlow slug={project.slug} steps={story.steps} title={story.workflowTitle} />}
         {project.slug === 'epub-toolkit' && <EpubEngineStory />}
 
-        <div className="case-prose">
-          {story.implementation.map(block => (
-            <div key={block.title.en}>
-              <h3><Localized {...block.title} /></h3>
-              <p><Localized {...block.body} /></p>
-            </div>
-          ))}
-        </div>
+        {chapters && <ChapterProse chapters={chapters.implementation} />}
 
         {project.slug === 'originmark' && (
           <div className="case-project-reference">
@@ -93,6 +86,7 @@ export function ProjectCaseStudy({ project }: { project: Project }) {
           <h2 id="case-verification"><Localized en="Validation results" zh="验收结果" /></h2>
           <p><Localized {...story.verification} /></p>
         </header>
+        {chapters && <ChapterProse chapters={chapters.verification} />}
         <ProjectCaseEvidence checks={story.checks} />
       </section>
 
@@ -108,7 +102,7 @@ export function ProjectCaseStudy({ project }: { project: Project }) {
   );
 }
 
-function ChapterProse({ chapters }: { chapters: (typeof projectChapters)[string]['architecture'] }) {
+function ChapterProse({ chapters }: { chapters: Chapter[] }) {
   return (
     <div className="case-prose">
       {chapters.map(chapter => (
