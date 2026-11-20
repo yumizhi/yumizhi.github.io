@@ -58,13 +58,15 @@
   gap: clamp(4px, 1.15vw, 15px);
 }
 .sam-role, .sam-round-patch {
-  border: 1px solid var(--figure-edge);
-  border-radius: 8px;
-  padding: 10px;
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  text-align: center;
+  padding: 8px 3px 12px;
   min-width: 0;
 }
-.sam-role[data-current='true'], .sam-round-patch[data-current='true'] { border-color: var(--figure-accent); background: var(--figure-backing); }
-.sam-role-models { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.sam-role[data-current='true'] .figure-label, .sam-round-patch[data-current='true'] .figure-label { color: var(--figure-accent); }
+.sam-role-models { display: flex; justify-content: center; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
 .sam-model {
   display: inline-flex;
   gap: 5px;
@@ -101,9 +103,7 @@
 .sam-feedback[data-current='true'] { color: var(--figure-accent); font-weight: 650; }
 .sam-evaluation-arrow { color: var(--figure-muted); }
 .sam-final-evaluation {
-  border: 1px dashed var(--figure-line);
-  border-radius: 5px;
-  padding: 7px 10px;
+  padding: 6px 10px 2px;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -118,7 +118,7 @@
   }
 }
 
-@media (max-width: 600px) {
+@container paper-figure (max-width: 550px) {
   .mask-frame, .sam-role, .sam-round-patch { padding: 5px; }
   .mask-frame .figure-label, .sam-role .figure-label, .sam-round-patch .figure-label { font-size: 10px; }
   .mask-grid, .sam-patch-grid { gap: 1px; }

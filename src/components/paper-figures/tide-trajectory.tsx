@@ -4,6 +4,7 @@ import { useId } from 'react';
 import { motion, useTransform, type MotionValue } from 'motion/react';
 import { Localized, useLanguage } from '../language';
 import { FigurePlayer } from './figure-player';
+import { tideChapters } from './essay-chapters';
 import './tide-trajectory.css';
 
 const chapters = [
@@ -153,7 +154,8 @@ function TrajectoryScene({ step, reduced, position }: { step: number; reduced: b
 }
 
 export function TideTrajectory() {
-  return <FigurePlayer id="trajectory-figure" title={{ en: 'A watermark changes the next step', zh: '写入水印之后的轨迹分岔' }} chapters={chapters}>
+  return <FigurePlayer id="trajectory-figure" title={{ en: 'Watermark propagation', zh: '水印随采样传播' }}
+    chapters={chapters} essay={tideChapters}>
     {(step, reduced, position) => <TrajectoryScene step={step} reduced={reduced} position={position} />}
   </FigurePlayer>;
 }

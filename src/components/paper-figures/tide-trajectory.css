@@ -33,11 +33,18 @@
 .trajectory-legend i.text { border-color: var(--figure-blue); }
 .trajectory-vector-legend { flex-direction: column; gap: 3px; }
 
-@media (max-width: 600px) {
+@container paper-figure (max-width: 550px) {
   .tide-trajectory { grid-template-columns: 1fr; }
   .trajectory-detail { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); border-inline-start: 0; border-top: 1px solid var(--figure-edge); }
   .trajectory-detail .figure-label { grid-column: 1 / -1; }
   .trajectory-vector { max-height: 125px; }
   .trajectory-vector-legend { align-self: center; padding: 6px 6px 10px 0; }
   .trajectory-legend { gap: 5px 9px; }
+}
+
+@container paper-figure (max-width: 375px) {
+  .trajectory-field svg { height: clamp(100px, 36cqw, 130px); }
+  .trajectory-detail .figure-label { display: none; }
+  .trajectory-vector { max-height: 91px; }
+  .trajectory-legend { padding-block: 5px 7px; }
 }

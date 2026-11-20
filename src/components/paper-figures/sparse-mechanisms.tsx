@@ -6,6 +6,7 @@ import { LayoutGroup, motion } from 'motion/react';
 import { asset } from '@/lib/paths';
 import { Localized } from '../language';
 import { FigurePlayer } from './figure-player';
+import { samChapters as samEssay, sasboChapters as sasboEssay } from './essay-chapters';
 import './sparse-mechanisms.css';
 
 const sasboChapters = [
@@ -126,13 +127,15 @@ function ModelHandoff({ step, reduced }: { step: number; reduced: boolean }) {
 }
 
 export function SparseMaskFigure() {
-  return <FigurePlayer id="mask-figure" title={{ en: 'Learning where to make a change', zh: '从一张概率图到一组坐标' }} chapters={sasboChapters}>
+  return <FigurePlayer id="mask-figure" title={{ en: 'A mask takes shape', zh: '从概率到选区' }}
+    chapters={sasboChapters} essay={sasboEssay}>
     {step => <SparseMaskScene step={step} />}
   </FigurePlayer>;
 }
 
 export function SamHandoffFigure() {
-  return <FigurePlayer id="handoff-figure" title={{ en: 'One perturbation, different model roles', zh: '同一个扰动在不同模型之间接力' }} chapters={samChapters}>
+  return <FigurePlayer id="handoff-figure" title={{ en: 'A perturbation across models', zh: '跨模型的扰动更新' }}
+    chapters={samChapters} essay={samEssay}>
     {(step, reduced) => <ModelHandoff step={step} reduced={reduced} />}
   </FigurePlayer>;
 }

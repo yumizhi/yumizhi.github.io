@@ -103,6 +103,20 @@ test('paper figures support playback, stage selection, and reduced motion', asyn
  await handoff.getByRole('button', { name: 'Resample', exact: true }).click();
  await expect(handoff.locator('.sam-query-role')).toContainText('Model A');
 });
+test('reading forward and backward updates the same pinned research figure', async ({ page }) => {
+ await page.setViewportSize({ width: 1440, height: 1000 });
+ await page.goto('/research/tide/#trajectory-figure');
+ const figure = page.locator('#trajectory-figure');
+ const chapters = page.locator('.paper-essay-chapter');
+ for (const index of [1, 2, 3, 1]) {
+  const chapter = chapters.nth(index);
+  await chapter.evaluate(element => window.scrollTo(0, window.scrollY + element.getBoundingClientRect().top - 410));
+  await expect(figure).toHaveAttribute('data-step', String(index));
+  await expect(chapter).toHaveAttribute('data-current', 'true');
+  const bounds = await figure.boundingBox();
+  expect(bounds?.y).toBeCloseTo(154, 0);
+ }
+});
 test('resource preview has native open/download and useful empty category',async({page})=>{
  await page.goto('/resources/');await page.getByRole('button',{name:'Preview TIDE — NeurIPS 2026',exact:true}).click();const dialog=page.getByRole('dialog');await expect(dialog).toBeVisible();await expect(dialog.getByRole('link',{name:'Open PDF'})).toHaveAttribute('href',/tide-neurips-2026.pdf/);await expect(dialog.getByRole('link',{name:'Download',exact:true})).toHaveAttribute('download','');
  await dialog.getByRole('button',{name:'Close',exact:true}).click();await page.getByRole('button',{name:'Posters',exact:true}).click();await expect(page.getByRole('heading',{name:'No posters published yet'})).toBeVisible();
