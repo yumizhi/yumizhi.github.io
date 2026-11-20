@@ -1,3 +1,4 @@
+html:has(.tide-paper) { scroll-padding-top: 0; }
 .tide-paper {
   --paper-inset: clamp(20px, 5vw, 64px);
   --paper-gray: #f6f6f5;
@@ -56,7 +57,6 @@
   top: 78px;
   z-index: 10;
 }
-.paper-nav-label { display: none; }
 .tide-paper-nav {
   isolation: isolate;
   display: flex;
@@ -69,7 +69,7 @@
 .tide-paper-nav i, .tide-variant-list i { position: absolute; inset: 0; z-index: -1; border-radius: inherit; }
 .tide-paper-nav i { background: var(--muted); }
 .tide-paper-nav a:hover, .tide-paper-nav a[aria-current] { color: var(--paper-ink); }
-.tide-paper :is(section,div)[id] { scroll-margin-top: 26px; }
+.tide-paper :is(section,div,h3)[id] { scroll-margin-top: 150px; }
 .tide-abstract {
   max-width: 720px;
   padding-block: 34px 48px;
@@ -90,6 +90,16 @@
 }
 .tide-prose, .tide-quant, .tide-reading, .tide-demo-intro { max-width: 720px; margin-inline: auto; }
 .tide-prose strong { color: var(--paper-ink); font-weight: 620; }
+.tide-prose + .tide-prose { margin-top: 18px; }
+.paper-subsection { max-width: 720px; margin: 42px auto 18px; font-size: 23px; line-height: 1.4; font-weight: 570; letter-spacing: -.025em; }
+.paper-mechanism { max-width: 720px; margin: 28px auto; padding: 26px; border-radius: 14px; background: var(--paper-gray); }
+.paper-mechanism figcaption { font-size: 14px; font-weight: 550; margin-bottom: 20px; }
+.paper-flow { display: grid; grid-template-columns: 1fr 24px 1fr 24px 1fr; align-items: start; gap: 12px; }
+.paper-flow > span { align-self: center; color: var(--paper-caption); text-align: center; }
+.paper-flow:not(:has(> span)) { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.paper-flow strong { display: block; font-size: 15px; line-height: 1.5; font-weight: 580; }
+.paper-flow p { color: var(--paper-caption); font-size: 13px; line-height: 1.7; margin-top: 7px; }
+.paper-flow b { display: block; color: var(--nju); font-size: 11px; letter-spacing: .08em; margin-bottom: 10px; }
 .tide-overview, .tide-comparison {
   max-width: 880px;
   margin: 28px auto 0;
@@ -159,6 +169,13 @@
 .tide-citation .bibtex { background: var(--paper-frame); }
 .tide-paper-footer { padding: 25px 0 36px; font-size: 13px; }
 @media(max-width:620px) {
+  .paper-flow { grid-template-columns: 1fr; gap: 14px; }
+  .paper-flow:not(:has(> span)) { grid-template-columns: 1fr; gap: 18px; }
+  .paper-flow > span { display: none; }
+  .paper-flow > div { display: grid; grid-template-columns: 24px 1fr; column-gap: 10px; }
+  .paper-flow b { grid-row: 1 / 3; margin-top: 3px; }
+  .paper-flow p { grid-column: 2; margin-top: 3px; }
+  .paper-subsection { font-size: 21px; margin-top: 32px; }
   .tide-paper { --paper-inset: 20px; }
   .tide-masthead { padding-block: 26px 22px; }
   .tide-title-scope { display: inline; }
@@ -178,27 +195,6 @@
   .tide-scene-picker button { flex: 1; min-width: 0; padding: 3px; flex-direction: column; font-size: 10px; }
   .tide-scene-picker img { width: 100%; height: auto; }
   .tide-table-wrap th, .tide-table-wrap td { padding: 7px 5px; font-size: 12px; }
-}
-@media screen and (min-width: 1280px) {
-  .tide-paper {
-    --paper-inset: 0px;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 132px;
-    column-gap: 40px;
-    width: min(1120px, calc(100% - 96px));
-    margin-inline: auto;
-  }
-  .tide-masthead { grid-column: 1; grid-row: 1; max-width: 720px; }
-  .tide-masthead h1 { font-size: clamp(32px, 2.8vw, 42px); }
-  .tide-title-scope { display: inline; }
-  .tide-navigation { grid-column: 2; grid-row: 1 / span 2; position: static; padding-top: 40px; }
-  .tide-paper-nav { position: sticky; top: 36px; flex-direction: column; align-items: stretch; gap: 4px; padding: 0; }
-  .paper-nav-label { display: block; color: var(--paper-caption); font-size: 11px; margin: 0 12px 10px; }
-  .tide-paper-nav a { padding: 8px 12px; border-radius: 7px; font-weight: 450; }
-  .tide-paper-nav a[aria-current] { font-weight: 600; }
-  .tide-document { grid-column: 1; grid-row: 2; min-width: 0; }
-  .tide-citation { padding-inline: 24px; border-radius: 12px; }
-  .tide-paper-footer { gap: 24px; }
 }
 .sparse-figure { max-width: 800px; }
 .sparse-results { max-width: 720px; margin-inline: auto; }

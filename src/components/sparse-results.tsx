@@ -4,6 +4,7 @@ import { useState } from 'react';
 import * as Tabs from '@radix-ui/react-tabs';
 import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
 import { Localized } from './language';
+import { ComparisonChart } from './comparison-chart';
 
 type Text = {en:string; zh:string};
 type Dataset = {
@@ -60,6 +61,7 @@ export function SparseResults({study}:{study:'sasbo'|'sam'}){
   const datasets=study==='sasbo'?sasbo:sam;
   const [selected,setSelected]=useState(datasets[0].id);
   const reduced=useReducedMotion();
+  const d=datasets.find(dataset=>dataset.id===selected)!;
   return <LayoutGroup><Tabs.Root className="sparse-results" value={selected} onValueChange={setSelected}>
     <Tabs.List aria-label="Experiment setting" className="tide-variant-list">
       {datasets.map(d=><Tabs.Trigger key={d.id} value={d.id}>
@@ -67,14 +69,22 @@ export function SparseResults({study}:{study:'sasbo'|'sam'}){
         <span><Localized {...d.tab}/></span>
       </Tabs.Trigger>)}
     </Tabs.List>
-    {datasets.map(d=><Tabs.Content key={d.id} value={d.id}>
+    <Tabs.Content value={selected}>
       <p className="tide-prose"><Localized {...d.explanation}/></p>
+      <ComparisonChart
+        title={study==='sasbo'?{en:'Fewer changes, the same success rate',zh:'同样成功，改动更少'}:{en:'Success on six unseen classifiers',zh:'六个未知分类器上的攻击成功率'}}
+        note={study==='sasbo'?{en:'Mean ℓ₀ · CIFAR-10 · ε = 255 · 100% success for all methods · lower is better',zh:'平均 ℓ₀ · CIFAR-10 · ε = 255 · 均为 100% 成功率 · 越低越好'}:{en:'CIFAR-10 · untargeted transfer · higher is better',zh:'CIFAR-10 · 非定向迁移攻击 · 越高越好'}}
+        series={study==='sasbo'?[{label:{en:'Mean ℓ₀',zh:'平均 ℓ₀'}}]:[{label:{en:'SA · single model',zh:'SA · 单模型'}},{label:{en:'SAM · meta-learning',zh:'SAM · 元学习'},accent:true}]}
+        rows={study==='sasbo'?d.rows.map(([label,,value])=>({label,values:[Number(value)],accent:label==='SASBO'})):d.rows.filter(([label])=>label!=='Mean').map(([label,sa,sam])=>({label,values:[parseFloat(sa),parseFloat(sam)]}))}
+        maximum={study==='sasbo'?60:100} decimals={study==='sasbo'?2:1} suffix={study==='sasbo'?'':'%'}/>
+      <details className="result-data"><summary><Localized en="View the numerical results" zh="查看完整数值"/></summary>
       <div className="tide-table-wrap"><table>
         <caption><Localized {...d.caption}/></caption>
         <thead><tr>{d.headings.map(h=><th scope="col" key={h.en}><Localized {...h}/></th>)}</tr></thead>
         <tbody>{d.rows.map(([name,...values])=><tr key={name}><th scope="row">{name==='Mean'?<Localized en="Mean" zh="平均"/>:name}</th>
           {values.map((value,i)=><td key={i}>{value}</td>)}</tr>)}</tbody>
       </table></div>
-    </Tabs.Content>)}
+      </details>
+    </Tabs.Content>
   </Tabs.Root></LayoutGroup>;
 }

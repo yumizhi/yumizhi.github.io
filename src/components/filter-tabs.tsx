@@ -1,10 +1,36 @@
 'use client';
-import {useId,type ReactNode} from 'react';
-import {ToggleGroup} from 'radix-ui';
-import {LayoutGroup,motion,useReducedMotion} from 'motion/react';
-import {motionTokens} from '@/lib/motion';
 
-export function FilterTabs({value,onChange,options,label,className=''}:{value:string;onChange:(value:string)=>void;options:{value:string;label:ReactNode}[];label:string;className?:string}){
- const id=useId(),reduced=useReducedMotion();
- return <LayoutGroup id={id}><ToggleGroup.Root type="single" value={value} onValueChange={next=>{if(next)onChange(next);}} className={`filter-pills motion-filters ${className}`} aria-label={label}>{options.map(option=><ToggleGroup.Item key={option.value} value={option.value}>{value===option.value&&<motion.span className="filter-active" layoutId="filter" transition={reduced?{duration:0}:motionTokens.navigation}/>}<span className="filter-label">{option.label}</span></ToggleGroup.Item>)}</ToggleGroup.Root></LayoutGroup>;
+import type { ReactNode } from 'react';
+import { Toggle } from '@base-ui/react/toggle';
+import { ToggleGroup } from '@base-ui/react/toggle-group';
+import { SegmentedControl, SegmentedControlItem } from '@/components/ui/coss/segmented-control';
+
+export function FilterTabs({ value, onChange, options, label, className = '' }: {
+  value: string;
+  onChange: (value: string) => void;
+  options: { value: string; label: ReactNode }[];
+  label: string;
+  className?: string;
+}) {
+  return (
+    <SegmentedControl
+      className={`site-segments ${className}`}
+      render={
+        <ToggleGroup
+          value={[value]}
+          onValueChange={([next]) => { if (next) onChange(next); }}
+          aria-label={label}
+        />
+      }
+    >
+      {options.map(option => (
+        <SegmentedControlItem
+          key={option.value}
+          render={<Toggle value={option.value} />}
+        >
+          {option.label}
+        </SegmentedControlItem>
+      ))}
+    </SegmentedControl>
+  );
 }

@@ -1,25 +1,95 @@
-/* Wide screens keep navigation beside the document; smaller screens use the header. */
+/* Site navigation and article contents remain separate horizontal controls. */
 .home-link-label { display: none; }
 .nav-link { transition: color 160ms ease; }
 .header-actions button { transition: color 160ms ease, background-color 160ms ease; }
 @media screen and (min-width: 1280px) {
-  html { scroll-padding-top: 36px; }
-  body { --navigation-width: 192px; padding-left: var(--navigation-width); }
-  .site-header { position: fixed; inset: 0 auto 0 0; width: var(--navigation-width); background: var(--background); }
-  .header-glass { display: none; }
-  .header-inner { width: auto; height: 100dvh; margin: 0; padding: 32px 20px; flex-direction: column; align-items: stretch; gap: 30px; }
-  .home-link { display: flex; gap: 12px; align-items: center; justify-content: flex-start; width: auto; margin: 0; padding: 6px 12px; }
-  .home-link-label { display: inline; font-size: 13px; font-weight: 550; }
-  .desktop-nav { display: flex; flex-direction: column; align-items: stretch; gap: 5px; }
-  .nav-link { font-size: 13px; padding: 12px; }
-  .nav-link:hover, .nav-link[data-selected] { color: var(--foreground); }
-  .nav-active { inset: 0; border-radius: 8px; }
-  .header-actions { margin-top: auto; justify-content: space-between; }
-  .shell { width: min(1000px, calc(100% - 96px)); }
-  .reading-progress { top: 0; left: var(--navigation-width); }
-  .article-toc { top: 36px; }
-  .profile { padding-top: 54px; }
+  .header-inner { gap: 28px; }
+  .desktop-nav { gap: 10px; }
 }
 @media print {
   body { padding-left: 0; }
 }
+
+/* Solid surface and small action targets share the same treatment across routes. */
+.site-header {
+  background: var(--background);
+  backdrop-filter: none;
+}
+
+.header-actions [data-slot="button"] {
+  border-radius: .625rem;
+}
+
+.header-actions [data-slot="button"]:focus-visible,
+.site-segments [data-slot="segmented-control-item"]:focus-visible {
+  outline: 2px solid var(--nju);
+  outline-offset: 2px;
+}
+
+.site-segments[data-slot="segmented-control"] {
+  max-inline-size: 100%;
+  border-radius: .75rem;
+  padding: .1875rem;
+  background: var(--editorial-surface);
+}
+
+.site-segments [data-slot="segmented-control-item"] {
+  min-block-size: 2.125rem;
+  padding-inline: clamp(.4375rem, 2vw, .875rem);
+  font-size: .8125rem;
+  color: var(--muted-foreground);
+  border-radius: .5625rem;
+}
+
+.site-segments [data-slot="segmented-control-item"][data-pressed] {
+  font-weight: 650;
+  color: var(--nju);
+}
+
+.site-segments [data-slot="segmented-control-indicator"] {
+  border-radius: .5625rem;
+  box-shadow: 0 1px 2px #1d152518, 0 0 0 1px #1d152509;
+}
+
+@media (pointer: coarse) {
+  .header-actions [data-slot="button"],
+  .site-segments [data-slot="segmented-control-item"] {
+    min-block-size: 2.75rem;
+  }
+}
+
+@media (max-width: 22rem) {
+  .site-segments [data-slot="segmented-control-item"] {
+    min-inline-size: 0;
+    padding-inline: .375rem;
+    font-size: .75rem;
+  }
+}
+
+.site-command[data-slot="command-dialog-popup"] {
+  max-block-size: min(29rem, 88dvh);
+  border-radius: 1rem;
+  background: var(--background);
+  box-shadow: 0 20px 64px #1b142632;
+}
+[data-slot="command-dialog-backdrop"] { backdrop-filter: none; }
+.site-command::before { display: none; }
+.site-command [data-slot="autocomplete-input"] { padding-inline-end: 2.75rem; }
+.site-command .site-command-close { position: absolute; inset-block-start: .5rem; inset-inline-end: .5rem; }
+.site-command-results { flex: 1; min-block-size: 0; }
+.site-command [data-slot="command-item"] { min-block-size: 2.5rem; }
+.site-command [data-slot="command-item"][data-highlighted] {
+  color: var(--nju);
+  background: var(--accent);
+}
+.site-command [data-slot="command-group-label"] { font-weight: 620; }
+.site-command-footer { background: var(--editorial-soft); }
+
+@media (prefers-reduced-motion: reduce) {
+  .site-command[data-slot="command-dialog-popup"],
+  [data-slot="command-dialog-backdrop"] {
+    transition-duration: 0s;
+  }
+}
+
+.site-command [data-slot="command-item"] { gap: .625rem; padding-inline: .625rem; }
