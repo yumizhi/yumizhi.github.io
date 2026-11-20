@@ -13,12 +13,12 @@ function Wires({after=false}:{after?:boolean}){
    <g fill="none" strokeWidth="1.25" strokeLinejoin="round" markerEnd={`url(#${after?'guide-after-arrow':'guide-before-arrow'})`}>
     {after?<>
       <path d="M200 26H224"/><path d="M528 26H552"/>
-      <path className="guide-blue-wire" d="M200 164H236"/>
-      <path className="guide-blue-wire" d="M200 224H236"/>
-      <path className="guide-blue-wire" d="M200 284H236"/>
-      <path className="guide-blue-wire" d="M376 190V198"/>
-      <path className="guide-blue-wire" d="M376 250V258"/>
-      <path className="guide-blue-wire" d="M516 284H552"/>
+      <path className="guide-accent-wire" d="M200 164H236"/>
+      <path className="guide-accent-wire" d="M200 224H236"/>
+      <path className="guide-accent-wire" d="M200 284H236"/>
+      <path className="guide-accent-wire" d="M376 190V198"/>
+      <path className="guide-accent-wire" d="M376 250V258"/>
+      <path className="guide-accent-wire" d="M516 284H552"/>
       <path d="M604 322V362Q604 368 598 368H528"/>
     </>:<>{[26,90,154].map(y=><g key={y}><path d={`M200 ${y}H224`}/><path d={`M528 ${y}H552`}/></g>)}</>}
    </g>
@@ -32,6 +32,28 @@ const predictions=[
 export function GuidanceComparison(){
  return <figure className="guidance-comparison" id="guidance-comparison">
   <figcaption className="guide-caption"><Localized en="Guidance after watermark injection" zh="水印注入后的引导方式"/></figcaption>
+  <div className="guide-mobile">
+    <section className="guide-mobile-baseline">
+      <h3><Localized en="Fixed guidance" zh="固定引导"/></h3>
+      <p><Localized en="Base + text + watermark predictions" zh="基础预测 + 文本残差 + 水印残差"/></p>
+      <span className="guide-mobile-arrow" aria-hidden="true">↓</span>
+      <div className="guide-mobile-step"><strong><Localized en="Apply fixed weights" zh="使用固定的引导权重"/></strong><p><Localized en="Reuse the same weights at each step" zh="后续每一步沿用相同权重"/></p></div>
+      <span className="guide-mobile-arrow" aria-hidden="true">↓</span>
+      <p className="guide-mobile-output"><Localized en="DDIM sampler → next latent" zh="DDIM 采样器 → 下一步潜变量"/></p>
+    </section>
+    <section className="guide-mobile-tide">
+      <h3>TIDE</h3>
+      <p><Localized en="Recompute after every denoising step" zh="在注入后的每一步重新计算"/></p>
+      <ol>
+        <li><small><Localized en="Recent text residuals" zh="近期文本残差"/></small><strong><Localized en="Estimate the text subspace" zh="估计文本引导子空间"/></strong></li>
+        <li><small><Localized en="Current watermark residual" zh="当前水印残差"/></small><strong><Localized en="Remove its aligned component" zh="去掉与文本子空间对齐的分量"/></strong></li>
+        <li><small><Localized en="Curvature, overlap and strength" zh="轨迹曲率、方向重合与残差强度"/></small><strong><Localized en="Allocate an adaptive budget" zh="自适应分配引导预算"/></strong></li>
+      </ol>
+      <p className="guide-mobile-combine"><Localized en="Combine with the base and text branches; retain a minimum text budget." zh="与基础、文本分支组合，并为文本保留最低引导预算。"/></p>
+      <span className="guide-mobile-arrow" aria-hidden="true">↓</span>
+      <p className="guide-mobile-output"><Localized en="DDIM sampler → next latent" zh="DDIM 采样器 → 下一步潜变量"/></p>
+    </section>
+  </div>
   <div className="guide-scroll" tabIndex={0} aria-label="Architecture comparison">
    <div className="guide-canvas">
     <header className="guide-heading"><h3><Localized en="Fixed guidance" zh="固定引导"/></h3><p><Localized en="The same weighting rule is used throughout the remaining denoising steps." zh="在后续去噪步骤中，沿用相同的引导权重。"/></p></header>
@@ -41,15 +63,15 @@ export function GuidanceComparison(){
       <Wires/>
     </div>
     <div className="guide-divider"/>
-    <header className="guide-heading guide-heading-after"><h3>TIDE</h3><p><Localized en="Retain text guidance. Control the watermark contribution at every step." zh="保留文本引导，逐步控制水印对采样更新的贡献。"/></p></header>
+    <header className="guide-heading guide-heading-after"><h3>TIDE</h3><p><Localized en="Preserve the text branch. Reallocate the guidance budget at every step." zh="保留文本分支，逐步分配文本与水印的引导预算。"/></p></header>
     <div className="guide-after-board">
-      <Node className="guide-unchanged-input" title={{en:'Original guidance',zh:'原有引导'}} detail={{en:'Base + text guidance',zh:'基础预测与文本引导'}} icon={<Layers size={16}/>}/>
-      <Node className="guide-unchanged" title={{en:'Text-guided prediction',zh:'文本引导预测'}} detail={{en:'Keep the original generation direction',zh:'保留原有的生成更新方向'}}/>
+      <Node className="guide-unchanged-input" title={{en:'Base + text',zh:'基础与文本分支'}} detail={{en:'Unconditional and text predictions',zh:'无条件预测与文本残差'}} icon={<Layers size={16}/>}/>
+      <Node className="guide-unchanged" title={{en:'Text-guided contribution',zh:'文本引导分量'}} detail={{en:'Reserve a minimum text budget',zh:'为文本保留最低引导预算'}}/>
       <div className="guide-controller">
        <header><h4><Localized en="Trajectory-aware control" zh="轨迹感知控制"/></h4><p><Localized en="Applied at every step after injection" zh="注入后的每一步都执行"/></p></header>
        <Node title={{en:'Estimate the text subspace',zh:'估计文本引导子空间'}} detail={{en:'Use the recent text-guidance directions',zh:'使用近期的文本引导方向'}}/>
        <Node title={{en:'Remove the aligned component',zh:'去除对齐分量'}} detail={{en:'Keep the complementary residual',zh:'保留水印残差中与之互补的分量'}}/>
-       <Node title={{en:'Set the guidance budget',zh:'分配引导预算'}} detail={{en:'Scale the retained watermark direction',zh:'调整保留水印方向的引导强度'}}/>
+       <Node title={{en:'Set the guidance budget',zh:'分配引导预算'}} detail={{en:'Share the total budget with the text branch',zh:'与文本分支分配总引导预算'}}/>
       </div>
       <Node className="guide-history" title={{en:'Text residuals',zh:'文本残差'}} detail={{en:'Recent sampling steps',zh:'来自近期采样步骤'}} icon={<History size={16}/>}/>
       <Node className="guide-watermark" title={{en:'Watermark residual',zh:'水印残差'}} detail={{en:'Current sampling step',zh:'来自当前采样步骤'}} icon={<Fingerprint size={16}/>}/>

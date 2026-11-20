@@ -7,7 +7,7 @@ export const site = {
 };
 export type Paper = {
   slug: string; shortTitle: string; title: string; venue: string; year: number;
-  topic: 'Watermarking' | 'Adversarial learning'; authors: string[]; summary: string;
+  topic: 'Watermarking' | 'Adversarial learning'; authors: string[]; summary: string; summaryZh?: string;
   abstract: string; featured: boolean; image?: string; imageWidth?: number; imageHeight?: number; imageAlt: string; imageCaption: string;
   paper: string; publisher?: string; code?: string; bibtex: string;
 };
@@ -16,7 +16,8 @@ export const papers: Paper[] = [
     slug: 'tide', shortTitle: 'TIDE', title: 'TIDE: Trajectory-Aware Watermark Propagation for Text-to-Image Diffusion Models',
     venue: 'NeurIPS', year: 2026, topic: 'Watermarking', featured: true,
     authors: ['Yihan Meng', 'Suping Xu', 'Yanfeng Wu', 'Chongjun Wang', 'Lin Shang'],
-    summary: 'Trajectory-aware watermarking that reduces interference with diffusion image generation.',
+    summary: 'TIDE embeds a watermark during diffusion sampling. A learned condition preserves the signal, while trajectory-aware guidance limits interference with the generated content.',
+    summaryZh: 'TIDE 在扩散采样中注入水印，通过学习辅助条件保留信号，并根据生成轨迹调整引导，减少对图像内容的干扰。',
     abstract: "Watermarking text-to-image diffusion models provides a practical mechanism for provenance tracking and responsible deployment. Post-processing methods are easy to deploy but vulnerable to image-space transformations. In-processing methods improve robustness by embedding the watermark within the denoising trajectory. Yet most existing methods inject the signal into the initial noise or a fixed intermediate latent, without controlling how it evolves during the remaining denoising steps. This can entangle watermark preservation with text-guided generation, risking weaker verification or degraded content fidelity. We propose TIDE, a trajectory-aware watermarking method for text-to-image diffusion models. TIDE injects a learnable watermark into an intermediate latent and jointly optimizes it with an auxiliary watermark condition, using preservation and detection objectives to limit deviation from the unwatermarked reference while maintaining separable watermark evidence. During sampling, TIDE estimates recent text-guidance directions and redirects watermark guidance toward the residual component less aligned with this local text subspace, reducing avoidable interference with semantic generation. Verification uses null-prompt partial inversion to recover the injection latent and match its masked coefficients to the target watermark. Experiments show that TIDE achieves reliable verification on unattacked images, improves robustness under common attacks, and better preserves semantic and visual fidelity.",
     image: '/images/tide-results-original.webp', imageWidth: 1422, imageHeight: 1120, imageAlt: 'Published qualitative comparison of clean, Tree-Ring, ROBIN, and TIDE images across five prompts.',
     imageCaption: 'Figure 2: Qualitative comparison of different methods.',
@@ -27,7 +28,8 @@ export const papers: Paper[] = [
     slug: 'sasbo', shortTitle: 'SASBO', title: 'SASBO: Sparse Attack via Stochastic Binary Optimization',
     venue: 'PAKDD', year: 2024, topic: 'Adversarial learning', featured: true,
     authors: ['Yihan Meng', 'Weitao Li', 'Lin Shang'],
-    summary: 'Sparse adversarial attacks through stochastic binary optimization.',
+    summary: 'SASBO optimizes which image coordinates to perturb and the magnitude of each change. Stochastic binary optimization learns the coordinates; a final budget search removes redundant changes.',
+    summaryZh: 'SASBO 将稀疏扰动分解为坐标与幅度，交替优化二者。坐标选择通过随机二值优化学习，最后缩减仍能维持攻击成功的坐标预算。',
     abstract: "Deep Neural Networks have shown vulnerability to sparse adversarial attack, which involves perturbing only a limited number of pixels. Identifying the coordinates requiring perturbation in sparse attacks poses a significant computational challenge. Existing solutions predominantly rely on heuristic methods or relax the ℓ0-norm to the ℓ1-norm. In this paper, we present an efficient algorithm for conducting sparse attacks. Our algorithm factorizes the perturbation at each pixel to the product of the perturbation coordinates and the perturbation magnitudes and then optimizes them alternately. We reformulate the ℓ0-norm as a stochastic binary optimization problem, assuming that each pixel’s perturbation status is associated with a stochastic binary variable. This stochastic binary variable follows a Bernoulli distribution, with a parameter value that ranges from 0 to 1, signifying the probability of pixel disturbance. To tackle this stochastic binary optimization challenge, we employ an unbiased gradient estimator known as Augment-Reinforce-Merge (ARM). Once the perturbed coordinates are determined, we optimize the perturbation magnitudes with gradient descent. Furthermore, we incorporate a binary search algorithm to eliminate redundant pixels to enhance sparsity. Comprehensive experiments demonstrate the superiority of our proposed method over several state-of-the-art sparse attack methods.",
     image: '/images/sasbo-original.webp', imageWidth: 782, imageHeight: 341, imageAlt: 'Original SASBO figure comparing clean images, SASBO perturbations, and GreedyF perturbations for a dog and flower.',
     imageCaption: 'Fig. 1. Visualization of nontargeted attack under perturbation threshold ε = 10. The images in each row, from left to right, are clean images, our adversarial example, our perturbation coordinates, GreedyFool’s adversarial example, and GreedyFool’s perturbation coordinates. In the figures of perturbation coordinates, black pixels denote no perturbation; white pixels denote perturbing all three RGB channels; pure red, green, and blue pixels represent perturbing a single channel. (Color figure online)',
@@ -39,7 +41,8 @@ export const papers: Paper[] = [
     slug: 'sparse-meta-learning', shortTitle: 'Sparse Attack with Meta-Learning', title: 'Sparse Attack with Meta-Learning',
     venue: 'IJCNN', year: 2024, topic: 'Adversarial learning', featured: true,
     authors: ['Weitao Li', 'Mingqian Lin', 'Yihan Meng', 'Yangdai Si', 'Lin Shang'],
-    summary: 'Meta-learning and perturbation projection for transferable sparse adversarial attacks.',
+    summary: 'SAM optimizes sparse adversarial inputs across sampled groups of classifiers. Feedback from held-out surrogate models guides updates, and separate black-box models measure transfer success.',
+    summaryZh: 'SAM 在采样得到的模型任务上优化稀疏扰动，利用留出模型的反馈调整更新，并在独立黑盒模型上评估迁移成功率。',
     abstract: "Black-box attacks pose a significant challenge due to the restricted access to target model information, hindering the generation of impactful adversarial samples. This paper introduces a method that combines sparse attacks and meta-learning to alleviate the issue of low success rates in black-box attacks. SAM leverages the knowledge transfer capabilities inherent in meta-learning to augment the transferability of adversarial samples. The method integrates meta-learning with gradient-based attack techniques, effectively transforming the approach into a white-box attack. By aggregating multiple sampled models, SAM enhances the stability of adversarial samples. During meta-testing, simulated black-box attacks help mitigate gradient discrepancies across diverse models, consequently enhancing transferability. To further improve sparsity and preserve transferability, SAM incorporates a projection strategy that selectively sparsifies global adversarial perturbations. Experimental evaluations conducted on two image datasets substantiate SAM’s superiority in terms of both sparsity and attack success rate. Ablation experiments confirm the effectiveness of integrating meta-learning into the proposed method. SAM extends the applicability of generated adversarial samples, advancing the domain of adversarial attacks in scenarios with limited target model information. The proposed approach exhibits promise in enhancing the success rate of attacks while preserving sparsity, contributing to the broader understanding of black-box attacks and their implications.",
     image: '/images/sam-meta-learning.webp', imageWidth: 964, imageHeight: 604,
     imageAlt: 'Meta-learning illustration showing sampled training episodes and support and query sets during meta-testing.',
@@ -56,8 +59,8 @@ export type Project = {
 };
 export const projects:Project[] = [{
   slug: 'epub-toolkit', title: 'EPUB Toolkit', category: 'Open-source software', categoryZh:'开源软件', year: 2026,
-  summaryZh:'合并 EPUB 分卷、还原单册，查看书籍目录与元数据。文件在浏览器中处理，无需上传。',
-  summary: 'Combine EPUB volumes, restore individual books, and inspect their contents. Files are processed in your browser, without uploads.',
+  summaryZh:'将多卷 EPUB 整理为一本，保留后续拆回单册所需的来源记录。支持目录与元数据检查，书籍在浏览器本地处理。',
+  summary: 'Organize EPUB volumes into a collection that can be split back into individual books. Inspect navigation and metadata, with all book processing kept in your browser.',
   description: 'Arrange volumes in reading order, choose a grouped or continuous table of contents, then download a single EPUB. A collection merged with the toolkit can later be split back into individual books.',
   descriptionZh: '按阅读顺序排列分卷，选择按书分组或连续的章节目录，导出一个 EPUB。使用本工具合并的合集，还可以重新拆分为单册。',
   image: '/images/epub-workspace.webp', imageAlt: 'Actual EPUB Toolkit interface with book queue, output settings, table of contents preview, and download.',
