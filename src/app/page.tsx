@@ -1,6 +1,7 @@
 import { ArrowRight, ArrowUpRight, FileText, Mail } from 'lucide-react';
 import { HomeBackground } from '@/components/home-background';
-import { EpubPlate, SasboPlate } from '@/components/home/research-plates';
+import { SasboPlate } from '@/components/home/research-plates';
+import { ProjectCard } from '@/components/project-card';
 import { TidePlate } from '@/components/home/tide-preview';
 import { Localized } from '@/components/language';
 import { PaperTitle } from '@/components/paper-title';
@@ -12,7 +13,6 @@ import { getWritingEntries } from '@/lib/posts';
 
 const advisor = 'https://cs.nju.edu.cn/shanglin/index.htm';
 const selectedPapers = papers.filter(paper => paper.slug === 'tide' || paper.slug === 'sasbo');
-const epub = projects.find(project => project.slug === 'epub-toolkit');
 
 function PaperFeature({ paper }: { paper: Paper }) {
   const tide = paper.slug === 'tide';
@@ -98,28 +98,17 @@ export default function Home() {
           </div>
         </section>
 
-        {epub && (
-          <section className="ph-end-section ph-project" id="projects" aria-labelledby="home-projects">
-            <div className="ph-section-heading">
-              <h2 id="home-projects"><Localized en="Open source" zh="开源项目" /></h2>
-              <TransitionLink className="ph-link" href="/projects/">
-                <Localized en="All projects" zh="全部项目" /> <ArrowRight size={16} aria-hidden="true" />
-              </TransitionLink>
-            </div>
-            <article className="ph-project-feature">
-              <EpubPlate />
-              <div className="ph-project-copy">
-                <h3><TransitionLink href="/projects/epub-toolkit/">{epub.title}</TransitionLink></h3>
-                <p><Localized en="Merge EPUB volumes in your browser and split the collection back into its original volumes." zh="在浏览器里合并 EPUB 分卷，也能将合集拆回原卷。" /></p>
-                {epub.demo && (
-                  <a className="ph-link" href={epub.demo} target="_blank" rel="noreferrer">
-                    <Localized en="Open the tool" zh="打开工具" /> <ArrowUpRight size={15} aria-hidden="true" />
-                  </a>
-                )}
-              </div>
-            </article>
-          </section>
-        )}
+        <section className="ph-end-section ph-project" id="projects" aria-labelledby="home-projects">
+          <div className="ph-section-heading">
+            <h2 id="home-projects"><Localized en="Projects" zh="项目" /></h2>
+            <TransitionLink className="ph-link" href="/projects/">
+              <Localized en="All projects" zh="全部项目" /> <ArrowRight size={16} aria-hidden="true" />
+            </TransitionLink>
+          </div>
+          <div className="project-card-list">
+            {projects.map(project => <ProjectCard key={project.slug} project={project} />)}
+          </div>
+        </section>
 
         <section className="ph-end-section" id="background" aria-labelledby="background-heading">
           <div className="ph-section-heading">

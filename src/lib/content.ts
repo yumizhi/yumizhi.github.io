@@ -54,12 +54,14 @@ export const papers: Paper[] = [
 ];
 export type Project = {
  slug:string;title:string;category:string;year:number;summary:string;description:string;image:string;imageAlt:string;gallery:string[];
- repo:string;demo?:string;release?:string;features:{title:string;titleZh:string;description:string;descriptionZh:string}[];technology:string;categoryZh?:string;summaryZh?:string;descriptionZh?:string;technologyZh?:string;
+ repo?:string;demo?:string;release?:string;features:{title:string;titleZh:string;description:string;descriptionZh:string}[];technology:string;categoryZh?:string;summaryZh?:string;descriptionZh?:string;technologyZh?:string;
+ cardSummary?:{en:string;zh:string};
  previews?:{id:string;label:string;labelZh?:string;image:string;width:number;height:number;mobile?:string;mobileWidth?:number;mobileHeight?:number;alt:string;caption?:string;captionZh?:string}[];
 };
 export const projects:Project[] = [{
   slug: 'epub-toolkit', title: 'EPUB Toolkit', category: 'Open-source software', categoryZh:'开源软件', year: 2026,
   summaryZh:'将多卷 EPUB 整理为一本，保留后续拆回单册所需的来源记录。支持目录与元数据检查，书籍在浏览器本地处理。',
+  cardSummary: { en: 'Merge EPUB volumes and split collections back into individual books in your browser.', zh: '在浏览器里合并 EPUB 分卷，也可以把合集拆回单册。' },
   summary: 'Organize EPUB volumes into a collection that can be split back into individual books. Inspect navigation and metadata, with all book processing kept in your browser.',
   description: 'Arrange volumes in reading order, choose a grouped or continuous table of contents, then download a single EPUB. A collection merged with the toolkit can later be split back into individual books.',
   descriptionZh: '按阅读顺序排列分卷，选择按书分组或连续的章节目录，导出一个 EPUB。使用本工具合并的合集，还可以重新拆分为单册。',
@@ -82,6 +84,50 @@ export const projects:Project[] = [{
   technology: 'The web app supports offline use. Python and Node.js command-line tools are also available.',
   technologyZh:'支持离线使用，也提供 Python 和 Node.js 命令行工具。',
 
+}, {
+  slug: 'originmark', title: 'OriginMark', category: 'Image provenance', categoryZh: '图像溯源', year: 2026,
+  summary: 'Generate and protect images, then inspect their watermark and provenance evidence.',
+  summaryZh: '在同一个工作台生成带水印的图像、保护已有图片，并核查来源证据。',
+  description: 'OriginMark brings image generation and provenance into one workflow. Generate a marked image with TIDE or protect an existing image, then inspect what a verifier can recover from the resulting file.',
+  descriptionZh: 'OriginMark 将图像生成和溯源串成一个工作流。用 TIDE 生成带水印的图像，或给已有图片添加保护，再检查验证工具能从输出文件中找回哪些证据。',
+  image: '/images/projects/originmark-cover.webp',
+  imageAlt: 'A ceramic teapot and pitcher from the OriginMark demonstration workspace',
+  gallery: [],
+  previews: [
+    { id: 'generate', label: 'Generate', labelZh: '生成', image: '/images/projects/originmark-generate.webp', width: 868, height: 716,
+      alt: 'OriginMark comparison canvas with clean and watermarked TIDE outputs', caption: 'A clean and watermarked pair in the demo workspace.', captionZh: '演示空间中的无水印与带水印图像对照。' },
+    { id: 'verify', label: 'Verify', labelZh: '验证', image: '/images/projects/originmark-verify.webp', width: 972, height: 690,
+      alt: 'OriginMark verification preview with separate watermark and content-credential results', caption: 'Watermark evidence and content credentials are reported separately.', captionZh: '水印证据和内容凭证分别呈现。' },
+  ],
+  features: [
+    { title: 'Generate', titleZh: '生成图像', description: 'Compare clean and TIDE-watermarked images from the same generation setup.', descriptionZh: '对照同一生成设置下的无水印与 TIDE 水印图像。' },
+    { title: 'Protect', titleZh: '保护图片', description: 'Apply a watermark to an existing image and inspect the resulting artifact.', descriptionZh: '给已有图片添加水印，查看处理后的图像。' },
+    { title: 'Verify', titleZh: '查看证据', description: 'Read watermark evidence and signed content credentials as separate checks.', descriptionZh: '分别查看水印证据和签名内容凭证。' },
+  ],
+  technology: 'Source code is private.',
+  technologyZh: '源码暂未公开。',
+}, {
+  slug: 'personal-agent', title: 'Personal Agent', category: 'Agent workspace', categoryZh: '智能体工作台', year: 2026,
+  summary: 'Delegate tasks, approve actions, and review the results in a self-hosted workspace.',
+  summaryZh: '在自托管工作台委托任务、确认外部操作，并跟进到最终成果。',
+  description: 'Personal Agent gives a task a place to live after it leaves the chat. See what is scheduled, what needs approval, and what has been delivered. The Studio also supports building and testing reusable agents and workflows.',
+  descriptionZh: 'Personal Agent 将对话里交办的任务接入一个可回看的工作台，方便查看近期安排、待确认操作和已交付成果。也可以在 Studio 中搭建和测试可复用的智能体与工作流。',
+  image: '/images/projects/personal-agent-workspace.webp',
+  imageAlt: 'Personal Agent workspace with a task composer, sample deliverables, and a schedule',
+  gallery: [],
+  previews: [
+    { id: 'workspace', label: 'Workspace', labelZh: '工作台', image: '/images/projects/personal-agent-workspace.webp', width: 1180, height: 715,
+      alt: 'Personal Agent demo workspace showing task delegation and scheduled work', caption: 'Task delegation and upcoming work, shown with demo data.', captionZh: '使用演示数据展示任务委托和近期安排。' },
+    { id: 'runs', label: 'Run history', labelZh: '执行记录', image: '/images/projects/personal-agent-runs.webp', width: 800, height: 480,
+      alt: 'Personal Agent demo workflow showing executed and pending steps', caption: 'A demo run with completed steps and a pending approval.', captionZh: '一条演示运行记录，包含已执行步骤和待确认操作。' },
+  ],
+  features: [
+    { title: 'Delegate', titleZh: '委托任务', description: 'Start a task in chat or schedule it to run later.', descriptionZh: '在对话里发起任务，或安排稍后运行。' },
+    { title: 'Review', titleZh: '确认操作', description: 'See and approve the specific external action a workflow is about to take.', descriptionZh: '查看工作流即将执行的具体外部操作，再决定是否批准。' },
+    { title: 'Follow the result', titleZh: '跟进结果', description: 'Reopen a run, inspect its steps, and find the delivered result.', descriptionZh: '回看运行步骤，并找到已交付的成果。' },
+  ],
+  technology: 'Source code is private.',
+  technologyZh: '源码暂未公开。',
 }];
 export type Resource = { id: string; title: string; type: 'Paper'|'CV'|'Slides'|'Poster'; year: number; file: string; preview: string; size: string; description: string };
 export const resources: Resource[] = [

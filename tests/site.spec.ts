@@ -116,13 +116,39 @@ test('homepage presents research, the featured project, background and writing',
  await expect(page.locator('#publications article')).toHaveCount(2);
  await expect(page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Projects' })).toHaveAttribute('href', '/projects/');
  await expect(page.locator('#projects').getByRole('link', { name: 'EPUB Toolkit', exact: true })).toHaveAttribute('href', '/projects/epub-toolkit/');
- await page.getByRole('button', { name: 'Merge volumes' }).click();
- await page.getByRole('button', { name: 'Split volumes' }).click();
- await expect(page.getByRole('button', { name: 'Merge volumes' })).toBeVisible();
+ const epub = page.locator('#projects [data-project="epub-toolkit"]');
+ await expect(epub.getByRole('link', { name: 'Open the tool' })).toHaveAttribute('href', /lightweight_epub_merge_tool/);
+ await epub.getByRole('button', { name: 'Split', exact: true }).click();
+ await expect(epub.locator('img[aria-hidden="false"]')).toHaveAttribute('src', /epub-panel-split/);
+ await epub.getByRole('button', { name: 'Merge', exact: true }).click();
+ await expect(epub.locator('img[aria-hidden="false"]')).toHaveAttribute('src', /epub-panel-merge/);
+ for (const title of ['OriginMark', 'Personal Agent']) {
+  await expect(page.locator('#projects').getByRole('link', { name: title, exact: true })).toBeVisible();
+ }
  await expect(page.locator('.portfolio-home')).not.toContainText(/scholarship/i);
  await expect(page.locator('#background').getByRole('heading', { name: 'Experience', exact: true })).toBeVisible();
 });
 
+test('project showcases work on mobile and only public software links to source', async ({ page }) => {
+ await page.setViewportSize({ width: 390, height: 844 });
+ await page.goto('/projects/');
+ for (const project of [
+  { title: 'OriginMark', slug: 'originmark', tab: 'Verify', asset: 'originmark-verify' },
+  { title: 'Personal Agent', slug: 'personal-agent', tab: 'Run history', asset: 'personal-agent-runs' },
+ ]) {
+  await page.getByRole('link', { name: project.title, exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(`/projects/${project.slug}/$`));
+  const detail = page.locator('.project-detail');
+  await expect(detail).toContainText('Source code is private.');
+  await expect(detail.locator('a[href*="github.com"]')).toHaveCount(0);
+  await detail.getByRole('tab', { name: project.tab, exact: true }).click();
+  await expect(detail.locator('.stage-capture[aria-hidden="false"] img')).toHaveAttribute('src', new RegExp(project.asset));
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  await page.goto('/projects/');
+ }
+ await page.getByRole('link', { name: 'EPUB Toolkit', exact: true }).click();
+ await expect(page.locator('.project-detail').getByRole('link', { name: 'GitHub', exact: true })).toHaveAttribute('href', /lightweight_epub_merge_tool/);
+});
 test('project detail switches real screens and expands the selected view',async({page})=>{
  await page.goto('/projects/epub-toolkit/');
  await page.getByRole('tab',{name:'Inspect',exact:true}).click();await expect(page.locator('.stage-capture[aria-hidden=false] img')).toHaveAttribute('src',/epub-panel-inspect/);await page.getByRole('button',{name:'Expand EPUB Toolkit inspect screenshot'}).click();await expect(page.getByRole('dialog')).toBeVisible();await expect(page.getByRole('dialog').getByRole('img')).toHaveAttribute('src',/epub-panel-inspect/);await page.keyboard.press('Escape');
