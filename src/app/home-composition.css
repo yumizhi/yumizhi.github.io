@@ -280,3 +280,55 @@ body:has(.portfolio-home) .site-footer {
   .ph-study-list { gap: 1.5rem; }
   .ph-paper-links .ph-study-action { padding-inline: .5rem; }
 }
+
+/* The profile, gallery and section links share one outer reading column. */
+.site-header[data-home] .header-inner,
+body:has(.portfolio-home) .site-footer,
+.ph-shell { inline-size: min(51rem, calc(100% - 2.75rem)); }
+
+.portfolio-home {
+  --ph-column-gap: clamp(.875rem, 3vw, 1.75rem);
+  --ph-section-gap: clamp(2.65rem, 6vw, 4rem);
+  --ph-image-column: clamp(5.75rem, 17vw, 8rem);
+}
+.ph-shell { padding-block: clamp(1.4rem, 5vw, 3.5rem) 3.5rem; }
+.ph-intro { align-items: center; }
+.ph-identity h1 { font-size: clamp(1.9rem, 1.5rem + 1.8vw, 2.75rem); }
+.ph-contact { margin-block-start: .5rem; }
+.ph-research, .ph-end-section { margin-block-start: var(--ph-section-gap); }
+.ph-section-heading h2 { letter-spacing: -.028em; }
+.ph-study-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.5rem, 4vw, 2.125rem);
+  margin-block-start: .875rem;
+}
+.ph-study { display: flex; flex-direction: column; align-items: stretch; gap: .875rem; }
+.ph-study-header { display: flex; flex: 1; flex-direction: column; align-items: start; }
+.ph-study h3 { font-size: clamp(1.0625rem, .93rem + .44vw, 1.25rem); line-height: 1.25; }
+.ph-byline { font-size: .785rem; }
+.ph-paper-description { margin-block-start: .5rem; }
+.ph-paper-links { margin-block-start: auto; padding-block-start: .625rem; }
+.ph-paper-links .ph-study-action { font-size: .8125rem; }
+.ph-project-feature {
+  align-items: center;
+  grid-template-columns: minmax(9.125rem, 31%) minmax(0, 1fr);
+  gap: var(--ph-column-gap);
+}
+.ph-project-copy h3 { font-size: 1.1rem; }
+.ph-project-copy > p { max-inline-size: 48ch; margin-block: .35rem; }
+.ph-records { gap: 1.5rem var(--ph-column-gap); }
+.portfolio-home #publications { scroll-margin-top: 4rem; }
+
+@media (max-width: 39rem) {
+  .site-header[data-home] .header-inner,
+  body:has(.portfolio-home) .site-footer,
+  .ph-shell { inline-size: calc(100% - 2.25rem); }
+  .ph-study-list { grid-template-columns: 1fr; row-gap: 2.125rem; }
+  .ph-study { gap: .75rem; }
+}
+@media (max-width: 30rem) {
+  .ph-intro { align-items: start; }
+  .ph-contact { margin-block-start: .25rem; }
+  .ph-project-feature { grid-template-columns: minmax(0, 1fr); align-items: start; gap: .75rem; }
+  .ph-project-feature .ph-preview { aspect-ratio: 1.9; }
+}

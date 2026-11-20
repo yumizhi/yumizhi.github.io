@@ -7,6 +7,7 @@ import { CopyButton } from './disclosure';
 import { Localized } from './language';
 import { TransitionLink } from './providers';
 import { PaperNav } from './tide/paper-controls';
+import { PaperBreadcrumb, PaperReaderToolbar, PaperReadNext } from './paper-navigation';
 import { TideCover } from './research-experiment/tide-cover';
 import './tide/paper.css';
 import './article-editorial.css';
@@ -22,14 +23,18 @@ type PaperArticleProps = {
 
 export function PaperArticle({ paper, title, authorNotes, affiliations, abstractBreaks, children }: PaperArticleProps) {
   const nextIndex = (papers.findIndex(item => item.slug === paper.slug) + 1) % papers.length;
-  const related = papers[nextIndex];
+  const current = { slug: paper.slug, shortTitle: paper.shortTitle, venue: paper.venue, year: paper.year };
+  const paperLinks = papers.map(({ slug, shortTitle, venue, year }) => ({ slug, shortTitle, venue, year }));
 
   return (
     <article className="tide-paper editorial-paper" data-study={paper.slug}>
       <ArticleProgress />
+      <div className="paper-reader-sticky">
+        <PaperReaderToolbar current={current} choices={paperLinks} />
+      </div>
       <header className="paper-masthead-band">
         <div className="tide-masthead">
-          <TransitionLink className="paper-back" href="/research/"><ArrowLeft size={14} aria-hidden="true" /><Localized en="Research" zh="研究" /></TransitionLink>
+          <PaperBreadcrumb current={current} />
           <p className="tide-venue">{paper.venue} {paper.year}{paper.slug === 'sasbo' && ' · Oral'}</p>
           <h1 lang="en">{title ?? paper.title}</h1>
           <p className="paper-standfirst"><Localized en={paper.summary} zh={paper.summaryZh ?? paper.summary} /></p>
@@ -51,7 +56,9 @@ export function PaperArticle({ paper, title, authorNotes, affiliations, abstract
         </div>
       </header>
       <div className="paper-body-grid">
-        <aside className="tide-navigation"><PaperNav expanded={paper.slug === 'tide'} /></aside>
+        <aside className="tide-navigation">
+          <PaperNav expanded={paper.slug === 'tide'} />
+        </aside>
         <div className="tide-document">
           <section id="abstract" className="tide-abstract tide-bound">
             <h2><Localized en="Abstract" zh="摘要" /></h2>
@@ -72,7 +79,7 @@ export function PaperArticle({ paper, title, authorNotes, affiliations, abstract
           </section>
           <footer className="tide-paper-footer">
             <TransitionLink href="/research/"><ArrowLeft size={15} aria-hidden="true" /><Localized en="All publications" zh="全部论文" /></TransitionLink>
-            <TransitionLink href={`/research/${related.slug}/`}>{related.shortTitle} <span aria-hidden="true">→</span></TransitionLink>
+            <PaperReadNext next={paperLinks[nextIndex]} />
           </footer>
         </div>
       </div>
