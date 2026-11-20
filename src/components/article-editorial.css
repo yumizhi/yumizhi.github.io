@@ -67,8 +67,27 @@
 }
 .editorial-paper .tide-abstract { padding: 35px 0 40px; }
 .editorial-paper .tide-abstract h2 { margin-bottom: 17px; font: 650 25px/1.25 var(--editorial-font); letter-spacing: -.012em; }
-.editorial-paper :is(.tide-abstract p, .tide-prose) { font-size: 17px; line-height: 1.55; text-wrap: pretty; }
+.editorial-paper :is(.tide-abstract p, .tide-prose) { font-size: 17px; line-height: 1.55; text-align: justify; text-align-last: start; }
 .editorial-paper :is(.tide-abstract p, .tide-prose) > [lang="en"] { hyphens: auto; }
+.paper-equation {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  align-items: center;
+  gap: 8px;
+  max-width: var(--paper-column);
+  margin: 19px auto;
+  color: var(--paper-ink);
+  font-size: 16px;
+}
+.paper-equation[data-numbered="false"] { grid-template-columns: minmax(0, 1fr); }
+.paper-equation-math { min-width: 0; overflow: auto; padding: 3px 0; }
+.paper-equation-math .katex-display { margin: 0; }
+.paper-equation-math .katex-display > .katex { width: max-content; min-width: 100%; }
+.paper-equation-number { color: var(--paper-caption); font-size: .75rem; font-variant-numeric: tabular-nums; }
+@media (max-width: 660px) {
+  .paper-equation { font-size: clamp(12px, 3.2vw, 16px); }
+  .paper-equation-number { font-size: .625rem; }
+}
 .editorial-paper .tide-abstract p + p { margin-top: 14px; }
 .editorial-paper .tide-prose + .tide-prose { margin-top: 16px; }
 .editorial-paper .tide-prose.tide-demo-intro { margin-top: 27px; }
@@ -94,7 +113,6 @@
 .editorial-paper .sparse-results { max-width: var(--paper-column); }
 .editorial-paper .tide-table-wrap table { font-size: .875rem; }
 .editorial-paper .tide-variant-list { background: var(--background); }
-.editorial-paper .paper-flow { padding: 0; }
 .editorial-paper .tide-citation { width: min(100%, var(--paper-column)); margin: 25px auto 0; padding: 22px; border-radius: 12px; }
 .editorial-paper .tide-reading, .editorial-paper .tide-paper-footer { width: 100%; }
 .editorial-paper .tide-paper-footer { padding-block: 30px; }

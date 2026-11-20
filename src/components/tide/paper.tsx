@@ -10,6 +10,7 @@ import { ComparisonChart } from '../comparison-chart';
 import { TideTrajectory } from '../paper-figures/tide-trajectory';
 import { EssayProse } from '../paper-figures/essay-prose';
 import { tideChapters } from '../paper-figures/essay-chapters';
+import { TideGuidanceMath, TideInjectionMath, TideTrainingMath, TideVerificationMath } from '../paper-figures/tide-math';
 
 const authorNotes = ['1,2', '1,3', '4', '1,2', '1,2,*'];
 const affiliations = [
@@ -50,6 +51,7 @@ export function TidePaper({paper}:{paper:Paper}){
         <p className="tide-prose"><Localized
           en={<>The VAE, U-Net, and text encoder stay frozen. Training changes only <strong>the watermark spectrum and an auxiliary condition embedding</strong>. At the chosen step, selected Fourier coefficients of the latent are replaced by the learned watermark. The auxiliary condition guides the frozen U-Net to carry that signal across the remaining denoising steps.</>}
           zh={<>VAE、U-Net 和文本编码器保持冻结，只学习<strong>水印频谱和一个辅助条件嵌入</strong>。到达选定的采样步骤后，用学到的水印替换潜变量频域中指定位置的系数；辅助条件则让原有 U-Net 在后续去噪时提供维持水印的引导。</>}/></p>
+        <TideInjectionMath/>
         <figure className="tide-overview">
           <img loading="lazy" width="1800" height="1383" src={asset('/images/tide-paper/overview.webp')}
             alt="TIDE architecture: intermediate watermark injection, trajectory-aware guidance and inversion-based verification."/>
@@ -63,33 +65,19 @@ export function TidePaper({paper}:{paper:Paper}){
         <p className="tide-prose tide-demo-intro"><Localized
           en="Training constrains both image content and watermark detection. Short-term reconstruction limits the immediate change caused by injection; a second preservation loss compares the predicted image with the final unwatermarked reference. A detection margin separates watermarked and clean predictions in the verification space. An energy constraint on the watermark prevents the spectrum from growing arbitrarily strong or collapsing."
           zh="训练目标需要兼顾可见内容与可检测信号。短程重建约束注入当下造成的变化，另一项内容保持损失将预测图像与完整采样得到的无水印参考图比较。检测间隔损失拉开水印与无水印预测在验证空间中的距离，频谱能量约束则避免水印强度无限增大或退化。"/></p>
-        <p className="tide-prose"><Localized
-          en="The two reconstruction targets give the optimizer different information. The short-term target comes from a clean prediction at the very same step, so it isolates the local effect of writing the watermark. The final clean reference also accounts for the composition reached by the rest of sampling. The detector has another reference altogether, the learned frequency template. Training therefore puts pressure on the watermark to stay distinguishable in frequency space while the decoded estimates remain visually similar."
-          zh="短程和长程目标各看一种变化。短程比较同一步的两次预测，可以把写入当下的影响单独拎出来。长程比较的是完整采样得到的无水印参考图，因而还约束最终成形的画面。检测器使用的是另一个参照，也就是学到的频域模板。这样，图像可以在视觉上保持相近，水印仍有机会在频域里被区分出来。"/></p>
+        <TideTrainingMath/>
         <div id="guidance-comparison">
           <h3 className="paper-subsection" id="guidance"><Localized en="Reusing the same denoiser" zh="用同一个去噪模型完成三路预测"/></h3>
           <p className="tide-prose"><Localized
             en="All three predictions at a step come from the same frozen U-Net with different conditions. The unconditional prediction provides a common origin, so the differences isolate what the prompt and the learned condition each add to the noise prediction. TIDE keeps the base prediction, combines the text and complementary watermark residuals with the allocated weights, and passes one prediction to DDIM. The scheduler then determines the next latent."
             zh="每一步的三路预测都来自同一个冻结的 U-Net，只是输入的条件不同。无条件预测给两种残差提供共同起点。做差以后，就能分别看到提示词和学到的条件对噪声预测增加了什么。TIDE 保留基础预测，按分配的权重合成文本残差与水印互补残差，把一次合成预测交给 DDIM，由采样器算出下一步潜变量。"/></p>
-          <p className="tide-prose"><Localized
-            en="There is no single direction to compute ahead of time for every picture. Recent text residuals are collected along the run being guided. After choosing an update, the sampler reaches a new state and both residuals may change. This is why the training and inference stages solve different pieces of the problem. Training provides a watermark and a condition that work together. Inference decides how much influence that condition should have in the current run."
-            zh="这里用到的文本方向来自正在进行的这次采样。一次更新之后，采样到达新的状态，两种残差都可能发生变化。训练和推理因此各解决一部分问题：训练让水印频谱和辅助条件能够配合，推理则决定辅助条件在这一次生成的当前步骤里适合有多大的影响。"/></p>
+          <TideGuidanceMath/>
         </div>
         <h3 className="paper-subsection" id="verification"><Localized en="Recovering the signal from an image" zh="从最终图像中找回水印"/></h3>
         <p className="tide-prose"><Localized
           en="By the time an image reaches the detector, its watermark has been through the rest of sampling and possibly an edit. The detector looks for the signal where it was written. It encodes the image and runs partial DDIM inversion with an empty prompt, stopping at the injection step. There, the distance between the recovered spectrum and the watermark template indicates how closely they match. Unwatermarked images calibrate the decision threshold, so the query can be scored from the image alone."
           zh="图像到达检测器时，水印已经历余下的去噪，也可能经历过编辑。检测回到当初写入信号的位置：将图像编码为潜变量，用空提示词做部分 DDIM 反演，在注入步骤停下。恢复的频谱与水印模板越接近，匹配证据就越强。判定阈值用无水印图像校准，查询时只需提交待检测图像。"/></p>
-        <p className="tide-prose"><Localized
-          en="Stopping at the injection step keeps the detector’s question close to the original write. The detector compares coefficients in the same masked region, after the image has been encoded and inverted. A nearby match is evidence of a watermark only relative to how often clean images would match as closely. This explains the use of a false-positive operating point in the results below and the assumption that the verifier can use a compatible inversion path."
-          zh="在注入步骤停下，让检测器回到当初写信号的层面。反演后，它比较的是同一掩码内的系数。匹配得有多近，要结合无水印图也偶然匹配到这一程度的频率来判断。这就是后面的实验固定假阳性率的原因，也说明了检测设置为何需要验证方掌握兼容的反演过程。"/></p>
-        <figure className="paper-mechanism">
-          <figcaption><Localized en="Verification follows the generation path back to the injection step" zh="沿生成轨迹回溯到水印注入时刻"/></figcaption>
-          <div className="paper-flow">
-            <div><b>01</b><strong><Localized en="Query image" zh="待验证图像"/></strong><p><Localized en="Encode with the frozen VAE" zh="使用冻结的 VAE 编码"/></p></div><span aria-hidden="true">→</span>
-            <div><b>02</b><strong><Localized en="Partial inversion" zh="部分反演"/></strong><p><Localized en="Return to the injection step with an empty prompt" zh="以空提示词回到注入步骤"/></p></div><span aria-hidden="true">→</span>
-            <div><b>03</b><strong><Localized en="Frequency matching" zh="频域匹配"/></strong><p><Localized en="Compare the masked spectrum with the watermark" zh="在掩码区域与水印模板比较"/></p></div>
-          </div>
-        </figure>
+        <TideVerificationMath/>
       </div>
     </section>
     <section id="examples" className="tide-results tide-bound">

@@ -1,81 +1,142 @@
-'use client';
-
-import { useId } from 'react';
-import { motion, useReducedMotion } from 'motion/react';
-import { asset } from '@/lib/paths';
-import { Localized, useLanguage } from '../language';
+import { ArrowDown, ArrowRight, ArrowUp } from 'lucide-react';
+import { Localized } from '../language';
+import { PaperEquation } from './paper-equation';
 import './evidence-figure.css';
-import './sam-method.css';
+import './worked-figures.css';
 
-const footprint = Array.from({ length: 20 }, (_, i) => ({ x: i % 5 * 6, y: Math.floor(i / 5) * 6 }));
-const kept = new Set([2, 6, 13, 16]);
+const tex = String.raw;
 
-export function SamMethod({ original }: { original?: string }) {
-  const id = useId();
-  const zh = useLanguage().language === 'zh';
-  const reduced = useReducedMotion();
-  const draw = (start: number) => ({
-    initial: reduced ? false as const : { pathLength: 0, opacity: .25 },
-    whileInView: { pathLength: 1, opacity: 1 },
-    viewport: { once: true },
-    transition: { duration: reduced ? 0 : .62, delay: reduced ? 0 : start, ease: 'easeOut' as const },
-  });
-  const arrow = `url(#${id}-signal)`;
+export function SamTaskMath() {
+  return <>
+    <PaperEquation number="2–3" math={tex`\begin{aligned}
+      G_{i,j}&=\sum_{s\in S_i}w_s\nabla_x\mathcal L_s(x_{i,j}) \\
+      x_{i,j+1}&=x_{i,j}+\alpha\,\operatorname{sign}(G_{i,j})
+    \end{aligned}`} />
+    <p className="tide-prose"><Localized
+      en="Each support model supplies a gradient with respect to the same current image. At an entry where two models disagree, their weighted sum reduces the contribution of the conflicting directions. The sign is taken after that sum. When all the gradients at an entry share a sign, the weighted sum retains that sign. The calculation changes the image; the classifiers and their weights remain frozen."
+      zh="每个支持模型都对同一张当前图像求输入梯度。在某个位置上，如果两种模型的梯度方向相反，加权和会抵消一部分，再对这个和取符号。在方向一致的位置，更新就沿共同方向走。这一步始终在改图像，分类器及其训练得到的参数保持冻结。"
+    /></p>
+    <h3 className="paper-subsection"><Localized en="Measuring feedback at the proposal" zh="在提案上计算查询梯度" /></h3>
+    <p className="tide-prose"><Localized
+      en="After K such updates, the query model supplies a gradient at the image proposed by the support models. SAM keeps the distinction between where this gradient is measured and where it is applied. Write vᵢ for the image before projection. In the outer update, the support proposal appears inside the gradient; the starting image for the new move is still xᵢ."
+      zh="支持模型完成 K 次更新后，查询模型在它们提出的图像上求梯度。SAM 区分了梯度在哪里计算，以及计算出的改动加到哪里。把投影前的图记为 vᵢ，外层式子的梯度在支持组提出的图像上计算，新一轮更新却还是从原来的 xᵢ 出发。"
+    /></p>
+    <PaperEquation number="5, Alg. 1" math={tex`\begin{aligned}
+      q_i &= \nabla_x\mathcal L_{q}(x_{i,K}) \\
+      v_i &= x_i + \beta\,\operatorname{sign}(q_i) \\
+      x_{i+1} &= \mathcal P(v_i)
+    \end{aligned}`} />
+    <SamMethod />
+    <p className="tide-prose"><Localized
+      en="For example, one support model may push on an edge that another model barely uses. If the blended support update changes that edge, the query model re-evaluates the perturbed image with its own loss. Its gradient can point somewhere else. Applying this signal to the saved state avoids directly accumulating every temporary support step. In the following task the model assignments can change, so the current direction is repeatedly subject to a different source of feedback. The held-out classifiers in the results are separate from these sampled query models."
+      zh="例如，某个支持模型可能主要依赖一条边缘，另一个模型却很少用它。支持组的合并更新动了这条边缘以后，查询模型会在改过的图上用自己的损失重新评估，得到的梯度可能指向别处。这时把查询信号加回保留的图像，就不会把支持组的每一步临时更新直接累积进去。下一轮可重新抽取模型分工，让当前方向不断面对不同来源的反馈。结果表中的独立目标分类器与任务中抽来做查询的模型相互分开。"
+    /></p>
+  </>;
+}
 
-  return <figure id="handoff-figure" className="paper-evidence-figure sam-method">
-    <h3><Localized en="Evaluate the proposal, update the input" zh="查询在临时图上，更新从本轮输入开始" /></h3>
-    <svg viewBox="0 0 620 247" role="img" aria-labelledby={`${id}-title ${id}-description`}>
-      <title id={`${id}-title`}>{zh ? 'SAM 一轮任务中的图像状态' : 'The image states in one SAM task'}</title>
-      <desc id={`${id}-description`}>{zh ? '支持集先从本轮输入得到临时图。查询模型在临时图上计算反馈。外层更新从本轮输入出发，随后稀疏化得到下一轮的图。' : 'Support models create a temporary proposal. The query model evaluates that proposal. Its feedback updates the original input of the round before projection yields the next sparse image.'}</desc>
-      <defs>
-        <radialGradient id={`${id}-support`} cx=".64" cy=".28" r=".59">
-          <stop stopColor="var(--figure-blue)" stopOpacity=".16" />
-          <stop offset="1" stopColor="var(--figure-blue)" stopOpacity="0" />
-        </radialGradient>
-        <radialGradient id={`${id}-sparse`} cx=".84" cy=".71" r=".43">
-          <stop stopColor="var(--figure-accent)" stopOpacity=".14" />
-          <stop offset="1" stopColor="var(--figure-accent)" stopOpacity="0" />
-        </radialGradient>
-        <marker id={`${id}-signal`} viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto">
-          <path d="M1 1 7 4 1 7" fill="none" stroke="context-stroke" strokeWidth="1.25" />
-        </marker>
-      </defs>
-      <rect width="620" height="247" fill={`url(#${id}-support)`} />
-      <rect width="620" height="247" fill={`url(#${id}-sparse)`} />
-      <path d="M61 184H568" className="sam-method-baseline" />
-      <motion.path d="M78 184 C149 166 158 79 271 68 C316 64 340 68 380 65"
-        className="sam-support-path" {...draw(0)} />
-      <motion.path d="M78 184 C163 176 211 163 276 176 S350 185 401 184"
-        className="sam-query-path" {...draw(1)} />
-      <motion.path d="M407 184 C458 184 482 184 533 184"
-        className="sam-projection-path" markerEnd={arrow} {...draw(1.65)} />
-      <motion.path d="M383 71 C397 117 354 127 270 126 C243 126 225 140 221 160"
-        className="sam-query-signal" markerEnd={arrow}
-        initial={reduced ? false : { opacity: .18 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-        transition={{ duration: reduced ? 0 : .43, delay: reduced ? 0 : .68 }} />
-      <g className="sam-method-labels">
-        <text x="78" y="218" textAnchor="middle">{zh ? '本轮输入' : 'Round input'}</text>
-        <text x="198" y="61" textAnchor="middle" className="sam-support-label">{zh ? '支持集更新' : 'Support update'}</text>
-        <text x="380" y="36" textAnchor="middle">{zh ? '在临时图上查询' : 'Query the proposal'}</text>
-        <text x="283" y="115" textAnchor="middle" className="sam-query-label">{zh ? '查询反馈' : 'Query feedback'}</text>
-        <text x="402" y="218" textAnchor="middle">{zh ? '稠密更新' : 'Dense update'}</text>
-        <text x="469" y="176" textAnchor="middle" className="sam-projection-label">{zh ? '投影' : 'Project'}</text>
-        <text x="546" y="218" textAnchor="middle">{zh ? '下一轮的稀疏图' : 'Next sparse input'}</text>
-      </g>
-      <circle cx="78" cy="184" r="5" fill="var(--figure-ink)" />
-      <circle cx="380" cy="65" r="6" fill="var(--figure-panel)" stroke="var(--figure-blue)" strokeWidth="2" />
-      <g transform="translate(390 145)" className="sam-pixels">
-        {footprint.map(({ x, y }, i) => <rect key={i} x={x} y={y} width="3.8" height="3.8" opacity={.26 + (i % 6) * .11} />)}
-      </g>
-      <g transform="translate(534 150)" className="sam-pixels">
-        {footprint.map(({ x, y }, i) => <rect key={i} x={x} y={y} width="3.8" height="3.8" opacity={kept.has(i) ? .86 : .13} />)}
-      </g>
-      <circle cx="402" cy="184" r="4.4" fill="var(--figure-rust)" />
-      <circle cx="546" cy="184" r="4.8" fill="var(--figure-accent)" />
-    </svg>
-    <figcaption>
-      <Localized en="The dashed path carries feedback. The solid paths show changes to the image during one task." zh="虚线传递查询反馈。实线表示一轮任务中图像的两次更新及最后的投影。" />{' '}
-      {original && <a href={asset(original)} target="_blank" rel="noreferrer"><Localized en="Meta-learning figure from the paper" zh="论文的元学习原图" /></a>}
-    </figcaption>
-  </figure>;
+function SamMethod() {
+  return (
+    <figure id="handoff-figure" className="paper-evidence-figure worked-figure sam-handoff">
+      <div className="worked-panel sam-board">
+        <div className="sam-evaluate">
+          <div>
+            <span className="sam-math">x<sub>i</sub></span>
+            <strong><Localized en="Start of task" zh="本轮起点" /></strong>
+          </div>
+          <ArrowRight aria-hidden="true" size={16} />
+          <div>
+            <span className="sam-math">x<sub>i,K</sub></span>
+            <strong><Localized en="Support proposal" zh="支持组提案" /></strong>
+          </div>
+          <ArrowRight aria-hidden="true" size={16} />
+          <div data-query>
+            <span className="sam-math">q<sub>i</sub></span>
+            <strong><Localized en="Query gradient" zh="查询梯度" /></strong>
+          </div>
+        </div>
+        <div className="sam-query-signal" aria-hidden="true"><ArrowDown size={16} /></div>
+        <div className="sam-commit">
+          <div>
+            <span className="sam-math">x<sub>i</sub> + β sign(q<sub>i</sub>)</span>
+            <strong><Localized en="Update the saved image" zh="更新保留的起点图像" /></strong>
+          </div>
+          <ArrowRight aria-hidden="true" size={16} />
+          <div>
+            <span className="sam-math">x<sub>i+1</sub></span>
+            <strong><Localized en="Project to budget" zh="投影回预算内" /></strong>
+          </div>
+          <ArrowRight aria-hidden="true" size={16} />
+          <div className="sam-next-task">
+            <ArrowUp aria-hidden="true" size={14} />
+            <strong><Localized en="Resample roles" zh="下一轮重新分组" /></strong>
+          </div>
+        </div>
+      </div>
+      <figcaption><Localized en="One SAM task. The query gradient is measured at the proposal and applied to the saved starting image." zh="一次 SAM 任务。查询梯度在支持组的提案上计算，再加回本轮保留的起点图像。" /></figcaption>
+    </figure>
+  );
+}
+
+const projection = [
+  { id: 'A', proposed: ['a', '0', '0'], clipped: ['ε', '0', '0'], saved: <>2aε − ε<sup>2</sup></> },
+  { id: 'B', proposed: ['ε', 'ε', 'ε'], clipped: ['ε', 'ε', 'ε'], saved: <>3ε<sup>2</sup></> },
+];
+
+export function SamProjectionMath() {
+  return <>
+    <h3 className="paper-subsection"><Localized en="Keeping the pixels that save the most error" zh="把保留名额给减少误差最多的像素" /></h3>
+    <p className="tide-prose"><Localized
+      en="The outer step can propose changes throughout the image, including at pixels that were untouched in the previous task. To compress that proposal, compare two possible outcomes at each pixel. We can restore all three channels to the original values, or we can keep the proposed changes after clipping each channel to the allowed amplitude. The choice is made for the whole pixel because SAM counts a changed spatial position once, even if all three channels at that position change."
+      zh="外层更新可以在整张图上提出改动，包括上一轮还未动过的位置。要把这次提案压回预算内，每个像素有两种去处。一种是把三个通道全部恢复到原值，另一种是把各通道的改动裁剪到允许的幅度再保留。这个决策以整个像素为单位，因为在 SAM 里，同一个位置即使改了三个通道，也只占一份像素预算。"
+    /></p>
+    <PaperEquation number="7–10" math={tex`\begin{aligned}
+      d_{ij} &= v_{ij}-x_{ij} \\
+      \bar d_{ij} &= \operatorname{clip}_{[-\epsilon,\epsilon]}(d_{ij}) \\
+      S_i &= \sum_{j\in\{R,G,B\}}\!
+        \left[d_{ij}^{\,2}-(d_{ij}-\bar d_{ij})^2\right]
+    \end{aligned}`} />
+    <p className="tide-prose"><Localized
+      en="In this formula, x is the original image and v is the dense candidate. If a pixel is dropped, its squared error from the candidate is the sum of the squared proposed changes. If it is kept, the error is the excess left over after clipping. Subtracting the two errors gives the saving Sᵢ. Savings add across pixels. Choosing the k biggest savings therefore gives a closest feasible image for this projection objective. A candidate selection that omits a larger saving in favor of a smaller one can always improve by swapping them."
+      zh="这里 x 是原图，v 是稠密提案。丢掉一个像素时，与提案的平方误差是三个通道改动量的平方和。保留该像素时，误差来自裁剪后剩下的超出部分。两种误差之差就是 Sᵢ，表示把一个名额给这个像素能少掉多少误差。像素间的收益可以直接相加，所以选收益最大的 k 个，就能得到这个投影目标下距离最近的可行图像。如果舍弃了高收益的位置、选了一个低收益的位置，交换它们就能让距离更小。"
+    /></p>
+    <figure id="projection-example" className="paper-evidence-figure worked-figure">
+      <div className="worked-panel sam-projection">
+        <div className="projection-heading">
+          <strong><Localized en="Two pixels, one slot" zh="两个像素，一个保留名额" /></strong>
+          <span className="sam-math">ε &lt; a &lt; 2ε</span>
+        </div>
+        <table>
+          <thead><tr>
+            <th scope="col"><Localized en="Pixel" zh="像素" /></th>
+            <th scope="col"><Localized en="Proposed RGB" zh="RGB 提案" /></th>
+            <th scope="col"><Localized en="Clipped RGB" zh="裁剪后 RGB" /></th>
+            <th scope="col"><Localized en="Error saved" zh="减少的误差" /></th>
+          </tr></thead>
+          <tbody>{projection.map(({ id, proposed, clipped, saved }) => (
+            <tr key={id} data-retained={id === 'B'}>
+              <th scope="row">{id}</th>
+              <td><ChannelGroup values={proposed} /></td>
+              <td><ChannelGroup values={clipped} /></td>
+              <td><span className="sam-math">{saved}</span></td>
+            </tr>
+          ))}</tbody>
+        </table>
+      </div>
+      <figcaption><Localized en="B keeps the slot. The biggest individual channel belongs to A, but retaining B saves more squared error across all three channels." zh="保留 B。最大的单通道改动出现在 A，但保留 B 能在三个通道合计减少更多平方误差。" /></figcaption>
+    </figure>
+    <p className="tide-prose"><Localized
+      en="For pixel A, the saving is a²−(a−ε)². Since a is below twice the cap, that saving is less than the three squared channel changes that can be kept at B. The comparison explains how a pixel with three moderate changes can beat one with a single stronger change. It also identifies what the projection optimizes. The score measures closeness to the dense candidate. Transfer comes from the feedback used to build that candidate and must still be checked on independent classifiers."
+      zh="对 A 来说，保留它省下的误差是 a²−(a−ε)²。因为 a 小于两倍上限，这个差比 B 可以完整留下的三个通道改动平方和更小。于是，即使 A 有一个更强的单通道改动，也会输给 B 的三处中等幅度改动。这同时说明了投影究竟在优化什么。收益衡量的是与稠密提案的距离。提案能否迁移，取决于构造它时用的反馈，仍要在独立分类器上检验。"
+    /></p>
+  </>;
+}
+
+function ChannelGroup({ values }: { values: string[] }) {
+  return (
+    <span className="channel-group">
+      {values.map((value, channel) => (
+        <span key={channel} data-channel={channel} data-zero={value === '0'}>{value}</span>
+      ))}
+    </span>
+  );
 }
