@@ -8,6 +8,7 @@ import { TideComparison } from './comparison';
 import { InjectionStudy } from '../research-experiment';
 import { GuidanceComparison } from './guidance-comparison';
 import { ComparisonChart } from '../comparison-chart';
+import { TideTrajectory } from '../paper-figures/tide-trajectory';
 
 const authorNotes = ['1,2', '1,3', '4', '1,2', '1,2,*'];
 const affiliations = [
@@ -38,6 +39,13 @@ export function TidePaper({paper}:{paper:Paper}){
         <p className="tide-prose"><Localized
           en="A watermark written halfway through sampling has two jobs. It must leave a detectable trace in the finished image and give the sampler room to preserve the composition already taking shape. We train the signal together with a condition that the denoiser can use in the steps that follow."
           zh="在采样中途写入的水印，既要在成图里留下可检测的信号，也要给已成形的画面留出继续去噪的余地。为此，我们把水印信号和一种辅助条件一起训练，让去噪模型在余下步骤里也能接续这个信号。"/></p>
+        <p className="tide-prose"><Localized
+          en="Tree-Ring changes the starting noise. Every step of generation then inherits that change, including the steps that establish viewpoint and composition. ROBIN moves the write to an intermediate state, after some of that structure has formed. The remaining updates still matter. An intermediate write changes the latent that the next step sees, and the effect of keeping that change can vary as the text-guided direction turns."
+          zh="Tree-Ring 从起始噪声就写入水印。往后的每一步都受这次改动影响，包括决定主体视角和构图的阶段。ROBIN 将写入推迟到中途，让部分画面先成形。此后，第一步去噪看到的潜变量已经变了，而文本引导方向也在往前走。水印信号怎样延续，取决于这两种变化如何在后续步骤里相遇。"/></p>
+        <TideTrajectory/>
+        <p className="tide-prose"><Localized
+          en="The two views in the sketch operate at different scales. The path shows the effect of intervening midway through a run. The vector diagram zooms in on one subsequent update, where the recent text directions determine what part of the watermark residual to keep. The paper evaluates the resulting images against matched unwatermarked generations and measures whether the watermark survives editing."
+          zh="图里左侧是一次采样的全程，右侧放大的是写入之后的其中一步。左侧的跳跃来自频域写入，右侧的分解则说明这一步里水印引导被怎样调整。论文用同一生成设置下的无水印图像衡量最终画面的变化，再通过图像编辑后的检出率检查信号能否留下来。"/></p>
         <h3 className="paper-subsection" id="learning"><Localized en="Learning the watermark and its condition together" zh="一起学习水印和辅助条件"/></h3>
         <p className="tide-prose"><Localized
           en={<>The VAE, U-Net, and text encoder stay frozen. Training changes only <strong>the watermark spectrum and an auxiliary condition embedding</strong>. At the chosen step, selected Fourier coefficients of the latent are replaced by the learned watermark. The auxiliary condition gives the existing U-Net a way to support that signal during the remaining denoising steps.</>}
@@ -55,6 +63,9 @@ export function TidePaper({paper}:{paper:Paper}){
         <p className="tide-prose tide-demo-intro"><Localized
           en="Training constrains both image content and watermark detection. Short-term reconstruction limits the immediate change caused by injection; a second preservation loss compares the predicted image with the final unwatermarked reference. A detection margin separates watermarked and clean predictions in the verification space. An energy constraint on the watermark prevents the spectrum from growing arbitrarily strong or collapsing."
           zh="训练目标需要兼顾可见内容与可检测信号。短程重建约束注入当下造成的变化，另一项内容保持损失将预测图像与完整采样得到的无水印参考图比较。检测间隔损失拉开水印与无水印预测在验证空间中的距离，频谱能量约束则避免水印强度无限增大或退化。"/></p>
+        <p className="tide-prose"><Localized
+          en="The two reconstruction targets give the optimizer different information. The short-term target comes from a clean prediction at the very same step, so it isolates the local effect of writing the watermark. The final clean reference also accounts for the composition reached by the rest of sampling. The detector has another reference altogether, the learned frequency template. Training therefore puts pressure on the watermark to stay distinguishable in frequency space while the decoded estimates remain visually similar."
+          zh="短程和长程目标各看一种变化。短程比较同一步的两次预测，可以把写入当下的影响单独拎出来。长程比较的是完整采样得到的无水印参考图，因而还约束最终成形的画面。检测器使用的是另一个参照，也就是学到的频域模板。这样，图像可以在视觉上保持相近，水印仍有机会在频域里被区分出来。"/></p>
         <h3 className="paper-subsection" id="guidance"><Localized en="Three predictions, one controlled update" zh="三路预测，形成一次受控更新"/></h3>
         <p className="tide-prose"><Localized
           en="At each step after injection, the same U-Net is evaluated with an empty condition, the text prompt, and the learned watermark condition. Subtracting the unconditional prediction isolates what each condition adds. Recent text residuals define a local subspace; TIDE removes the watermark residual’s projection onto that subspace and retains its complementary component."
@@ -63,6 +74,9 @@ export function TidePaper({paper}:{paper:Paper}){
         <p className="tide-prose"><Localized
           en={<>Direction is only half the decision. TIDE also adjusts <strong>how much guidance the watermark receives</strong>. Greater overlap, a sharper turn in the text trajectory, or an already strong complementary residual lowers the watermark budget. The total budget is shared with the text branch, which always retains a reserved minimum. This calculation repeats at every remaining step.</>}
           zh={<>选好方向之后，还需要决定<strong>水印引导占多少预算</strong>。与文本方向重合越多、局部轨迹转弯越明显，或互补残差本身越强，分给水印的预算就越低。总预算在文本与水印之间重新分配，同时为文本保留最低额度。这套计算会在注入后的每一步重复执行。</>}/></p>
+        <p className="tide-prose"><Localized
+          en="Consider two adjacent steps. A watermark residual can be mostly complementary at the first one. At the next, a turn in the recent text directions makes that same guidance less attractive, even if the watermark residual is similar. Overlap says where the two updates compete, curvature says how quickly the local text direction is changing, and relative residual strength says how much adjustment the remaining watermark component already supplies. These quantities give the sampler a reason to spend its guidance budget differently from step to step."
+          zh="把相邻两步放在一起看。上一步的水印残差可能大部分都与文本方向互补。到了下一步，最近的文本方向一转，即使水印残差相似，继续给它同样的引导也未必合适。重合度刻画两种更新在哪些方向上有冲突，曲率反映文本方向变化得有多快，残差强度则反映留下的水印分量已经能提供多大的更新。这三个量一起决定每一步怎样分配预算。"/></p>
         <h3 className="paper-subsection" id="verification"><Localized en="Recovering the signal from an image" zh="从最终图像中找回水印"/></h3>
         <p className="tide-prose"><Localized
           en="By the time an image reaches the detector, its watermark has been through the rest of sampling and possibly an edit. The detector looks for the signal where it was written. It encodes the image and runs partial DDIM inversion with an empty prompt, stopping at the injection step. There, the distance between the recovered spectrum and the watermark template indicates how closely they match. Unwatermarked images calibrate the decision threshold, so the query can be scored from the image alone."
@@ -124,6 +138,9 @@ export function TidePaper({paper}:{paper:Paper}){
         <p className="tide-prose tide-demo-intro"><Localized
           en={<>At step 35, the mean TPR across five image transformations is <strong>98.3% with adaptive guidance</strong>, 86.6% with a fixed budget, and 93.4% without watermark guidance. A fixed auxiliary signal can therefore be worse than no auxiliary signal. At step 45, all three strategies lose robustness, even though the image remains close to its reference. These results separate the effect of the injection time from the way the remaining trajectory is guided.</>}
           zh={<>第 35 步注入时，五种图像变换下的平均 TPR 为：<strong>自适应引导 98.3%</strong>、固定预算 86.6%、无水印引导 93.4%。固定施加辅助信号，甚至可能不如不施加。到第 45 步，三种策略的鲁棒性都明显下降，尽管图像仍然接近参考结果。这组实验将注入时刻的影响与后续引导的作用区分开来。</>}/></p>
+        <p className="tide-prose"><Localized
+          en="The fixed-budget run is a particularly informative control. It receives auxiliary guidance at every remaining step, yet detects fewer edited images than the run that simply lets the injected signal propagate. The gap shows why the design matters. Adding another condition creates a potential source of interference, and its effect depends on where and when it enters the update. In the cross-step experiment, blur and rotation expose the largest loss from very late injection."
+          zh="固定预算这一组尤其值得单独看。它每一步都有辅助引导，编辑后的检出率却低于只写入水印、让信号随采样自然传播的实验组。辅助条件参与更新之后，还可能与文本方向发生干扰，作用取决于它加在何时、加向哪里。跨注入时刻的对比也显示，写入非常晚时，模糊与旋转带来的检出损失最明显。"/></p>
       </div>
     </section>
     <section id="discussion" className="tide-results tide-bound">

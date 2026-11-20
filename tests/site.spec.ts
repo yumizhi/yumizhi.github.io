@@ -77,6 +77,32 @@ test('the paper opens with its overview and keeps the original abstract and cita
  await page.getByRole('button',{name:'Copy BibTeX'}).first().click();await expect(page.getByRole('button',{name:'Copied',exact:true}).first()).toBeVisible();
  expect(await page.evaluate(()=>navigator.clipboard.readText())).toContain('meng2026tide');
 });
+test('paper figures support playback, stage selection, and reduced motion', async ({ page }) => {
+ await page.goto('/research/tide/#trajectory-figure');
+ const trajectory = page.locator('#trajectory-figure');
+ await trajectory.getByRole('button', { name: 'Play animation', exact: true }).click();
+ await expect(trajectory).toHaveAttribute('data-playing', 'true');
+ await trajectory.getByRole('button', { name: 'Pause animation', exact: true }).click();
+ await expect(trajectory).toHaveAttribute('data-playing', 'false');
+ await trajectory.getByRole('button', { name: 'Guide', exact: true }).press('Enter');
+ await expect(trajectory).toHaveAttribute('data-step', '3');
+ await expect(trajectory.locator('.trajectory-guided')).toHaveCSS('opacity', '1');
+
+ await page.emulateMedia({ reducedMotion: 'reduce' });
+ await page.goto('/research/sasbo/#mask-figure');
+ const mask = page.locator('#mask-figure');
+ await mask.getByRole('button', { name: 'Next stage', exact: true }).click();
+ await expect(mask).toHaveAttribute('data-step', '1');
+ await expect(mask).toHaveAttribute('data-playing', 'false');
+ await mask.getByRole('button', { name: 'Revisit', exact: true }).click();
+ await expect(mask.locator('.mask-cell[data-old="true"]').first()).toBeVisible();
+
+ await page.goto('/research/sparse-meta-learning/#handoff-figure');
+ const handoff = page.locator('#handoff-figure');
+ await expect(handoff.locator('.sam-query-role')).toContainText('Model C');
+ await handoff.getByRole('button', { name: 'Resample', exact: true }).click();
+ await expect(handoff.locator('.sam-query-role')).toContainText('Model A');
+});
 test('resource preview has native open/download and useful empty category',async({page})=>{
  await page.goto('/resources/');await page.getByRole('button',{name:'Preview TIDE — NeurIPS 2026',exact:true}).click();const dialog=page.getByRole('dialog');await expect(dialog).toBeVisible();await expect(dialog.getByRole('link',{name:'Open PDF'})).toHaveAttribute('href',/tide-neurips-2026.pdf/);await expect(dialog.getByRole('link',{name:'Download',exact:true})).toHaveAttribute('download','');
  await dialog.getByRole('button',{name:'Close',exact:true}).click();await page.getByRole('button',{name:'Posters',exact:true}).click();await expect(page.getByRole('heading',{name:'No posters published yet'})).toBeVisible();
