@@ -146,7 +146,7 @@ test('project showcases work on mobile and only public software links to source'
    await detail.getByRole('tab', { name: 'Assistants', exact: true }).click();
    await expect(detail.locator('.stage-capture[aria-hidden="false"] img')).toHaveAttribute('src', /personal-agent-assistants/);
   }
-  await detail.getByRole('tab', { name: project.tab, exact: true }).click();
+  await detail.getByRole('tablist', { name: `${project.title} screenshots` }).getByRole('tab', { name: project.tab, exact: true }).click();
   await expect(detail.locator('.stage-capture[aria-hidden="false"] img')).toHaveAttribute('src', new RegExp(project.asset));
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   await page.goto('/projects/');
@@ -154,6 +154,35 @@ test('project showcases work on mobile and only public software links to source'
  await page.getByRole('link', { name: 'EPUB Toolkit', exact: true }).click();
  await expect(page.locator('.project-detail').getByRole('link', { name: 'GitHub', exact: true })).toHaveAttribute('href', /lightweight_epub_merge_tool/);
 });
+test('case studies expose anchored design and implementation with keyboard-operable workflow steps', async ({ page }) => {
+ await page.setViewportSize({ width: 390, height: 844 });
+ await page.goto('/projects/personal-agent/');
+ const sections = page.getByRole('navigation', { name: 'Project sections' });
+ await sections.getByRole('link', { name: 'Design' }).click();
+ await expect(page).toHaveURL(/#design$/);
+ await expect(page.locator('#design').getByRole('heading', { level: 2 })).toBeInViewport();
+ await sections.getByRole('link', { name: 'Implementation' }).click();
+ await expect(page).toHaveURL(/#implementation$/);
+ await expect(sections.getByRole('link', { name: 'Implementation' })).toHaveAttribute('aria-current', 'location');
+ const flow = page.getByRole('tablist', { name: 'The scheduled inspection example' });
+ const plan = flow.getByRole('tab', { name: 'Plan', exact: true });
+ await expect(plan).toHaveAttribute('aria-selected', 'true');
+ await plan.focus();
+ await page.keyboard.press('ArrowRight');
+ const execute = flow.getByRole('tab', { name: 'Execute', exact: true });
+ await expect(execute).toBeFocused();
+ await page.keyboard.press('Enter');
+ await expect(page.getByRole('tabpanel', { name: 'Execute', exact: true })).toContainText('Application run, steps and approval state');
+ await sections.getByRole('link', { name: 'Validation' }).click();
+ await expect(page.locator('#verification')).toContainText('web-inbox receipt');
+ await expect(sections.getByRole('link', { name: 'Validation' })).toHaveAttribute('aria-current', 'location');
+ await page.getByRole('navigation', { name: 'Other projects' }).getByRole('link', { name: 'OriginMark' }).click();
+ await expect(page.locator('#implementation').getByRole('link', { name: /TIDE/ })).toHaveAttribute('href', '/research/tide/');
+ await page.goto('/projects/epub-toolkit/#implementation');
+ await expect(page.locator('.epub-reassembly')).toBeVisible();
+ expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+});
+
 test('project detail switches real screens and expands the selected view',async({page})=>{
  await page.goto('/projects/epub-toolkit/');
  await page.getByRole('tab',{name:'Inspect',exact:true}).click();await expect(page.locator('.stage-capture[aria-hidden=false] img')).toHaveAttribute('src',/epub-panel-inspect/);await page.getByRole('button',{name:'Expand EPUB Toolkit inspect screenshot'}).click();await expect(page.getByRole('dialog')).toBeVisible();await expect(page.getByRole('dialog').getByRole('img')).toHaveAttribute('src',/epub-panel-inspect/);await page.keyboard.press('Escape');
