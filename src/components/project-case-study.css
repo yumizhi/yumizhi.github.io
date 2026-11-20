@@ -12,6 +12,7 @@
   justify-content: center;
   gap: clamp(.625rem, 3vw, 1.875rem);
   margin: 0 auto;
+  list-style: none;
 }
 .case-contents a {
   display: inline-flex;
@@ -27,6 +28,20 @@
 .case-contents a[aria-current] { color: var(--portfolio-link); text-decoration: underline; text-underline-offset: .25rem; }
 .case-section { margin-block-start: clamp(2.75rem, 6vw, 5rem); }
 .case-section:focus, .project-workflow#preview:focus { outline: none; }
+@media (max-width: 35rem) {
+  .case-contents ul {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0 .35rem;
+    text-align: center;
+  }
+  .case-contents a {
+    justify-content: center;
+    inline-size: 100%;
+    min-block-size: 2.5rem;
+  }
+  .project-detail :is(.case-section, #preview) { scroll-margin-top: 2rem; }
+}
 .case-section-label {
   display: block;
   color: var(--portfolio-link);
@@ -55,6 +70,7 @@
   line-height: 1.67;
   text-wrap: pretty;
 }
+.case-prose p + p { margin-block-start: .9rem; }
 .case-flow {
   max-inline-size: var(--editorial-copy-width);
   margin: clamp(1.25rem, 3vw, 2rem) auto 0;

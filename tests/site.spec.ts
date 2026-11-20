@@ -183,6 +183,32 @@ test('case studies expose anchored design and implementation with keyboard-opera
  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
 
+test('project architecture diagrams switch routes and reflow into a readable sequence on mobile', async ({ page }) => {
+ for (const { slug, next, output } of [
+  { slug: 'epub-toolkit', next: 'Rebuild the volumes', output: 'Reconstructed volumes' },
+  { slug: 'originmark', next: 'Publish or verify', output: 'Verification evidence' },
+  { slug: 'personal-agent', next: 'Trace a delivery', output: 'Member inbox' },
+ ]) {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto(`/projects/${slug}/#architecture`);
+  const nav = page.getByRole('navigation', { name: 'Project sections' });
+  await expect(nav.getByRole('link', { name: 'Architecture', exact: true })).toHaveAttribute('aria-current', 'location');
+  const figure = page.locator('#architecture figure');
+  const route = figure.getByRole('button', { name: next });
+  await route.focus();
+  await page.keyboard.press('Space');
+  await expect(route).toHaveAttribute('aria-pressed', 'true');
+  const canvas = figure.locator('.architecture-canvas');
+  await expect(canvas.locator('.architecture-node[data-active="true"]').getByText(output, { exact: true })).toBeVisible();
+  await page.setViewportSize({ width: 320, height: 740 });
+  await expect(canvas).toBeHidden();
+  await expect(figure.getByRole('list').getByText(output, { exact: true })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+  await nav.getByRole('link', { name: 'Trade-offs' }).click();
+  await expect(page.locator('#decisions').getByRole('heading', { level: 2 })).toBeInViewport();
+ }
+});
+
 test('technical walkthroughs reveal paths, evidence, and run stages', async ({ page }) => {
  await page.setViewportSize({ width: 1280, height: 900 });
  await page.goto('/projects/epub-toolkit/#implementation');

@@ -1,0 +1,193 @@
+.architecture-figure {
+  --architecture-accent: var(--portfolio-link);
+  --architecture-wire: color-mix(in srgb, var(--portfolio-secondary) 48%, var(--background));
+  --architecture-selected: color-mix(in srgb, var(--architecture-accent) 7%, var(--background));
+  margin: clamp(1.25rem, 3vw, 2.125rem) auto 0;
+  max-inline-size: 60rem;
+  border: 1px solid var(--border);
+  border-radius: 1.125rem;
+  background: var(--background);
+  overflow: clip;
+}
+
+.architecture-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .7rem 1.25rem;
+  padding: .875rem clamp(.875rem, 3vw, 1.45rem);
+}
+
+.architecture-title {
+  color: var(--portfolio-ink);
+  font-weight: 660;
+  font-size: .9375rem;
+  line-height: 1.35;
+  text-wrap: pretty;
+}
+
+.architecture-routes.site-segments[data-slot="segmented-control"] {
+  max-inline-size: 100%;
+}
+
+.architecture-routes.site-segments [data-slot="segmented-control-item"] {
+  min-block-size: 2.25rem;
+  min-inline-size: 0;
+  white-space: normal;
+  text-wrap: balance;
+  line-height: 1.25;
+  font-size: .8125rem;
+}
+
+.architecture-canvas {
+  position: relative;
+  aspect-ratio: 960 / var(--architecture-height);
+  background-color: var(--portfolio-surface);
+  background-image: radial-gradient(circle at .5px .5px, color-mix(in srgb, var(--portfolio-secondary) 19%, transparent) .65px, transparent 1px);
+  background-size: 15px 15px;
+}
+
+.architecture-wiring {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  color: var(--architecture-wire);
+}
+
+.architecture-wiring path[data-edge], .architecture-wiring path[data-accent] {
+  fill: none;
+  stroke: var(--architecture-wire);
+  stroke-width: 1.35;
+  stroke-linejoin: round;
+  transition: stroke .18s ease;
+}
+
+.architecture-wiring path[data-secondary] { stroke-dasharray: 4 4; }
+.architecture-wiring path[data-active="true"] { color: var(--architecture-accent); stroke: var(--architecture-accent); }
+.architecture-wiring path[data-accent] { stroke: var(--architecture-accent); stroke-width: 2.8; }
+
+.architecture-node {
+  display: flex;
+  align-items: center;
+  gap: clamp(.375rem, 1vw, .625rem);
+  min-inline-size: 0;
+  padding: .375rem clamp(.4rem, .9vw, .65rem);
+  border: 1px solid var(--border);
+  border-radius: .65rem;
+  background: var(--background);
+  color: var(--portfolio-ink);
+  line-height: 1.25;
+  transition: border-color .2s ease, background-color .2s ease;
+}
+
+.architecture-canvas .architecture-node {
+  position: absolute;
+  inset-inline-start: calc((30 + 235 * var(--column)) / 960 * 100%);
+  inset-block-start: calc((43 + 98 * var(--row)) / var(--architecture-height) * 100%);
+  inline-size: 20%;
+  block-size: calc(66 / var(--architecture-height) * 100%);
+}
+
+.architecture-node[data-active="true"] {
+  border-color: color-mix(in srgb, var(--architecture-accent) 40%, var(--border));
+  background-color: var(--architecture-selected);
+}
+
+.architecture-node[data-kind="output"][data-active="true"] {
+  border-color: color-mix(in srgb, var(--architecture-accent) 53%, var(--border));
+}
+
+.architecture-node-icon { flex: none; color: var(--portfolio-secondary); }
+.architecture-node[data-active="true"] .architecture-node-icon { color: var(--architecture-accent); }
+.architecture-node strong, .architecture-node small { display: block; }
+.architecture-node strong { font-size: clamp(.6875rem, .58rem + .26vw, .86rem); font-weight: 670; }
+.architecture-node small {
+  margin-block-start: .22rem;
+  color: var(--portfolio-secondary);
+  font-size: clamp(.64rem, .55rem + .24vw, .755rem);
+}
+
+.architecture-stages {
+  display: grid;
+  gap: .65rem;
+  margin: 0;
+  padding: .875rem;
+  list-style: none;
+  background: var(--portfolio-surface);
+}
+
+.architecture-stages li {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .375rem;
+}
+
+.architecture-stages li + li::before {
+  content: "";
+  position: absolute;
+  inset: -.65rem auto auto 1.1rem;
+  block-size: .65rem;
+  border-inline-start: 1px solid var(--architecture-accent);
+}
+
+.architecture-stages .architecture-node { flex: 1 1 7.75rem; min-height: 2.7rem; }
+.architecture-stages .architecture-node strong { font-size: .7875rem; }
+.architecture-stages .architecture-node small { font-size: .725rem; }
+
+.architecture-reading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .625rem 1rem;
+  padding: .875rem clamp(.875rem, 3vw, 1.45rem) 1rem;
+}
+
+.architecture-reading p {
+  flex: 1 1 33rem;
+  margin: 0;
+  color: var(--portfolio-secondary);
+  font-size: .875rem;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.architecture-key {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: .375rem;
+  min-block-size: 1.4rem;
+  color: var(--portfolio-secondary);
+  font-size: .75rem;
+}
+
+.architecture-key i {
+  inline-size: 1.3rem;
+  border-block-start: 1px dashed var(--architecture-accent);
+}
+
+@media (min-width: 48.001rem) {
+  .architecture-stages {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    padding: 0;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 48rem) {
+  .architecture-canvas, .architecture-key { display: none; }
+  .architecture-routes.site-segments [data-slot="segmented-control-item"] { min-block-size: 2.75rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .architecture-node, .architecture-wiring path { transition: none; }
+  .architecture-wiring path[data-accent] { display: none; }
+}
