@@ -109,7 +109,7 @@ function ChapterProse({ chapters }: { chapters: Chapter[] }) {
     <div className="case-chapters">
       {chapters.map(chapter => (
         <Fragment key={chapter.title.en}>
-          <div className="case-prose case-chapter">
+          <div className="case-prose case-chapter" id={chapter.id}>
             <h3><Localized {...chapter.title} /></h3>
             {chapter.paragraphs.map(paragraph => (
               <p key={paragraph.en}><Localized {...paragraph} /></p>

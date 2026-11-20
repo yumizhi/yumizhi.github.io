@@ -60,9 +60,9 @@ export type Project = {
 };
 export const projects:Project[] = [{
   slug: 'epub-toolkit', title: 'EPUB Toolkit', category: 'Open-source software', categoryZh:'开源软件', year: 2026,
-  summaryZh:'将多卷 EPUB 整理为一本，保留后续拆回单册所需的来源记录。支持目录与元数据检查，书籍在浏览器本地处理。',
+  summaryZh:'在浏览器内重写 EPUB 的资源路径与目录，把拆分映射写入合集。单凭输出文件即可重建各卷，浏览器、Node 与 Python 读取同一种记录。',
   cardSummary: { en: 'Merge EPUB volumes and split collections back into individual books in your browser.', zh: '在浏览器里合并 EPUB 分卷，也可以把合集拆回单册。' },
-  summary: 'Organize EPUB volumes into a collection that can be split back into individual books. Inspect navigation and metadata, with all book processing kept in your browser.',
+  summary: 'Rebuild an EPUB collection in the browser and embed the source map in the output. Browser, Node and Python clients can reconstruct the volumes from that archive.',
   description: 'Arrange volumes in reading order, choose a grouped or continuous table of contents, then download a single EPUB. A collection merged with the toolkit can later be split back into individual books.',
   descriptionZh: '按阅读顺序排列分卷，选择按书分组或连续的章节目录，导出一个 EPUB。使用本工具合并的合集，还可以重新拆分为单册。',
   image: '/images/epub-workspace.webp', imageAlt: 'Actual EPUB Toolkit interface with book queue, output settings, table of contents preview, and download.',
@@ -81,8 +81,8 @@ export const projects:Project[] = [{
 
 }, {
   slug: 'originmark', title: 'OriginMark', category: 'Image provenance', categoryZh: '图像溯源', year: 2026,
-  summary: 'Generate and protect images, then inspect their watermark and provenance evidence.',
-  summaryZh: '在同一个工作台生成带水印的图像、保护已有图片，并核查来源证据。',
+  summary: 'Bind image releases to the exact bytes that pass watermark recovery and credential verification, across separate CPU, GPU and research runtimes.',
+  summaryZh: '统一接入 CPU、GPU 与研究模型，在签发前对最终文件回读水印并验签。每份发布记录绑定通过核验的文件与证据。',
   description: 'OriginMark brings image generation and provenance into one workflow. Generate a marked image with TIDE or protect an existing image, then inspect what a verifier can recover from the resulting file.',
   descriptionZh: 'OriginMark 将图像生成和溯源串成一个工作流。用 TIDE 生成带水印的图像，或给已有图片添加保护，再检查验证工具能从输出文件中找回哪些证据。',
   image: '/images/projects/originmark-cover.webp',
@@ -98,8 +98,8 @@ export const projects:Project[] = [{
   technologyZh: '源码暂未公开。',
 }, {
   slug: 'personal-agent', title: 'Personal Agent', category: 'Agent workspace', categoryZh: '智能体工作台', year: 2026,
-  summary: 'Chat or delegate work in one workspace, then follow each task from its schedule to its result.',
-  summaryZh: '在同一个工作台聊天或交办任务，从执行安排一路跟进到最终结果。',
+  summary: 'A self-hosted Agent platform with Pi for model turns, versioned workflows for durable execution, and delivery across the web inbox and bound chat channels.',
+  summaryZh: '用 Pi 执行模型回合，用版本化工作流保存步骤和接续运行，再通过网页收件箱或绑定的聊天渠道交付成果。',
   description: 'Personal Agent has two modes. Chat keeps recent conversations and model choice in view. Agent lets you find an assistant, schedule recurring work, and open a result with the recorded steps behind it. Search connects conversations, assistants, tasks, and reports.',
   descriptionZh: 'Personal Agent 有两种模式。聊天模式支持继续历史会话并选择模型，Agent 模式可以找到助手、安排定时任务，并从交付报告回看实际的执行步骤。全局搜索串起会话、助手、任务和成果。',
   image: '/images/projects/personal-agent-assistants.webp',

@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import { motion } from 'motion/react';
-import { ArrowDown, BookOpen, Check, Clock3, FileText, Inbox, Layers3 } from 'lucide-react';
+import { BookOpen, FileText, Layers3 } from 'lucide-react';
 import { Localized } from './language';
 import { asset } from '@/lib/paths';
 
@@ -88,55 +88,8 @@ function OriginTrace({ step, animate }: { step: string; animate: boolean }) {
   );
 }
 
-function AgentTrace({ step, animate }: { step: string; animate: boolean }) {
-  if (step === 'plan') {
-    return (
-      <div className="trace-agent-sheet" data-phase="plan">
-        <div className="trace-agent-sheet-title"><Clock3 size={17} aria-hidden="true" /><Localized en="Scheduled inspection plan" zh="定时巡检计划" /></div>
-        <dl>
-          <div><dt><Localized en="Task" zh="任务" /></dt><dd><Localized en="Prepare a P-17 inspection brief" zh="整理 P-17 泵组巡检简报" /></dd></div>
-          <div><dt><Localized en="Assistant" zh="助手" /></dt><dd><Localized en="Equipment maintenance assistant" zh="设备维护助手" /></dd></div>
-          <div><dt><Localized en="Delivery" zh="交付去向" /></dt><dd><Localized en="Web inbox" zh="网页收件箱" /></dd></div>
-        </dl>
-      </div>
-    );
-  }
-
-  if (step === 'execute') {
-    const events = [
-      { en: 'Accept task input', zh: '接收任务输入' },
-      { en: 'Run the approved assistant', zh: '运行已批准的助手' },
-      { en: 'Generate the report', zh: '生成巡检报告' },
-      { en: 'Deliver to the project inbox', zh: '投递到项目收件箱' },
-    ];
-
-    return (
-      <ol className="trace-agent-events" data-phase="execute">
-        {events.map((event, index) => (
-          <motion.li key={event.en}
-            initial={animate ? { opacity: 0, x: -6 } : false} animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: .16, delay: animate ? index * .09 : 0 }}>
-            <Check size={15} aria-hidden="true" />
-            <span><Localized {...event} /></span>
-            <small><Localized en="Completed" zh="已完成" /></small>
-          </motion.li>
-        ))}
-      </ol>
-    );
-  }
-
-  return (
-    <div className="trace-agent-delivery" data-phase="deliver">
-      <div><FileText size={19} aria-hidden="true" /><strong><Localized en="Inspection brief" zh="巡检简报" /></strong><span><Localized en="Links to material used in this run" zh="包含本次运行使用的资料引用" /></span></div>
-      <ArrowDown size={19} aria-hidden="true" />
-      <div><Inbox size={19} aria-hidden="true" /><strong><Localized en="Inbox receipt" zh="收件箱回执" /></strong><span><Localized en="Web inbox accepted the report" zh="网页收件箱已接收报告" /></span></div>
-    </div>
-  );
-}
-
 export function ProjectTraceVisual({ slug, step, animate }: { slug: string; step: string; animate: boolean }) {
   if (slug === 'epub-toolkit') return <EpubTrace step={step} animate={animate} />;
   if (slug === 'originmark') return <OriginTrace step={step} animate={animate} />;
-  if (slug === 'personal-agent') return <AgentTrace step={step} animate={animate} />;
   return null;
 }

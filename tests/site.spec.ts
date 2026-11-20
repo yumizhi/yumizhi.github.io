@@ -129,7 +129,7 @@ test('homepage presents research, the featured project, background and writing',
  await expect(page.locator('#background').getByRole('heading', { name: 'Experience', exact: true })).toBeVisible();
 });
 
-test('project showcases work on mobile and only public software links to source', async ({ page }) => {
+test('mobile project showcases keep private repository links out of the page', async ({ page }) => {
  await page.setViewportSize({ width: 390, height: 844 });
  await page.goto('/projects/');
  for (const project of [
@@ -140,7 +140,7 @@ test('project showcases work on mobile and only public software links to source'
   await expect(page).toHaveURL(new RegExp(`/projects/${project.slug}/$`));
   const detail = page.locator('.project-detail');
   await expect(detail).toContainText('Source code is private.');
-  await expect(detail.locator('a[href*="github.com"]')).toHaveCount(0);
+  await expect(detail.locator('a[href*="github.com"]:not([href^="https://github.com/earendil-works/pi/"])')).toHaveCount(0);
   if (project.slug === 'personal-agent') {
    await expect(detail.getByRole('tab', { name: 'Chat', exact: true })).toHaveAttribute('aria-selected', 'true');
    await detail.getByRole('tab', { name: 'Assistants', exact: true }).click();
@@ -164,15 +164,15 @@ test('case studies expose anchored design and implementation with keyboard-opera
  await sections.getByRole('link', { name: 'Implementation' }).click();
  await expect(page).toHaveURL(/#implementation$/);
  await expect(sections.getByRole('link', { name: 'Implementation' })).toHaveAttribute('aria-current', 'location');
- const flow = page.getByRole('tablist', { name: 'The scheduled inspection example' });
- const plan = flow.getByRole('tab', { name: 'Plan', exact: true });
- await expect(plan).toHaveAttribute('aria-selected', 'true');
- await plan.focus();
+ const flow = page.getByRole('tablist', { name: 'Runtime steps' });
+ const context = flow.getByRole('tab', { name: 'Context', exact: true });
+ await expect(context).toHaveAttribute('aria-selected', 'true');
+ await context.focus();
  await page.keyboard.press('ArrowRight');
- const execute = flow.getByRole('tab', { name: 'Execute', exact: true });
- await expect(execute).toBeFocused();
+ const tool = flow.getByRole('tab', { name: 'Tool call', exact: true });
+ await expect(tool).toBeFocused();
  await page.keyboard.press('Enter');
- await expect(page.getByRole('tabpanel', { name: 'Execute', exact: true })).toContainText('Application run, steps and approval state');
+ await expect(page.getByRole('tabpanel', { name: 'Tool call', exact: true })).toContainText('validated result');
  await sections.getByRole('link', { name: 'Validation' }).click();
  await expect(page.locator('#verification')).toContainText('web-inbox receipt');
  await expect(sections.getByRole('link', { name: 'Validation' })).toHaveAttribute('aria-current', 'location');
@@ -187,7 +187,7 @@ test('project architecture figures preserve their evidence on desktop and mobile
  for (const { slug, evidence, details } of [
   { slug: 'epub-toolkit', evidence: 'Merge record', details: ['epub-worker-handoff', 'epub-path-roundtrip'] },
   { slug: 'originmark', evidence: 'Commit output under the current lease', details: ['originmark-teapot-report', 'originmark-lease-recovery'] },
-  { slug: 'personal-agent', evidence: 'Delivery receipt', details: ['agent-run-link', 'agent-report-evidence'] },
+  { slug: 'personal-agent', evidence: 'Delivery receipt', details: ['agent-run-link', 'agent-report-evidence', 'agent-runtime-trace', 'agent-workflow-data', 'agent-message-transport'] },
  ]) {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto(`/projects/${slug}/#architecture`);
@@ -234,9 +234,13 @@ test('technical walkthroughs reveal paths, evidence, and run stages', async ({ p
  await expect(panel.getByText('No credential', { exact: true })).toBeVisible();
  await expect(panel.getByText('Not evaluated', { exact: true })).toBeVisible();
 
- await page.goto('/projects/personal-agent/#implementation');
- await flow.getByRole('tab', { name: 'Execute', exact: true }).click();
- await expect(flow.getByRole('tabpanel', { name: 'Execute' }).getByText('Generate the report', { exact: true })).toBeVisible();
+ await page.goto('/projects/personal-agent/#agent-runtime-trace');
+ const trace = page.locator('#agent-runtime-trace');
+ await trace.getByRole('tab', { name: 'Checkpoint', exact: true }).click();
+ await expect(trace.getByRole('tabpanel', { name: 'Checkpoint' })).toContainText('summary · evidence · model · usage');
+ await trace.getByRole('tab', { name: 'Resume', exact: true }).click();
+ await expect(trace.locator('.agent-runtime-map')).toHaveAttribute('data-step', 'resume');
+ await expect(trace.getByRole('tabpanel', { name: 'Resume' })).toContainText('next eligible node');
 });
 
 test('project detail switches real screens and expands the selected view',async({page})=>{

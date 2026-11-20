@@ -1,0 +1,101 @@
+.agent-runtime-tabs .agent-runtime-switch {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: 100%;
+  min-height: 2.6rem;
+  padding: .2rem;
+  border-radius: .55rem;
+}
+.agent-runtime-switch [data-slot="tabs-tab"] {
+  justify-content: center;
+  min-width: 0;
+  white-space: normal;
+  padding: .3rem .2rem;
+  font-size: clamp(.7rem, 1.9cqi, .825rem);
+  line-height: 1.23;
+  color: var(--figure-muted);
+}
+.agent-runtime-switch [data-slot="tabs-tab"][aria-selected="true"] { color: var(--figure-accent); }
+.agent-runtime-map {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) clamp(1.05rem,7cqi,4.5rem) minmax(0,1fr) clamp(1.05rem,7cqi,4.5rem) minmax(0,1fr);
+  grid-template-rows: 1fr 1.5rem auto;
+  align-items: center;
+  margin: 1rem 0 .75rem;
+}
+.runtime-node {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: .65rem .45rem;
+  min-height: 3.15rem;
+  text-align: center;
+  background: var(--background);
+  border: 1px solid var(--figure-rule);
+  border-radius: .36rem;
+  color: var(--figure-muted);
+  font-size: .82rem;
+  line-height: 1.18;
+  transition: background .15s, border-color .15s;
+}
+.runtime-node svg { flex: none; }
+.runtime-node[data-node="sqlite"] { grid-column: 1; grid-row: 3; min-height: 2.55rem; }
+.agent-runtime-map[data-step="context"] :is([data-node="engine"],[data-node="pi"]),
+.agent-runtime-map[data-step="tool"] :is([data-node="pi"],[data-node="tool"]),
+.agent-runtime-map[data-step="commit"] :is([data-node="pi"],[data-node="engine"],[data-node="sqlite"]),
+.agent-runtime-map[data-step="resume"] :is([data-node="engine"],[data-node="sqlite"]) {
+  border-color: color-mix(in srgb, var(--figure-accent) 33%, var(--figure-rule));
+  background: var(--figure-tint);
+  color: var(--figure-accent);
+}
+
+.runtime-wire {
+  position: relative;
+  display: grid;
+  align-items: center;
+  height: 1.5rem;
+  color: var(--figure-muted);
+}
+.runtime-wire[data-lit="true"] { color: var(--figure-accent); }
+.runtime-wire-track { position: relative; height: 1px; background: var(--figure-rule); }
+.runtime-wire-track span { display: block; position: absolute; inset: 0; background: currentColor; transform-origin: left center; }
+.runtime-wire[data-reverse="true"] .runtime-wire-track span { transform-origin: right center; }
+.runtime-wire > svg { position: absolute; right: 0; }
+.runtime-wire:not([data-vertical="true"])[data-reverse="true"] > svg,
+.runtime-wire > .runtime-return-arrow { left: 0; right: auto; }
+.runtime-wire[data-vertical="true"] { grid-column: 1; grid-row: 2; width: 1.3rem; justify-self: center; justify-items: center; }
+.runtime-wire[data-vertical="true"] .runtime-wire-track { height: 100%; width: 1px; }
+.runtime-wire[data-vertical="true"] .runtime-wire-track span { transform-origin: center top; }
+.runtime-wire[data-vertical="true"][data-reverse="true"] .runtime-wire-track span { transform-origin: center bottom; }
+.runtime-wire[data-vertical="true"] > svg { bottom: 0; inset-inline-end: auto; }
+.runtime-wire[data-vertical="true"][data-reverse="true"] > svg { bottom: auto; top: 0; }
+
+.agent-runtime-panel {
+  padding: .9rem clamp(.7rem, 2cqi, 1rem);
+  border: 1px solid var(--figure-rule);
+  border-radius: .4rem;
+  background: var(--background);
+}
+.agent-runtime-panel strong { color: var(--figure-ink); }
+.agent-runtime-panel p { margin: .35rem 0 .5rem; color: var(--figure-muted); font-size: .84rem; }
+.agent-runtime-panel code { color: var(--figure-accent); }
+.agent-runtime-source {
+  display: inline-block;
+  margin-top: .7rem;
+  padding-block: .2rem;
+  font-size: .78rem;
+  color: var(--figure-accent);
+  text-decoration: underline;
+  text-underline-offset: .17em;
+}
+@container architecture-plate (max-width: 30rem) {
+  .runtime-node { flex-direction: column; gap: .25rem; padding-inline: .25rem; font-size: .72rem; }
+  .runtime-node svg { width: .95rem; height: .95rem; }
+  .runtime-node[data-node="sqlite"] { flex-direction: row; }
+  .runtime-wire > svg { width: .8rem; }
+  .agent-runtime-map[data-step="tool"] .runtime-wire[data-lit="true"] > svg { width: .65rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .runtime-node { transition: none; }
+}

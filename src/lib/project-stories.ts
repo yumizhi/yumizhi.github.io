@@ -23,8 +23,8 @@ export type ProjectStory = {
 export const projectStories: Record<string, ProjectStory> = {
   'epub-toolkit': {
     example: {
-      en: 'A series spread across separate EPUBs is awkward to read straight through. Combining the volumes makes navigation easier, but readers may still want to export a single volume later. EPUB Toolkit keeps the source structure alongside the combined table of contents, so organizing the series remains reversible.',
-      zh: '一套书拆成多个 EPUB，读到卷末就得换文件。合成一册之后，目录可以连续阅读，日后也可以只取出其中一卷。EPUB Toolkit 在生成合集目录的同时保存原卷结构，让两种读法可以来回切换。',
+      en: 'Two volumes both call their first chapter chapters/01.xhtml. The combined book needs to keep both chapters and their links intact. EPUB Toolkit stores the path mapping and each source package’s reading order inside the collection, so either volume can be reconstructed from that file alone.',
+      zh: '两卷书都用 chapters/01.xhtml。合并后，这两份同名章节得各占一个位置，还要让字体、目录和相对链接继续工作。EPUB Toolkit 把这次路径变换连同各卷的书籍结构写进合集。几个月后，即使手里只剩这一册，也能按记录拆回原卷。',
     },
     workflowTitle: { en: 'Follow the chapter paths through merge and split', zh: '沿着章节路径查看合并与拆分' },
     steps: [
@@ -89,8 +89,8 @@ export const projectStories: Record<string, ProjectStory> = {
   },
   originmark: {
     example: {
-      en: 'A generated image usually leaves the system that made it. A verifier later sees the file on its own. OriginMark connects those ends of the workflow: one image can be generated, brought back from the library for protection and checked again from the resulting file.',
-      zh: '图像生成后，通常还会被下载、转发或交给另一套工具。别人拿到的往往只有文件。OriginMark 把这一过程放在同一个工作台里，一张生成图可以从素材库取出来做保护，再用输出文件就地核验。',
+      en: 'A generated image in the library can be sent for verification or submitted for signing. Signing produces a new file. The worker recovers the watermark and checks its credential before it registers that exact file as published. This keeps the final-byte checks independent of model execution and gives a verifier evidence to inspect on the file they received.',
+      zh: '一张生成图进入素材库后，可以直接送检，也可以继续走签发。签发拿到的是一份新文件，Worker 要重新读回水印、核验凭证，才能把那份确切的文件登记为已发布。这个边界把模型计算与最终文件的核验拆开，也让接收方能从实际收到的字节回查证据。',
     },
     checks: [
       {
@@ -164,8 +164,8 @@ export const projectStories: Record<string, ProjectStory> = {
   },
   'personal-agent': {
     example: {
-      en: 'A member delegates a recurring inspection brief for the P-17 pump. Days later, the report still opens with the plan that launched its run, the sources it cited and the inbox receipt. Assigning the work can start in Chat, and the report remains available after the conversation has moved on.',
-      zh: '成员把 P-17 泵组的巡检简报交给助手定期整理。几天后打开简报，仍能查到当时的计划、引用资料和投递回执。任务可以从对话里交办，交付结果则可以单独从工作区找回。',
+      en: 'A member schedules a P-17 inspection brief and closes the browser. The scheduler still has a fixed application version to run. After a restart it needs to find the same child run, and a finished report still needs its own delivery receipt. Personal Agent records those decisions in a persistent execution layer around the model and tool loop.',
+      zh: '成员约好在明早收到 P-17 巡检简报，关掉浏览器就可以离开。后台仍有一份固定版本的计划要执行。如果它跑到一半停了，调度器得认出同一个应用运行；如果报告已经写好但还没发出，收件箱也应该能区分这两个状态。Personal Agent 把这些决定留在持久化的运行层里，模型循环只承担其中的推理与工具调用。',
     },
     checks: [
       {
@@ -199,39 +199,6 @@ export const projectStories: Record<string, ProjectStory> = {
       en: 'The inspection assistant uses the equipment register and maintenance manual from the demo project. The member confirms the app, equipment and recipient before scheduling the brief. Each later execution produces a report tied to the actual records it used.',
       zh: '巡检助手读取演示项目的设备台账和维护手册。成员核对应用、设备和接收人后再安排排期。每次执行都会生成一份报告，并随报告保存此次查阅的资料。',
     },
-    workflowTitle: { en: 'The scheduled inspection example', zh: '以定时设备巡检报告为例' },
-    steps: [
-      {
-        id: 'plan',
-        label: { en: 'Plan', zh: '形成计划' },
-        title: { en: 'Confirm the task before scheduling it', zh: '排期前先核对任务' },
-        body: {
-          en: 'The assistant turns the request into a draft with its selected app, version, inputs, time zone and delivery channel. The member checks these fields before approving the plan.',
-          zh: '助手把自然语言请求整理为计划草稿，写明选定的应用、版本、输入、时区和交付渠道。成员先核对这些信息，再批准排期。',
-        },
-        output: { en: 'Approved, version-pinned plan', zh: '已批准并固定版本的计划' },
-      },
-      {
-        id: 'execute',
-        label: { en: 'Execute', zh: '执行任务' },
-        title: { en: 'Keep track of one concrete application run', zh: '沿着同一次应用运行继续' },
-        body: {
-          en: 'At the scheduled time, the scheduler starts the approved application and records its run ID. If a step needs approval for a specific external action, its state appears in the run panel.',
-          zh: '到达约定时间后，调度器启动已批准的应用，并保存本次应用运行的关联。某一步需要批准具体外部操作时，执行面板会显示对应的等待状态。',
-        },
-        output: { en: 'Application run, steps and approval state', zh: '应用运行、步骤与审批状态' },
-      },
-      {
-        id: 'deliver',
-        label: { en: 'Deliver', zh: '交付成果' },
-        title: { en: 'Bring the report, its sources and receipt together', zh: '把报告、来源与回执连在一起' },
-        body: {
-          en: 'The report retains references to the material used in the run. Delivery records the destination and its receipt so the reader can return from the result to its execution.',
-          zh: '报告保留指向本次运行所用资料的引用，投递记录保存去向与回执。从交付结果可以返回对应的执行记录。',
-        },
-        output: { en: 'Cited report and delivery receipt', zh: '带引用的报告与投递回执' },
-      },
-    ],
     verification: {
       en: 'The scheduled workflow was exercised against the real clock using synthetic inspection data. The demo records a scheduled instance, an associated application run, report citations and a web-inbox receipt. That receipt establishes delivery to the demo inbox.',
       zh: '定时流程使用合成巡检数据，在真实时钟下验收。演示记录包含排期实例、关联的应用执行、报告引用和网页收件箱回执。该回执对应演示中的网页收件箱投递。',
