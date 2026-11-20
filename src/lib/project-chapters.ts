@@ -1,6 +1,9 @@
 export type Bilingual = { en: string; zh: string };
 
-export type Chapter = { title: Bilingual; paragraphs: Bilingual[] };
+export type ArticleFigure = 'epub-worker-handoff' | 'epub-path-roundtrip' | 'originmark-teapot-report' |
+  'originmark-lease-recovery' | 'agent-run-link' | 'agent-report-evidence';
+
+export type Chapter = { title: Bilingual; paragraphs: Bilingual[]; figure?: ArticleFigure };
 
 type TechnicalArticle = {
   architectureTitle: Bilingual;
@@ -64,6 +67,7 @@ export const projectChapters: Record<string, TechnicalArticle> = {
       },
       {
         title: { en: 'Package metadata and document bytes have different lifetimes', zh: '包信息与文件内容分开读取' },
+        figure: 'epub-worker-handoff',
         paragraphs: [
           {
             en: 'The same file appears in three places during a browser session. The selected File is the input. Its analysis result holds the package metadata, reading order and resolved navigation used by the preview. The output Blob exists only once the archive writer finishes. Keeping those objects separate lets the preview refresh without writing a book, and lets Inspect or Split reuse a finished output by wrapping the Blob as a File. No file chooser or extra ZIP serialization is needed for that handoff.',
@@ -105,6 +109,7 @@ export const projectChapters: Record<string, TechnicalArticle> = {
       },
       {
         title: { en: 'One shared asset, two local references', zh: '一份共享资源与两条本地引用' },
+        figure: 'epub-path-roundtrip',
         paragraphs: [
           {
             en: 'The first copy of a deduplicable resource becomes its canonical destination. When the second volume contains the same font bytes and media type, its planned reference points to that existing destination. A stylesheet in v2/ may now need to reach a file in v1/. The rewriter resolves the old URL from the original stylesheet’s directory, looks up the canonical destination and calculates a relative URL from the stylesheet’s new address. It preserves any query or fragment suffix when writing the updated link.',
@@ -232,6 +237,7 @@ export const projectChapters: Record<string, TechnicalArticle> = {
       },
       {
         title: { en: 'The same file can participate in several operations', zh: '同一份文件可以参与多次操作' },
+        figure: 'originmark-teapot-report',
         paragraphs: [
           {
             en: 'A generated teapot in the Library is an Artifact. Its record gives it a role, byte hash, MIME type, dimensions and originating Run. When it becomes an input to Protect, the service can materialize or reuse an Asset for those bytes. The new Run refers to that input and records the selected engine and policy. Its eventual protected file and report get their own Artifact records. This is the relationship Activity follows when a user opens a file and traces it back to the operation that produced it.',
@@ -324,6 +330,7 @@ export const projectChapters: Record<string, TechnicalArticle> = {
       },
       {
         title: { en: 'Recovery treats a lost worker and a cancelled job differently', zh: 'Worker 掉线与主动取消走不同的恢复路径' },
+        figure: 'originmark-lease-recovery',
         paragraphs: [
           {
             en: 'When a heartbeat lease expires, reconciliation advances the claim version and closes the old attempt. A job with a pending cancellation is marked cancelled. A running job with attempts left can return to the queue, while a job that has exhausted its attempt budget becomes failed. A GPU call may return after any of those transitions. The stale attempt can no longer commit results. This separates scheduling a retry from granting permission to publish.',
@@ -428,6 +435,7 @@ export const projectChapters: Record<string, TechnicalArticle> = {
     implementation: [
       {
         title: { en: 'An editable request becomes a versioned plan', zh: '自然语言交办落实到可核对的计划' },
+        figure: 'agent-run-link',
         paragraphs: [
           {
             en: 'The example starts with a member choosing the published maintenance assistant and asking for a recurring P-17 brief. The draft names the application and deployment, the equipment, the time and time zone, and the delivery destination. An ambiguous app name has to be resolved before approval. The selected version matters because two deployments with similar names can use different knowledge or workflow steps. The plan stays tied to the version the member actually approved.',
@@ -519,6 +527,7 @@ export const projectChapters: Record<string, TechnicalArticle> = {
     verification: [
       {
         title: { en: 'A real due time and separate recovery cases', zh: '真实排期触发与独立恢复用例' },
+        figure: 'agent-report-evidence',
         paragraphs: [
           {
             en: 'The recorded screen walkthrough uses Run now to demonstrate the user journey. A separate acceptance case sets the next schedule and waits for the server clock to reach it. The evidence from that second case links the occurrence to the application run, the cited source lines and the saved web-inbox receipt. Using separate runs makes it clear which evidence establishes the scheduler actually started the work.',

@@ -1,10 +1,12 @@
 import Link from 'next/link';
+import { Fragment } from 'react';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { Localized } from './language';
 import { ProjectCaseEvidence } from './project-case-evidence';
 import { EpubEngineStory } from './epub-engine-story';
 import { ProjectCaseFlow } from './project-case-flow';
 import { ProjectArchitecture } from './project-architecture';
+import { ProjectArticleFigure } from './project-article-figures';
 import { projects, type Project } from '@/lib/content';
 import { projectStories } from '@/lib/project-stories';
 import { projectChapters, type Chapter } from '@/lib/project-chapters';
@@ -104,14 +106,17 @@ export function ProjectCaseStudy({ project }: { project: Project }) {
 
 function ChapterProse({ chapters }: { chapters: Chapter[] }) {
   return (
-    <div className="case-prose">
+    <div className="case-chapters">
       {chapters.map(chapter => (
-        <div key={chapter.title.en}>
-          <h3><Localized {...chapter.title} /></h3>
-          {chapter.paragraphs.map(paragraph => (
-            <p key={paragraph.en}><Localized {...paragraph} /></p>
-          ))}
-        </div>
+        <Fragment key={chapter.title.en}>
+          <div className="case-prose case-chapter">
+            <h3><Localized {...chapter.title} /></h3>
+            {chapter.paragraphs.map(paragraph => (
+              <p key={paragraph.en}><Localized {...paragraph} /></p>
+            ))}
+          </div>
+          {chapter.figure && <ProjectArticleFigure figure={chapter.figure} />}
+        </Fragment>
       ))}
     </div>
   );
