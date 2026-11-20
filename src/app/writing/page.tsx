@@ -12,10 +12,10 @@ export const metadata: Metadata = {
 };
 
 export default function Writing() {
-  return <div className="editorial-shell portfolio-editorial writing-directory-page">
-    <header className="portfolio-heading">
+  return <div className="editorial-shell directory-page portfolio-editorial writing-directory-page">
+    <header className="page-heading">
       <h1><Localized en="Writing" zh="文章与笔记" /></h1>
-      <p><Localized en="Notes on model mechanisms, mathematical derivations and implementation." zh="记录模型机制、数学推导与实现细节。" /></p>
+
     </header>
     <WritingIndex posts={getWritingEntries()} />
   </div>;

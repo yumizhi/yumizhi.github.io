@@ -6,7 +6,7 @@ export const tideChapters: EssayChapter[] = [
     title: { en: 'The clean run gives us a reference', zh: '先留下无水印的参照' },
     body: [
       {
-        en: 'Take the sports car from the opening. “A red sports car” leaves the viewpoint, lighting and layout largely free. Two pictures can both answer that prompt and still look surprisingly different. To tell what the watermark changed, we hold the prompt and initial noise fixed and compare against the image the same sampler would have made without a watermark. That gives us a particular hood, wheel and stretch of pavement to compare.',
+        en: 'The sports car from the opening gives us a concrete control. “A red sports car” leaves the viewpoint, lighting and layout open. Two pictures can fit that description and look surprisingly different. To isolate the effect of the watermark, we repeat generation with the same prompt and initial noise, then compare the hood, the wheel and the stretch of pavement in the two results.',
         zh: '还是看开头那辆跑车。「红色跑车」对视角、光线和构图都留了很大余地。两张图可以同样符合这句提示词，看起来却相差很远。为了判断水印改了什么，我们固定提示词和起始噪声，再用同一个采样器生成一张无水印图作参照。这样就有了具体可比的车头、前轮和路面，而不仅仅是同一个类别的物体。',
       },
       {
@@ -23,7 +23,7 @@ export const tideChapters: EssayChapter[] = [
         zh: '水印写在潜变量的傅里叶表示中。TIDE 用学到的水印频谱替换指定区域的系数，再回到采样器使用的潜变量表示。图中那一下跳跃就是这次写入。此后，去噪模型看到的输入已经变了。同样的提示词作用在新的潜变量上，给出的噪声预测和下一步状态也可能随之变化。',
       },
       {
-        en: 'That creates a design choice. A strong spectral replacement may be easy to recognize at the instant it is written, then either fade during the remaining updates or leave a change in the visible scene. Training uses both a clean estimate at that step and the image from a full clean run. The first target catches damage at the write itself. The second ties the prediction back to the composition the unwatermarked sampler eventually produces.',
+        en: 'A strong spectral replacement can be easy to recognize when written, then fade during denoising or leave a visible change in the scene. Training uses two clean targets for that reason. The estimate at the injection step catches the immediate disruption. The full clean run supplies the composition the watermark should preserve through the remaining updates.',
         zh: '于是设计要兼顾两个时刻。一个强信号在写入当下容易识别，往后却可能被逐步削弱，也可能在可见画面上留下改动。训练同时采用注入时刻的无水印预测和完整无水印采样的结果。前一个参照约束当下的变化，后一个让预测图继续贴近无水印采样最终走到的构图。',
       },
     ],
@@ -32,8 +32,8 @@ export const tideChapters: EssayChapter[] = [
     title: { en: 'A local direction worth protecting', zh: '把该保留的方向分出来' },
     body: [
       {
-        en: 'Once the write has happened, two conditions ask the same denoiser for different changes. Subtracting its unconditional prediction gives a text residual and a watermark residual. The prompt residual has a useful history. Several recent directions form a local span that records how text guidance has been moving the sample. The local guidance diagram collapses that span to a line so the geometry is visible.',
-        zh: '写入之后，同一个去噪模型收到文本和水印两种条件。分别减去无条件预测，就得到文本残差和水印残差。文本残差有一段可以利用的历史，最近几步的方向张成一个局部子空间，记录文本引导刚刚怎样推动样本。局部引导图把这个子空间压成一条斜线，便于看清分解的几何关系。',
+        en: 'Once the write has happened, two conditions ask the same denoiser for different changes. Subtracting its unconditional prediction gives a text residual and a watermark residual. The prompt residual has a useful history. Several recent directions form a local span that records how text guidance has been moving the sample. That span is the reference for deciding which part of the watermark update can be used.',
+        zh: '写入之后，同一个去噪模型收到文本和水印两种条件。分别减去无条件预测，就得到文本残差和水印残差。文本残差有一段可以利用的历史，最近几步的方向张成一个局部子空间，记录文本引导刚刚怎样推动样本。接下来对照这段历史，才能决定水印更新的哪一部分适合留下。',
       },
       {
         en: 'Imagine a watermark residual that is almost parallel to those recent text directions. Most of its length lies in the projected part, leaving a short complementary component after subtraction. If the residual points mostly across the span, more survives. This makes the intervention depend on the local relationship between the conditions. The same prompt can move through more and less sensitive parts of its trajectory as the image takes shape.',
@@ -61,8 +61,8 @@ export const sasboChapters: EssayChapter[] = [
     title: { en: 'A probability holds open more than one choice', zh: '概率让搜索保留多个候选' },
     body: [
       {
-        en: 'Look at the gray and purple squares before any mask is set. Each square represents a possible coordinate, including the color channel at that position. A darker square has a higher chance of being selected in this sketch. A finished perturbation map has a definite decision at every coordinate. During optimization, those decisions are still provisional, especially where several locations look similarly useful.',
-        zh: '先看掩码确定前那些深浅不同的格子。每个格子代表一个候选坐标，也包括那个位置上的颜色通道。示意里深色格子更可能被选中。成品扰动图对每个坐标都有一个确定决定，优化过程里这个决定还可以变，尤其当多个位置看起来同样有用时。',
+        en: 'In the opening picture, the dark field in the perturbation map matters as much as the bright points. Each point records a change in at least one color channel. A finished map has a definite decision at each coordinate, but during optimization it is useful to hold several possibilities open, especially where different sets of coordinates give comparable changes in the classifier’s loss.',
+        zh: '开头扰动图的黑底和亮点一样重要。亮点记录了至少一个颜色通道发生变化的位置，黑底保留的是原来的值。成品图在每个坐标上都有确定的决定。优化时如果几组坐标给分类器的损失差不多，保留多个候选就有价值，幅度调整后还可以改选。',
       },
       {
         en: 'This is where a sum of absolute changes gives only part of the picture. Taking a little from each of many coordinates can keep the sum modest. The sparsity test cares about how many entries moved at all. By representing each decision with a Bernoulli probability, SASBO can consider several layouts of the same budget and learn from the loss obtained by drawing an actual mask.',
@@ -74,8 +74,8 @@ export const sasboChapters: EssayChapter[] = [
     title: { en: 'A ranking becomes a concrete mask', zh: '按排名把概率变成掩码' },
     body: [
       {
-        en: 'The shaded probability field and the middle mask are related to each other. Only the coordinates at the high end of the ranking enter the current mask. A single absolute cutoff would give images with different probability distributions different numbers of active entries. A cutoff tied to the ranking can instead be recomputed for the budget used in that round.',
-        zh: '左边的概率场和中间的掩码一一对应。当前只有排名靠前的坐标进入掩码。如果给所有图用同一个固定概率阈值，两张概率分布不同的图可能会留下不同数量的活跃坐标。这里的阈值由排名和当轮预算决定，因此可以随着候选变化重新确定。',
+        en: 'The final map shows a definite set of positions. SASBO obtains it by ranking the current selection probabilities and retaining the coordinates at the top. A fixed probability cutoff could leave one image with many more active entries than another. A rank-based cutoff can be recomputed whenever the round’s budget changes.',
+        zh: '要得到成品图里那组确定的位置，SASBO 先对当前概率排序。只有排名靠前的坐标进入掩码。如果给所有图用同一个固定概率阈值，概率分布不同的两张图可能会留下不同数量的活跃坐标。这里的阈值由排名和当轮预算决定，可以随着候选变化重新确定。',
       },
       {
         en: 'With the mask in place, the continuous part of the problem is much easier to picture. Each selected entry has an amount and a sign, both of which can change while the location stays fixed. The classifier’s loss rewards some of those changes. The magnitude term and amplitude limit make changes costly. Outside the mask, the original image remains exactly as it was.',
@@ -87,8 +87,8 @@ export const sasboChapters: EssayChapter[] = [
     title: { en: 'The next round can change its mind', zh: '下一轮可以改选位置' },
     body: [
       {
-        en: 'Follow the outlined cells in the middle of the figure. They were active in the previous round and have lost their place after the magnitudes changed. This is the reason to alternate. The usefulness of a coordinate depends on both its possible magnitude and what the other coordinates are doing. A location that was a good choice on its own can contribute little once a neighboring part of the image has changed.',
-        zh: '中间那些空心格在上一轮是实心的。幅度更新后，它们失去了原来的位置。这正是交替更新的用处。一处坐标能起多大作用，取决于它能改多少，也取决于其他坐标已经做了什么。某个位置单独看很有用，附近图像发生变化后，继续保留它的收益可能就很小了。',
+        en: 'The published mask shows where an iteration of this search finally landed. During the search, a location can lose its place when the magnitudes change. This is the reason to alternate. The usefulness of a coordinate depends on both its possible magnitude and what the other coordinates are doing. A location that was a good choice on its own can contribute little once a neighboring part of the image has changed.',
+        zh: '论文的扰动图只留下了搜索结束后的位置。搜索过程中，原来入选的坐标也可能在幅度更新后退出。这正是交替更新的用处。一处坐标能起多大作用，取决于它能改多少，也取决于其他坐标已经做了什么。某个位置单独看很有用，附近图像发生变化后，继续保留它的收益可能就很小了。',
       },
       {
         en: 'ARM supplies a way to update the probabilities along the way. It compares losses from paired binary masks that share the same random draw. Because the sampled decisions stay binary, the values fed to the classifier correspond to complete candidate masks. The estimator turns their loss differences into information about which selection probabilities should change. The next threshold therefore uses a revised ordering.',
@@ -155,11 +155,11 @@ export const samChapters: EssayChapter[] = [
     title: { en: 'The roles change, and evaluation stays separate', zh: '模型角色轮换，评估留在最后' },
     body: [
       {
-        en: 'The next sampled task can give the same classifier a different job. Follow Model A as it moves from the support group to the query position. Its network weights are the same. It now gives feedback at a point that was reached using the other support classifiers. A perturbation repeatedly exposed to these handoffs has to serve several model roles during optimization.',
-        zh: '下一轮，同一个分类器可以换个角色。看模型 A 从支持组移到查询位置，它的网络参数没有变，提供反馈的时机却变了：现在等其他支持模型把图更新完，再去看那个位置。扰动在优化过程中要反复经历这样的交接。',
+        en: 'The next sampled task can give the same classifier a different job. For example, a task can use VGG19 in the support group and a later task can reserve it for query feedback. Its network weights stay fixed. It now gives feedback at a point reached using the other support classifiers. A perturbation repeatedly exposed to these handoffs has to serve several model roles during optimization.',
+        zh: '下一轮，同一个分类器可以换个角色。比如一轮把 VGG19 放在支持组，之后某轮留它做查询。网络参数保持固定，提供反馈的时机却变了：它现在等其他支持模型把图更新完，再看那个位置。扰动在优化过程中要反复经历这样的交接。',
       },
       {
-        en: 'The models in the final evaluation sit outside this loop. They receive the resulting images once the search is complete. Keeping that separation makes the ablation interpretable. The single-model baseline can still win on the classifier that produced its feedback, while the model that does better on held-out classifiers tells us more about transfer.',
+        en: 'The final evaluation uses a separate pool of models. Those models receive the resulting images once the search is complete. That separation makes the ablation interpretable. Performance on the original classifier reflects the fit to its feedback, while performance on held-out classifiers measures how much of that effect transfers.',
         zh: '最后用来评估的模型在这个循环之外，只在搜索结束后收到结果图像。这个界限让消融结果有了清楚的解释。单模型基线仍可能在给它提供反馈的分类器上更强，跨到独立分类器之后谁表现更好，才更能说明迁移效果。',
       },
     ],

@@ -8,6 +8,8 @@ import { TideComparison } from './comparison';
 import { InjectionStudy } from '../research-experiment';
 import { ComparisonChart } from '../comparison-chart';
 import { TideTrajectory } from '../paper-figures/tide-trajectory';
+import { EssayProse } from '../paper-figures/essay-prose';
+import { tideChapters } from '../paper-figures/essay-chapters';
 
 const authorNotes = ['1,2', '1,3', '4', '1,2', '1,2,*'];
 const affiliations = [
@@ -39,12 +41,14 @@ export function TidePaper({paper}:{paper:Paper}){
           en="A watermark written halfway through sampling has two jobs. It must leave a detectable trace in the finished image and give the sampler room to preserve the composition already taking shape. We train the signal together with a condition that the denoiser can use in the steps that follow."
           zh="在采样中途写入的水印，既要在成图里留下可检测的信号，也要给已成形的画面留出继续去噪的余地。为此，我们把水印信号和一种辅助条件一起训练，让去噪模型在余下步骤里也能接续这个信号。"/></p>
         <p className="tide-prose"><Localized
-          en="Tree-Ring changes the starting noise. Every step of generation then inherits that change, including the steps that establish viewpoint and composition. ROBIN moves the write to an intermediate state, after some of that structure has formed. The remaining updates still matter. An intermediate write changes the latent that the next step sees, and the effect of keeping that change can vary as the text-guided direction turns."
+          en="Tree-Ring changes the starting noise, so even the early updates that establish viewpoint and composition inherit the change. ROBIN writes at an intermediate state, once some of that structure has formed. The write still changes the latent that the next step sees. Its effect depends on how the later text updates interact with that shifted state."
           zh="Tree-Ring 从起始噪声就写入水印。往后的每一步都受这次改动影响，包括决定主体视角和构图的阶段。ROBIN 将写入推迟到中途，让部分画面先成形。此后，第一步去噪看到的潜变量已经变了，而文本引导方向也在往前走。水印信号怎样延续，取决于这两种变化如何在后续步骤里相遇。"/></p>
+        <EssayProse chapters={tideChapters.slice(0, 2)}/>
         <TideTrajectory/>
+        <EssayProse chapters={tideChapters.slice(2)}/>
         <h3 className="paper-subsection" id="learning"><Localized en="Learning the watermark and its condition together" zh="一起学习水印和辅助条件"/></h3>
         <p className="tide-prose"><Localized
-          en={<>The VAE, U-Net, and text encoder stay frozen. Training changes only <strong>the watermark spectrum and an auxiliary condition embedding</strong>. At the chosen step, selected Fourier coefficients of the latent are replaced by the learned watermark. The auxiliary condition gives the existing U-Net a way to support that signal during the remaining denoising steps.</>}
+          en={<>The VAE, U-Net, and text encoder stay frozen. Training changes only <strong>the watermark spectrum and an auxiliary condition embedding</strong>. At the chosen step, selected Fourier coefficients of the latent are replaced by the learned watermark. The auxiliary condition guides the frozen U-Net to carry that signal across the remaining denoising steps.</>}
           zh={<>VAE、U-Net 和文本编码器保持冻结，只学习<strong>水印频谱和一个辅助条件嵌入</strong>。到达选定的采样步骤后，用学到的水印替换潜变量频域中指定位置的系数；辅助条件则让原有 U-Net 在后续去噪时提供维持水印的引导。</>}/></p>
         <figure className="tide-overview">
           <img loading="lazy" width="1800" height="1383" src={asset('/images/tide-paper/overview.webp')}

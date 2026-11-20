@@ -15,10 +15,10 @@ export const metadata: Metadata = {
 export default function Projects() {
   const featured = projects.find(project => project.slug === 'epub-toolkit');
   const others = projects.filter(project => project !== featured);
-  return <div className="editorial-shell portfolio-editorial project-directory">
-    <header className="portfolio-heading">
+  return <div className="editorial-shell directory-page portfolio-editorial project-directory">
+    <header className="page-heading">
       <h1><Localized en="Projects" zh="项目" /></h1>
-      <p><Localized en="Software for reading, image provenance, and personal workflows." zh="用于阅读整理、图像溯源与个人任务的工具。" /></p>
+
     </header>
     <div className="project-index project-list">
       {featured && <ProjectShowcase project={featured} />}

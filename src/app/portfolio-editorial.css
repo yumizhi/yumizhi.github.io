@@ -11,7 +11,7 @@
 .portfolio-editorial .portfolio-heading h1 { margin: 0; font: 700 clamp(40px, 4.8vw, 56px)/1.08 var(--editorial-font); letter-spacing: -.014em; }
 .portfolio-editorial .portfolio-heading > p:not(.eyebrow) { margin-top: 21px; font-size: 21px; line-height: 1.5; color: var(--portfolio-secondary); text-wrap: pretty; }
 .portfolio-editorial a:hover { color: inherit; }
-.portfolio-editorial .project-index { margin-top: 55px; }
+.portfolio-editorial .project-index { margin-top: 24px; }
 .portfolio-editorial .project-list { display: grid; gap: 72px; }
 .project-directory .product-story {
   display: grid;
@@ -68,8 +68,7 @@
 .portfolio-editorial .project-availability { max-width: var(--editorial-copy-width); margin: 27px auto 0; font-size: 14px; line-height: 1.7; color: var(--portfolio-secondary); }
 .portfolio-editorial .project-availability a { color: var(--portfolio-link); }
 
-.writing-directory-page .portfolio-heading { padding-bottom: 0; }
-.writing-directory-page .writing-index { margin-top: 49px; }
+.writing-directory-page .writing-index { margin-top: 24px; }
 .writing-directory-page .writing-index .writing-row { grid-template-columns: 115px minmax(0, var(--editorial-copy-width)) 24px; gap: 26px; padding: 15px 0 30px; align-items: start; }
 .writing-directory-page .writing-index .writing-row > div:first-child { padding-top: 4px; }
 .writing-directory-page .writing-index .writing-row h2 { font: 650 27px/1.35 var(--editorial-font); letter-spacing: -.01em; text-wrap: pretty; }
@@ -108,7 +107,6 @@
   .portfolio-editorial .workflow-preview .stage-window { height: 310px; width: min(100%, calc(274px * var(--mobile-capture-ratio) + 36px)); }
   .portfolio-editorial .workflow-preview .preview-caption { font-size: 11px; padding-top: 8px; }
   .portfolio-editorial .project-story-heading > p,
-  .writing-directory-page .writing-index { margin-top: 32px; }
   .writing-directory-page .writing-index .writing-row { grid-template-columns: minmax(0, 1fr) 20px; gap: 13px; }
   .writing-directory-page .writing-index .writing-row > div:first-child { grid-column: 1/-1; display: flex; align-items: center; gap: 14px; padding-top: 0; }
   .writing-directory-page .writing-index .writing-row .post-category { margin-top: 0; }

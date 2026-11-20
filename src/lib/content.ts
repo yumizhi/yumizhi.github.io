@@ -50,8 +50,8 @@ export const papers: Paper[] = [
       title: { en: 'A few changed coordinates can change the verdict', zh: '只动少数坐标，也能改变分类结果' },
       paragraphs: [
         {
-          en: 'The dog and the flower in Figure 1 look much the same after perturbation. The clearest difference is in the maps next to them. Most of each map stays black, with colored points showing the changed channels. Under an amplitude limit, making a classifier change its decision with so few edits depends on choosing those coordinates well.',
-          zh: '图 1 里的狗和花在施加扰动前后看起来差别很小。旁边的扰动图更容易看出变化：大部分区域是黑色，零星的彩色点标出被改动的通道。每个位置能改多少是有限的，用这么少的改动改变分类结果，坐标就得选得准。',
+          en: 'The dog in the first row of Figure 1 looks much the same after perturbation. The map beside it makes the changes visible. Most of it stays black, with colored points showing the changed channels. Under an amplitude limit, making a classifier change its decision with so few edits depends on choosing those coordinates well.',
+          zh: '图 1 第一行里的狗在施加扰动前后看起来差别很小。旁边的扰动图更容易看出变化，大部分区域是黑色，零星的彩色点标出被改动的通道。每个位置能改多少是有限的，用这么少的改动改变分类结果，坐标就得选得准。',
         },
         {
           en: 'The location and the magnitude call for different kinds of search. SASBO learns a probability for each discrete selection and uses it to choose where to perturb. It can return to that choice after the magnitudes change.',

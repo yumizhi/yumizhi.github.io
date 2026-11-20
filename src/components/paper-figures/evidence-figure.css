@@ -1,0 +1,50 @@
+.paper-evidence-figure {
+  --figure-ink: #282230;
+  --figure-muted: #675b70;
+  --figure-edge: #ded4e5;
+  --figure-line: #d1c2da;
+  --figure-accent: #752879;
+  --figure-blue: #386688;
+  --figure-rust: #97553d;
+  --figure-panel: #fcfafd;
+  --figure-backing: #f2edf5;
+  container: paper-figure / inline-size;
+  color: var(--figure-ink);
+  margin: 29px auto 34px;
+  max-width: var(--paper-column);
+  scroll-margin-top: 158px;
+}
+
+.dark .paper-evidence-figure {
+  --figure-ink: #f5edf8;
+  --figure-muted: #c7b9ce;
+  --figure-edge: #4b3953;
+  --figure-line: #644d6b;
+  --figure-accent: #e5a6e6;
+  --figure-blue: #9bcbee;
+  --figure-rust: #f0ad91;
+  --figure-panel: #2a2230;
+  --figure-backing: #231b2a;
+}
+
+.paper-evidence-figure .figure-label {
+  color: var(--figure-muted);
+  font-size: 12px;
+  line-height: 1.25;
+  font-weight: 625;
+}
+
+.paper-evidence-figure > figcaption {
+  max-width: var(--paper-column);
+  margin: 12px auto 0;
+  color: var(--paper-caption);
+  font-size: 13px;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.paper-evidence-figure > figcaption a {
+  color: var(--paper-link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

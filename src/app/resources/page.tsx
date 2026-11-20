@@ -8,7 +8,7 @@ export default function Resources() {
     <div className="editorial-shell directory-page">
       <header className="page-heading">
         <h1><Localized en="Resources" zh="资料与文档" /></h1>
-        <p><Localized en="Preview or download my papers and CV." zh="预览或下载论文与简历。" /></p>
+
       </header>
       <ResourcesIndex />
     </div>

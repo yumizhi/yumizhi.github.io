@@ -60,7 +60,7 @@ export const samEvidence: EssayChapter[] = [
         zh: '可以把消融实验读成对同一批图的两次评价。VGG19 为单模型基线提供优化信号，在它身上分数高，说明稀疏扰动适合源模型。六个独立分类器没有提供这类信号，它们的结果检查扰动换到另一种架构后还能不能起作用。前一项好，后一项也可能差，所以论文把这两组结果分列。',
       },
       {
-        en: 'The individual targets make this concrete. With the looser amplitude setting, DenseNet161 rises from 68.2% to 91.5%, while MnasNet1.0 rises from 69.8% to 78.8%. Both move in the same direction, with very different margins. The average describes the overall gain. The per-model breakdown shows how uneven that gain can be.',
+        en: 'With the looser amplitude limit, DenseNet161 rises from 68.2% to 91.5%, while MnasNet1.0 rises from 69.8% to 78.8%. The gain is larger on DenseNet161. The average describes the overall benefit, and the per-model values show which architectures contribute most to it.',
         zh: '分模型看就更具体了。幅度限制较宽的那组，DenseNet161 的成功率从 68.2% 升到 91.5%，MnasNet1.0 则从 69.8% 升到 78.8%。两者方向一致，幅度不同。均值描述整体收益，分模型的结果让人看见收益究竟分布在哪里。',
       },
     ],
