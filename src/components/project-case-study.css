@@ -49,11 +49,23 @@
   font-weight: 630;
   margin: 0 0 .6rem;
 }
-.case-prose {
-  max-inline-size: var(--editorial-copy-width);
+.case-prose, .case-chapters {
   margin: clamp(1.25rem, 3vw, 2rem) auto 0;
   display: grid;
   gap: clamp(1.375rem, 3vw, 2rem);
+}
+.case-prose {
+  max-inline-size: var(--editorial-copy-width);
+}
+.case-chapters > .case-chapter {
+  display: block;
+  width: 100%;
+  margin-block: 0;
+}
+.case-chapters > .architecture-figure {
+  width: min(100%, 53rem);
+  margin-block: .15rem .4rem;
+  scroll-margin-top: 2rem;
 }
 .case-prose h3, .case-flow h3 {
   color: var(--portfolio-ink);

@@ -7,7 +7,7 @@ export function EpubEngineStory() {
     <div className="epub-engine-story">
       <figure className="epub-merge-record">
         <figcaption>
-          <strong><Localized en="Inside the merge record" zh="合并记录里保存了什么" /></strong>
+          <strong><Localized en="A resource entry in the merge record" zh="合并记录的资源条目" /></strong>
           <code>META-INF/epub-merge-tool.json</code>
         </figcaption>
         <pre><code>{`{

@@ -4,17 +4,18 @@ import { Localized as Text } from './language';
 import './project-architecture.css';
 
 type FigureProps = {
-  slug: string;
+  id: string;
+  project?: string;
   title: { en: string; zh: string };
   caption: { en: string; zh: string };
   children: ReactNode;
 };
 
-function Diagram({ slug, title, caption, children }: FigureProps) {
+export function Diagram({ id, project, title, caption, children }: FigureProps) {
   return (
-    <figure className="architecture-figure" data-project={slug} aria-labelledby={`architecture-${slug}-label`}>
+    <figure className="architecture-figure" id={id} data-project={project} aria-labelledby={`${id}-label`}>
       <div className="architecture-plate">
-        <p className="architecture-plate-label" id={`architecture-${slug}-label`}><Text {...title} /></p>
+        <p className="architecture-plate-label" id={`${id}-label`}><Text {...title} /></p>
         {children}
       </div>
       <figcaption><Text {...caption} /></figcaption>
@@ -22,13 +23,13 @@ function Diagram({ slug, title, caption, children }: FigureProps) {
   );
 }
 
-function FlowArrow() {
+export function FlowArrow() {
   return <ArrowRight className="architecture-arrow" size={22} strokeWidth={1.5} aria-hidden="true" />;
 }
 
 function EpubArchitecture() {
   return (
-    <Diagram slug="epub-toolkit"
+    <Diagram id="epub-toolkit-overview" project="epub-toolkit"
       title={{ en: 'The EPUB archive and its merge record', zh: 'EPUB 合集与内嵌合并记录' }}
       caption={{
         en: 'The output is a regular EPUB 3. Its manifest and spine serve the reader, and the embedded merge record gives the split tool the source paths and reading order for each volume.',
@@ -91,7 +92,7 @@ const sequence = [
 
 function OriginMarkArchitecture() {
   return (
-    <Diagram slug="originmark"
+    <Diagram id="originmark-overview" project="originmark"
       title={{ en: 'An OriginMark run from submission to commit', zh: 'OriginMark 任务从提交到结果登记' }}
       caption={{
         en: 'PostgreSQL records both the work and its outcome. The worker calls the selected engine and controls publication. Studio reads the recorded events after a reconnect.',
@@ -133,7 +134,7 @@ function OriginMarkArchitecture() {
 
 function AgentArchitecture() {
   return (
-    <Diagram slug="personal-agent"
+    <Diagram id="personal-agent-overview" project="personal-agent"
       title={{ en: 'A scheduled application and its delivery records', zh: '定时应用的执行与交付记录' }}
       caption={{
         en: 'The approved plan pins the application release. SQLite links each scheduled occurrence to its run. The inbox receipt leads back to that run and its evidence.',

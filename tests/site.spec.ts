@@ -184,20 +184,25 @@ test('case studies expose anchored design and implementation with keyboard-opera
 });
 
 test('project architecture figures preserve their evidence on desktop and mobile', async ({ page }) => {
- for (const { slug, evidence } of [
-  { slug: 'epub-toolkit', evidence: 'Merge record' },
-  { slug: 'originmark', evidence: 'Commit output under the current lease' },
-  { slug: 'personal-agent', evidence: 'Delivery receipt' },
+ for (const { slug, evidence, details } of [
+  { slug: 'epub-toolkit', evidence: 'Merge record', details: ['epub-worker-handoff', 'epub-path-roundtrip'] },
+  { slug: 'originmark', evidence: 'Commit output under the current lease', details: ['originmark-teapot-report', 'originmark-lease-recovery'] },
+  { slug: 'personal-agent', evidence: 'Delivery receipt', details: ['agent-run-link', 'agent-report-evidence'] },
  ]) {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto(`/projects/${slug}/#architecture`);
   const nav = page.getByRole('navigation', { name: 'Project sections' });
   await expect(nav.getByRole('link', { name: 'Architecture', exact: true })).toHaveAttribute('aria-current', 'location');
-  const figure = page.locator('#architecture figure');
+  const figure = page.locator(`#${slug}-overview`);
   await expect(figure.getByText(evidence, { exact: true })).toBeVisible();
   await expect(figure.locator('figcaption')).not.toBeEmpty();
   await page.setViewportSize({ width: 320, height: 740 });
   await expect(figure.getByText(evidence, { exact: true })).toBeVisible();
+  for (const id of details) {
+   const detail = page.locator(`figure#${id}`);
+   await expect(detail).toBeVisible();
+   await expect(detail.locator('figcaption')).not.toBeEmpty();
+  }
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
   await nav.getByRole('link', { name: 'Trade-offs' }).click();
   await expect(page.locator('#decisions').getByRole('heading', { level: 2 })).toBeInViewport();
