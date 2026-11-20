@@ -5,10 +5,13 @@ export const site = {
   github: 'https://github.com/yumizhi', analytics: 'G-7YW0Y81D8',
   description: 'Ph.D. candidate at Nanjing University. Research on generative models, watermarking, and adversarial learning.',
 };
+type PaperCopy = { en: string; zh: string };
+
 export type Paper = {
   slug: string; shortTitle: string; title: string; venue: string; year: number;
   topic: 'Watermarking' | 'Adversarial learning'; authors: string[]; summary: string; summaryZh?: string;
-  abstract: string; featured: boolean; image?: string; imageWidth?: number; imageHeight?: number; imageAlt: string; imageCaption: string;
+  introduction: { title: PaperCopy; paragraphs: PaperCopy[] };
+  abstract: string; featured: boolean; image?: string; imageWidth?: number; imageHeight?: number; imageAlt: string; imageCaption: PaperCopy;
   paper: string; publisher?: string; code?: string; bibtex: string;
 };
 export const papers: Paper[] = [
@@ -16,11 +19,24 @@ export const papers: Paper[] = [
     slug: 'tide', shortTitle: 'TIDE', title: 'TIDE: Trajectory-Aware Watermark Propagation for Text-to-Image Diffusion Models',
     venue: 'NeurIPS', year: 2026, topic: 'Watermarking', featured: true,
     authors: ['Yihan Meng', 'Suping Xu', 'Yanfeng Wu', 'Chongjun Wang', 'Lin Shang'],
-    summary: 'TIDE embeds a watermark during diffusion sampling. A learned condition preserves the signal, while trajectory-aware guidance limits interference with the generated content.',
-    summaryZh: 'TIDE 在扩散采样中注入水印，通过学习辅助条件保留信号，并根据生成轨迹调整引导，减少对图像内容的干扰。',
+    summary: 'A watermark written during diffusion still has to survive the rest of sampling. TIDE uses the recent denoising trajectory to carry that signal forward while keeping the scene close to the unwatermarked reference.',
+    summaryZh: '扩散过程中写入的水印，还要经历余下的去噪。TIDE 根据近期去噪轨迹调整水印引导，让信号留下来，同时尽量保留原本的画面。',
+    introduction: {
+      title: { en: 'Sampling continues after the watermark goes in', zh: '写入水印之后，采样还在继续' },
+      paragraphs: [
+        {
+          en: 'In Figure 2, the same prompt and random seed produce two views of a red sports car. The unwatermarked image shows the hood and front wheel, while the Tree-Ring image shows the rear. Both images fit the prompt. The change in viewpoint tells us how far the result can move from the unwatermarked reference.',
+          zh: '论文图 2 里有一辆红色跑车。用同样的提示词和随机种子，无水印图像里能看到车头和前轮，Tree-Ring 的样例却拍到了车尾。两张图都符合提示词，但视角已经变了。',
+        },
+        {
+          en: 'TIDE starts from the steps that remain after injection. Those steps can carry the signal into the final image, and they are still shaping the scene. Recent text-guidance updates give a local estimate of the directions the watermark is most likely to compete with. We use that estimate to redirect the watermark update and adjust its strength as denoising proceeds.',
+          zh: 'TIDE 从注入之后的步骤入手。余下的去噪既能把水印带进最终图像，也还在塑造画面。最近几步的文本引导表明采样正在往哪些方向走。用它作参考，就可以在每一步调整水印引导的方向和强度，减少两种更新之间的干扰。',
+        },
+      ],
+    },
     abstract: "Watermarking text-to-image diffusion models provides a practical mechanism for provenance tracking and responsible deployment. Post-processing methods are easy to deploy but vulnerable to image-space transformations. In-processing methods improve robustness by embedding the watermark within the denoising trajectory. Yet most existing methods inject the signal into the initial noise or a fixed intermediate latent, without controlling how it evolves during the remaining denoising steps. This can entangle watermark preservation with text-guided generation, risking weaker verification or degraded content fidelity. We propose TIDE, a trajectory-aware watermarking method for text-to-image diffusion models. TIDE injects a learnable watermark into an intermediate latent and jointly optimizes it with an auxiliary watermark condition, using preservation and detection objectives to limit deviation from the unwatermarked reference while maintaining separable watermark evidence. During sampling, TIDE estimates recent text-guidance directions and redirects watermark guidance toward the residual component less aligned with this local text subspace, reducing avoidable interference with semantic generation. Verification uses null-prompt partial inversion to recover the injection latent and match its masked coefficients to the target watermark. Experiments show that TIDE achieves reliable verification on unattacked images, improves robustness under common attacks, and better preserves semantic and visual fidelity.",
     image: '/images/tide-results-original.webp', imageWidth: 1422, imageHeight: 1120, imageAlt: 'Published qualitative comparison of clean, Tree-Ring, ROBIN, and TIDE images across five prompts.',
-    imageCaption: 'Figure 2: Qualitative comparison of different methods.',
+    imageCaption: { en: 'Generations from the same prompt. The unwatermarked image is the reference.', zh: '同一提示词下的生成结果。无水印图像作为参考。' },
     paper: '/files/tide-neurips-2026.pdf',
     bibtex: '@inproceedings{meng2026tide,\n  title={TIDE: Trajectory-Aware Watermark Propagation for Text-to-Image Diffusion Models},\n  author={Meng, Yihan and Xu, Suping and Wu, Yanfeng and Wang, Chongjun and Shang, Lin},\n  booktitle={Advances in Neural Information Processing Systems},\n  year={2026}\n}',
   },
@@ -28,11 +44,24 @@ export const papers: Paper[] = [
     slug: 'sasbo', shortTitle: 'SASBO', title: 'SASBO: Sparse Attack via Stochastic Binary Optimization',
     venue: 'PAKDD', year: 2024, topic: 'Adversarial learning', featured: true,
     authors: ['Yihan Meng', 'Weitao Li', 'Lin Shang'],
-    summary: 'SASBO optimizes which image coordinates to perturb and the magnitude of each change. Stochastic binary optimization learns the coordinates; a final budget search removes redundant changes.',
-    summaryZh: 'SASBO 将稀疏扰动分解为坐标与幅度，交替优化二者。坐标选择通过随机二值优化学习，最后缩减仍能维持攻击成功的坐标预算。',
+    summary: 'With a tight perturbation budget, the choice of coordinates can matter as much as the size of each change. SASBO learns that discrete choice through a probability attached to each coordinate.',
+    summaryZh: '能改动的位置很少时，选中哪些坐标就成了问题的核心。SASBO 给每个坐标一个被选中的概率，让这个离散选择也能从分类器的反馈中学习。',
+    introduction: {
+      title: { en: 'A few changed coordinates can change the verdict', zh: '只动少数坐标，也能改变分类结果' },
+      paragraphs: [
+        {
+          en: 'The dog and the flower in Figure 1 look much the same after perturbation. The clearest difference is in the maps next to them. Most of each map stays black, with colored points showing the changed channels. Under an amplitude limit, making a classifier change its decision with so few edits depends on choosing those coordinates well.',
+          zh: '图 1 里的狗和花在施加扰动前后看起来差别很小。旁边的扰动图更容易看出变化：大部分区域是黑色，零星的彩色点标出被改动的通道。每个位置能改多少是有限的，用这么少的改动改变分类结果，坐标就得选得准。',
+        },
+        {
+          en: 'The location and the magnitude call for different kinds of search. SASBO learns a probability for each discrete selection and uses it to choose where to perturb. It can return to that choice after the magnitudes change.',
+          zh: '选位置和调幅度需要两种不同的搜索。SASBO 给每个坐标一个可学习的选择概率，据此确定改动的位置。幅度更新后，位置也可以再选。',
+        },
+      ],
+    },
     abstract: "Deep Neural Networks have shown vulnerability to sparse adversarial attack, which involves perturbing only a limited number of pixels. Identifying the coordinates requiring perturbation in sparse attacks poses a significant computational challenge. Existing solutions predominantly rely on heuristic methods or relax the ℓ0-norm to the ℓ1-norm. In this paper, we present an efficient algorithm for conducting sparse attacks. Our algorithm factorizes the perturbation at each pixel to the product of the perturbation coordinates and the perturbation magnitudes and then optimizes them alternately. We reformulate the ℓ0-norm as a stochastic binary optimization problem, assuming that each pixel’s perturbation status is associated with a stochastic binary variable. This stochastic binary variable follows a Bernoulli distribution, with a parameter value that ranges from 0 to 1, signifying the probability of pixel disturbance. To tackle this stochastic binary optimization challenge, we employ an unbiased gradient estimator known as Augment-Reinforce-Merge (ARM). Once the perturbed coordinates are determined, we optimize the perturbation magnitudes with gradient descent. Furthermore, we incorporate a binary search algorithm to eliminate redundant pixels to enhance sparsity. Comprehensive experiments demonstrate the superiority of our proposed method over several state-of-the-art sparse attack methods.",
     image: '/images/sasbo-original.webp', imageWidth: 782, imageHeight: 341, imageAlt: 'Original SASBO figure comparing clean images, SASBO perturbations, and GreedyF perturbations for a dog and flower.',
-    imageCaption: 'Fig. 1. Visualization of nontargeted attack under perturbation threshold ε = 10. The images in each row, from left to right, are clean images, our adversarial example, our perturbation coordinates, GreedyFool’s adversarial example, and GreedyFool’s perturbation coordinates. In the figures of perturbation coordinates, black pixels denote no perturbation; white pixels denote perturbing all three RGB channels; pure red, green, and blue pixels represent perturbing a single channel. (Color figure online)',
+    imageCaption: { en: 'SASBO and GreedyFool under the same amplitude cap (ε = 10). Columns (c) and (e) show the changed channels. White marks all three RGB channels.', zh: 'SASBO 与 GreedyFool 使用相同的幅度上限（ε = 10）。第 (c)、(e) 列显示被改动的通道，白点表示 RGB 三个通道都有变化。' },
     paper: '/files/sasbo-pakdd-2024.pdf',
     publisher:'https://link.springer.com/chapter/10.1007/978-981-97-2242-6_10',
     bibtex: '@inproceedings{meng2024sasbo,\n  title={SASBO: Sparse Attack via Stochastic Binary Optimization},\n  author={Meng, Yihan and Li, Weitao and Shang, Lin},\n  booktitle={Pacific-Asia Conference on Knowledge Discovery and Data Mining},\n  year={2024},\n  doi={10.1007/978-981-97-2242-6_10}\n}',
@@ -41,12 +70,25 @@ export const papers: Paper[] = [
     slug: 'sparse-meta-learning', shortTitle: 'Sparse Attack with Meta-Learning', title: 'Sparse Attack with Meta-Learning',
     venue: 'IJCNN', year: 2024, topic: 'Adversarial learning', featured: true,
     authors: ['Weitao Li', 'Mingqian Lin', 'Yihan Meng', 'Yangdai Si', 'Lin Shang'],
-    summary: 'SAM optimizes sparse adversarial inputs across sampled groups of classifiers. Feedback from held-out surrogate models guides updates, and separate black-box models measure transfer success.',
-    summaryZh: 'SAM 在采样得到的模型任务上优化稀疏扰动，利用留出模型的反馈调整更新，并在独立黑盒模型上评估迁移成功率。',
+    summary: 'A sparse perturbation tuned to one classifier can lose its effect on another. SAM brings that change of model into the optimization by rotating which surrogate supplies the training signal and which checks the update.',
+    summaryZh: '在一个分类器上有效的稀疏扰动，换个模型可能就失效。SAM 在优化中轮换替代模型，让暂时留出的模型也来评价这次更新。',
+    introduction: {
+      title: { en: 'The same image meets a different classifier', zh: '同一张图，换一个分类器' },
+      paragraphs: [
+        {
+          en: 'In the CIFAR-10 experiment, the baseline’s perturbed images fool VGG19 more often than DenseNet161. The images are the same in both tests. What changes is the classifier, and the baseline had optimized every one of its input changes against VGG19.',
+          zh: '在 CIFAR-10 实验中，基线方法生成的扰动图像更容易骗过 VGG19，在 DenseNet161 上的成功率则低得多。两次测试用的是同一批图，只换了分类器。此前，图像上的每一处改动都由 VGG19 的反馈决定。',
+        },
+        {
+          en: 'SAM rehearses that handoff during optimization. For each sampled task, one group of accessible classifiers proposes the update and another model from the same surrogate pool checks how well it carries over. The roles rotate between tasks. Separate black-box targets come in at evaluation, where they measure the transfer this procedure was meant to encourage.',
+          zh: 'SAM 把换模型这件事提前到优化里。每轮先用一组可访问的分类器给出更新方向，再用替代模型池里暂时留出的另一个模型检验这次更新。下一轮重新分配角色。最后用独立的黑盒模型评估这些改动能迁移多远。',
+        },
+      ],
+    },
     abstract: "Black-box attacks pose a significant challenge due to the restricted access to target model information, hindering the generation of impactful adversarial samples. This paper introduces a method that combines sparse attacks and meta-learning to alleviate the issue of low success rates in black-box attacks. SAM leverages the knowledge transfer capabilities inherent in meta-learning to augment the transferability of adversarial samples. The method integrates meta-learning with gradient-based attack techniques, effectively transforming the approach into a white-box attack. By aggregating multiple sampled models, SAM enhances the stability of adversarial samples. During meta-testing, simulated black-box attacks help mitigate gradient discrepancies across diverse models, consequently enhancing transferability. To further improve sparsity and preserve transferability, SAM incorporates a projection strategy that selectively sparsifies global adversarial perturbations. Experimental evaluations conducted on two image datasets substantiate SAM’s superiority in terms of both sparsity and attack success rate. Ablation experiments confirm the effectiveness of integrating meta-learning into the proposed method. SAM extends the applicability of generated adversarial samples, advancing the domain of adversarial attacks in scenarios with limited target model information. The proposed approach exhibits promise in enhancing the success rate of attacks while preserving sparsity, contributing to the broader understanding of black-box attacks and their implications.",
     image: '/images/sam-meta-learning.webp', imageWidth: 964, imageHeight: 604,
     imageAlt: 'Meta-learning illustration showing sampled training episodes and support and query sets during meta-testing.',
-    imageCaption: 'Fig. 1. Meta-learning',
+    imageCaption: { en: 'The support and query split in meta-learning. SAM assigns those roles to classifiers.', zh: '元学习中的支持集与查询集。SAM 把这两种角色分给不同的分类器。' },
     paper: '/files/sparse-meta-learning-ijcnn-2024.pdf',
     publisher:'https://ieeexplore.ieee.org/abstract/document/10650867',
     bibtex: '@inproceedings{li2024sparse,\n  title={Sparse Attack with Meta-Learning},\n  author={Li, Weitao and Lin, Mingqian and Meng, Yihan and Si, Yangdai and Shang, Lin},\n  booktitle={International Joint Conference on Neural Networks},\n  year={2024},\n  url={https://ieeexplore.ieee.org/document/10650867}\n}',

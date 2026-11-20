@@ -5,6 +5,7 @@ import * as Tabs from '@radix-ui/react-tabs';
 import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
 import { ArrowUpRight } from 'lucide-react';
 import { asset } from '@/lib/paths';
+import type { Paper } from '@/lib/content';
 import { Localized } from '../language';
 
 const methods = [{id:'tree',name:'Tree-Ring'}, {id:'robin',name:'ROBIN'}, {id:'tide',name:'TIDE'}];
@@ -15,9 +16,9 @@ const scenes = [
 ];
 function sample(method:string,scene:string){return asset('/images/tide-paper/'+method+'-'+scene+'.webp');}
 
-export function TideComparison({original}:{original:string}){
+export function TideComparison({original,caption}:{original:string;caption:Paper['imageCaption']}){
   const [scene,setScene] = useState(scenes[0]);
-  const [method,setMethod] = useState('tide');
+  const [method,setMethod] = useState('tree');
   const reduced = useReducedMotion();
   return <LayoutGroup><figure className="tide-comparison">
     <Tabs.Root className="tide-method-tabs" value={method} onValueChange={setMethod}>
@@ -53,7 +54,7 @@ export function TideComparison({original}:{original:string}){
       </button>)}
     </div>
     <figcaption className="tide-figure-note">
-      <span lang="en"><strong>Figure 2.</strong> Qualitative comparison of different methods.</span>
+      <span><strong><Localized en="Figure 2." zh="图 2。"/></strong>{' '}<Localized {...caption}/></span>
       <a href={asset(original)} target="_blank" rel="noreferrer"><Localized en="Full figure" zh="完整原图"/><ArrowUpRight size={14}/></a>
     </figcaption>
   </figure></LayoutGroup>;

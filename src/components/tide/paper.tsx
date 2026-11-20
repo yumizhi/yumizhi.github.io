@@ -28,20 +28,17 @@ export function TidePaper({paper}:{paper:Paper}){
   const [methodTitle, modelScope] = paper.title.split(' for ');
   return <PaperArticle paper={paper} authorNotes={authorNotes} affiliations={affiliations}
     abstractBreaks={/ (?=We propose TIDE,|Verification uses )/}
+    overviewFigure={paper.image && <TideComparison original={paper.image} caption={paper.imageCaption}/>}
     title={<><PaperTitle>{methodTitle}</PaperTitle> <span className="tide-title-scope">for <PaperTitle>{modelScope}</PaperTitle></span></>}>
     <section id="method" className="tide-method-band">
       <div className="tide-bound">
         <header className="tide-chapter-head">
-          <p className="tide-kicker"><Localized en="Method" zh="研究方法"/></p>
-          <h2><Localized en="Preserving a signal without changing the scene" zh="保留水印，也保留原本的画面"/></h2>
+          <h2><Localized en="A signal the denoiser can carry" zh="让水印随去噪延续"/></h2>
         </header>
         <p className="tide-prose"><Localized
-          en={<>Once a watermark enters the latent, the remaining denoising steps can weaken it. Strengthening it indiscriminately can also pull the image away from the prompt. TIDE learns a watermark and an auxiliary condition together, then uses <strong>the recent direction of text guidance</strong> to decide how much of the watermark update to keep at each step.</>}
-          zh={<>水印写入潜变量之后，还要经过多步去噪。这个过程可能削弱水印，而一味加大水印引导，又可能改变提示词原本要生成的内容。TIDE 联合学习水印和辅助条件，再根据<strong>最近几步的文本引导方向</strong>，决定每一步保留哪些水印更新分量。</>}/></p>
-        <p className="tide-prose"><Localized
-          en="Moving the watermark to an intermediate step protects the early stages in which the scene takes shape. But choosing an injection time does not settle what happens next. The latent keeps changing, and a fixed watermark-guidance weight cannot respond when the text and watermark updates begin to overlap. TIDE addresses both parts: learning a signal that can persist, and controlling its contribution as sampling continues."
-          zh="把水印推迟到中间步骤，可以避开图像内容初步成形的阶段。但选好注入时刻，并没有解决后面的问题：潜变量仍在变化，文本与水印的更新方向也在变化，固定的水印引导权重无法随之调整。TIDE 因此同时处理两件事：学习能够保留下来的水印信号，以及控制它在后续采样中的作用。"/></p>
-        <h3 className="paper-subsection" id="learning"><Localized en="Learned parameters and frozen components" zh="学习参数与冻结模块"/></h3>
+          en="A watermark written halfway through sampling has two jobs. It must leave a detectable trace in the finished image and give the sampler room to preserve the composition already taking shape. We train the signal together with a condition that the denoiser can use in the steps that follow."
+          zh="在采样中途写入的水印，既要在成图里留下可检测的信号，也要给已成形的画面留出继续去噪的余地。为此，我们把水印信号和一种辅助条件一起训练，让去噪模型在余下步骤里也能接续这个信号。"/></p>
+        <h3 className="paper-subsection" id="learning"><Localized en="Learning the watermark and its condition together" zh="一起学习水印和辅助条件"/></h3>
         <p className="tide-prose"><Localized
           en={<>The VAE, U-Net, and text encoder stay frozen. Training changes only <strong>the watermark spectrum and an auxiliary condition embedding</strong>. At the chosen step, selected Fourier coefficients of the latent are replaced by the learned watermark. The auxiliary condition gives the existing U-Net a way to support that signal during the remaining denoising steps.</>}
           zh={<>VAE、U-Net 和文本编码器保持冻结，只学习<strong>水印频谱和一个辅助条件嵌入</strong>。到达选定的采样步骤后，用学到的水印替换潜变量频域中指定位置的系数；辅助条件则让原有 U-Net 在后续去噪时提供维持水印的引导。</>}/></p>
@@ -68,8 +65,8 @@ export function TidePaper({paper}:{paper:Paper}){
           zh={<>选好方向之后，还需要决定<strong>水印引导占多少预算</strong>。与文本方向重合越多、局部轨迹转弯越明显，或互补残差本身越强，分给水印的预算就越低。总预算在文本与水印之间重新分配，同时为文本保留最低额度。这套计算会在注入后的每一步重复执行。</>}/></p>
         <h3 className="paper-subsection" id="verification"><Localized en="Recovering the signal from an image" zh="从最终图像中找回水印"/></h3>
         <p className="tide-prose"><Localized
-          en="Verification starts with the image being checked. It is encoded into latent space and partially inverted to the injection step using an empty prompt. The detector then compares the recovered Fourier coefficients with the learned watermark in the selected region. A smaller distance means stronger evidence of the watermark; the decision threshold is calibrated using unwatermarked images. Neither the original prompt nor a clean reference image is needed at query time."
-          zh="检测从待验证图像开始：先编码为潜变量，再使用空提示词执行部分 DDIM 反演，回到水印注入时刻。随后在指定频域区域内，将恢复的系数与水印模板比较。距离越小，匹配证据越强；判定阈值由无水印图像校准。实际查询时不需要原提示词，也不需要对应的无水印参考图。"/></p>
+          en="By the time an image reaches the detector, its watermark has been through the rest of sampling and possibly an edit. The detector looks for the signal where it was written. It encodes the image and runs partial DDIM inversion with an empty prompt, stopping at the injection step. There, the distance between the recovered spectrum and the watermark template indicates how closely they match. Unwatermarked images calibrate the decision threshold, so the query can be scored from the image alone."
+          zh="图像到达检测器时，水印已经历余下的去噪，也可能经历过编辑。检测回到当初写入信号的位置：将图像编码为潜变量，用空提示词做部分 DDIM 反演，在注入步骤停下。恢复的频谱与水印模板越接近，匹配证据就越强。判定阈值用无水印图像校准，查询时只需提交待检测图像。"/></p>
         <figure className="paper-mechanism">
           <figcaption><Localized en="Verification follows the generation path back to the injection step" zh="沿生成轨迹回溯到水印注入时刻"/></figcaption>
           <div className="paper-flow">
@@ -82,14 +79,11 @@ export function TidePaper({paper}:{paper:Paper}){
     </section>
     <section id="examples" className="tide-results tide-bound">
       <header className="tide-chapter-head">
-        <p className="tide-kicker"><Localized en="Results" zh="实验结果"/></p>
-        <h2><Localized en="Image content after watermarking" zh={<>加入水印后，<span className="tide-heading-phrase">图像内容的变化</span></>}/></h2>
+        <h2><Localized en="Image fidelity and watermark survival" zh="图像保真度与水印检出率"/></h2>
       </header>
-      <p className="tide-prose"><Localized en="Look at the sports car. Tree-Ring shows it from behind, while TIDE retains the front wheel and the viewpoint of the unwatermarked image. Select another prompt to compare the composition and finer details." zh="先看跑车。Tree-Ring 生成的是车尾，TIDE 则保留了无水印图像中的前轮和车头视角。换一组提示词，可以继续对照主体的位置、构图和纹理。"/></p>
-      {paper.image&&<TideComparison original={paper.image}/>}
-      <p className="tide-prose tide-demo-intro"><Localized
-        en="Content preservation is evaluated against the image generated without a watermark. In Table 2, TIDE’s CLIP score is 0.403, matching the unwatermarked baseline, while LPIPS to the clean reference is 0.147 versus ROBIN’s 0.157. Prompt alignment and reference similarity measure different aspects of preservation, so both matter here."
-        zh="内容保持以同一设置下生成的无水印图像为参考。论文表 2 中，TIDE 的 CLIP 得分为 0.403，与无水印基线相当；相对无水印参考图的 LPIPS 为 0.147，ROBIN 为 0.157。前者反映提示词对齐，后者衡量参考图像相似性，需要结合来看。"/></p>
+      <p className="tide-prose"><Localized
+        en="The sports car comparison calls for two measurements. CLIP scores how well an image matches its prompt, which both views of the car can do. LPIPS measures perceptual distance to the unwatermarked image, so a change of viewpoint matters there. In Table 2, TIDE matches the unwatermarked CLIP score of 0.403. Its LPIPS is 0.147, compared with 0.157 for ROBIN."
+        zh="跑车的视角变化说明为什么要同时看两项指标。CLIP 衡量图像和提示词是否相符，车头和车尾都能符合「跑车」。LPIPS 衡量与无水印图像的感知距离，会反映视角这类变化。论文表 2 中，TIDE 的 CLIP 为 0.403，与无水印基线相同。TIDE 的 LPIPS 为 0.147，ROBIN 为 0.157。"/></p>
       <div className="tide-quant">
         <h3><Localized en="Detection after image edits" zh="图像编辑后的水印检测"/></h3>
         <p className="tide-prose"><Localized
@@ -121,7 +115,7 @@ export function TidePaper({paper}:{paper:Paper}){
       <div className="tide-bound">
         <header className="tide-chapter-head">
           <p className="tide-kicker"><Localized en="Ablation study" zh="消融实验"/></p>
-          <h2><Localized en="When to write, and how to guide" zh="何时写入，如何引导"/></h2>
+          <h2><Localized en="Injection timing changes what guidance can preserve" zh="注入时刻影响后续引导的余地"/></h2>
         </header>
         <p className="tide-prose"><Localized
           en="Early injection gives the model more steps to carry the watermark, but also more opportunities to change the scene. Late injection protects the composition, while leaving fewer steps for the signal to persist. The experiment below moves the same learned watermark and auxiliary condition to five injection points in a 50-step sampler. Both were trained at step 35; they are not retrained at each point."
@@ -134,12 +128,11 @@ export function TidePaper({paper}:{paper:Paper}){
     </section>
     <section id="discussion" className="tide-results tide-bound">
       <header className="tide-chapter-head">
-        <p className="tide-kicker"><Localized en="Discussion" zh="讨论"/></p>
-        <h2><Localized en="From injection to propagation" zh="从注入信号，到控制传播"/></h2>
+        <h2><Localized en="Watermark strength depends on the remaining trajectory" zh="水印能留下多少，取决于后续轨迹"/></h2>
       </header>
       <p className="tide-prose"><Localized
-        en="The central result is about the steps after the watermark has been written. Injection establishes the signal; trajectory-aware guidance determines how it is carried into the image. Learning the watermark and condition together, then controlling their interaction with text guidance, improves the balance between detection and content preservation."
-        zh="这项工作的重点，是水印写入以后还会发生什么。注入建立信号，轨迹感知引导则控制它怎样进入最终图像。联合学习水印与辅助条件，再逐步控制它们与文本引导的相互作用，才能同时改善检测能力与内容保持。"/></p>
+        en="The late-injection result puts the mechanism in perspective. Adaptive guidance helped at step 35, when the sampler still had time to incorporate the watermark. At step 45, even adaptive guidance had less room to work. In these experiments, the benefit comes from giving the watermark enough steps to settle into the image and using those steps selectively."
+        zh="最后一组注入实验给引导的作用划出了边界。第 35 步写入时，后面还留着足够的去噪步骤，自适应引导能提高检出率。到了第 45 步，连自适应引导的余地也变小了。实验中的收益来自两者配合：给水印留下参与生成的时间，再根据每一步的情况分配引导。"/></p>
       <p className="tide-prose"><Localized
         en="Verification currently assumes access to the generation model and a compatible inversion procedure. Third-party verification would need a service or public verifier. The experiments establish watermark detection, rather than a large multi-bit payload; the paper also leaves adaptive attacks against the inversion path as an open problem."
         zh="目前的检测需要访问生成模型，并使用兼容的反演过程；第三方使用还需要验证服务或公开验证器。现有实验验证的是水印检测能力，并未建立大容量多比特载荷的结论。针对反演过程设计的自适应攻击，也仍是论文指出的待解决问题。"/></p>

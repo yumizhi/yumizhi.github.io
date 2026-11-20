@@ -78,15 +78,14 @@
 .editorial-paper .paper-subsection { margin-block: 33px 13px; font: 650 23px/1.3 var(--editorial-font); letter-spacing: -.012em; }
 .editorial-paper .tide-overview { max-width: 100%; margin: 34px auto; padding: 0; border-radius: 0; background: transparent; box-shadow: none; }
 .editorial-paper .tide-overview img { background: white; border-radius: 10px; }
-.editorial-paper :is(.tide-overview figcaption, .paper-intro-figure figcaption) {
+.editorial-paper .tide-overview figcaption {
   max-width: var(--paper-column);
   margin: 12px auto 0;
   font-size: 13px;
   line-height: 1.5;
   color: var(--paper-caption);
 }
-.paper-intro-figure { margin: 0 auto 15px; }
-.paper-intro-figure .tide-cover { border-radius: 10px; }
+.editorial-paper #overview + :is(.tide-comparison, .tide-overview) { margin-top: 0; }
 .paper-figure-actions { display: block; margin-top: 5px; }
 .paper-figure-actions a { display: inline-flex; align-items: center; gap: 5px; min-height: 32px; font-size: 13px; color: var(--paper-link); }
 .paper-figure-actions a:hover { text-decoration: underline; text-underline-offset: 3px; }

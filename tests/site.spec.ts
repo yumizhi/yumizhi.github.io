@@ -63,8 +63,17 @@ test('touch research links and mobile navigation work directly',async({page})=>{
  await page.setViewportSize(sizes[3]);await page.goto('/');const card=page.getByTestId('research-card-tide');await expect(card.getByRole('heading')).toBeVisible();await card.getByRole('link',{name:'Read the study',exact:true}).click();await expect(page).toHaveURL(/\/research\/tide\//);
  await page.getByRole('button',{name:'Open navigation'}).click();await page.getByRole('navigation',{name:'Mobile navigation'}).getByRole('link',{name:'Research',exact:true}).click();await expect(page).toHaveURL(/\/research\//);await expect(page.getByRole('dialog')).toHaveCount(0);
 });
-test('paper abstract is readable and BibTeX copies',async({page,context})=>{
- await context.grantPermissions(['clipboard-read','clipboard-write']);await page.goto('/research/tide/');await expect(page.locator('#abstract')).toContainText('Watermarking text-to-image diffusion models');
+test('the paper opens with its overview and keeps the original abstract and citation accessible',async({page,context})=>{
+ await context.grantPermissions(['clipboard-read','clipboard-write']);await page.goto('/research/tide/');
+ const sections=page.getByRole('navigation',{name:'Paper sections'});
+ await expect(sections.getByRole('link',{name:'Overview',exact:true})).toHaveAttribute('aria-current','location');
+ const comparison=page.locator('#overview + .tide-comparison');
+ await expect(comparison.getByRole('tab',{name:'Tree-Ring',exact:true})).toHaveAttribute('aria-selected','true');
+ await comparison.getByRole('tab',{name:'TIDE',exact:true}).click();
+ await expect(comparison.getByRole('img',{name:'TIDE · Sports car',exact:true})).toBeVisible();
+ await sections.getByRole('link',{name:'Abstract',exact:true}).click();
+ await expect(page).toHaveURL(/#abstract$/);
+ await expect(page.locator('#abstract')).toContainText('Watermarking text-to-image diffusion models');
  await page.getByRole('button',{name:'Copy BibTeX'}).first().click();await expect(page.getByRole('button',{name:'Copied',exact:true}).first()).toBeVisible();
  expect(await page.evaluate(()=>navigator.clipboard.readText())).toContain('meng2026tide');
 });

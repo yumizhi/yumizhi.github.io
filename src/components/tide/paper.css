@@ -124,7 +124,6 @@ html:has(.tide-paper) { scroll-padding-top: 0; }
   gap: 18px 20px;
   background: var(--paper-gray);
 }
-.tide-heading-phrase { white-space: nowrap; }
 .tide-method-tabs { display: contents; }
 .tide-compare-tools { grid-area: toolbar; }
 .tide-comparison figcaption { grid-area: caption; margin: 0; }

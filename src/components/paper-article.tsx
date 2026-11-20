@@ -8,7 +8,6 @@ import { Localized } from './language';
 import { TransitionLink } from './providers';
 import { PaperNav } from './tide/paper-controls';
 import { PaperBreadcrumb, PaperReaderToolbar, PaperReadNext } from './paper-navigation';
-import { TideCover } from './research-experiment/tide-cover';
 import './tide/paper.css';
 import './article-editorial.css';
 
@@ -18,10 +17,11 @@ type PaperArticleProps = {
   authorNotes: string[];
   affiliations: string[];
   abstractBreaks: RegExp;
+  overviewFigure?: ReactNode;
   children: ReactNode;
 };
 
-export function PaperArticle({ paper, title, authorNotes, affiliations, abstractBreaks, children }: PaperArticleProps) {
+export function PaperArticle({ paper, title, authorNotes, affiliations, abstractBreaks, overviewFigure, children }: PaperArticleProps) {
   const nextIndex = (papers.findIndex(item => item.slug === paper.slug) + 1) % papers.length;
   const current = { slug: paper.slug, shortTitle: paper.shortTitle, venue: paper.venue, year: paper.year };
   const paperLinks = papers.map(({ slug, shortTitle, venue, year }) => ({ slug, shortTitle, venue, year }));
@@ -60,17 +60,18 @@ export function PaperArticle({ paper, title, authorNotes, affiliations, abstract
           <PaperNav expanded={paper.slug === 'tide'} />
         </aside>
         <div className="tide-document">
-          <section id="abstract" className="tide-abstract tide-bound">
-            <h2><Localized en="Abstract" zh="摘要" /></h2>
+          <section id="overview" className="tide-abstract tide-bound" aria-labelledby="paper-overview-heading">
+            <h2 id="paper-overview-heading"><Localized {...paper.introduction.title} /></h2>
+            {paper.introduction.paragraphs.map(paragraph => (
+              <p key={paragraph.en}><Localized {...paragraph} /></p>
+            ))}
+          </section>
+          {overviewFigure}
+          {children}
+          <section id="abstract" className="tide-abstract tide-bound" aria-labelledby="paper-abstract-heading">
+            <h2 id="paper-abstract-heading"><Localized en="Paper abstract" zh="论文原摘要" /></h2>
             <div lang="en">{paper.abstract.split(abstractBreaks).map(paragraph => <p key={paragraph}>{paragraph}</p>)}</div>
           </section>
-          {paper.slug === 'tide' && (
-            <figure className="paper-intro-figure">
-              <TideCover />
-              <figcaption><Localized en="Image samples generated with TIDE (Figure 2)." zh="采用 TIDE 生成的图像样例（论文图 2）。" /></figcaption>
-            </figure>
-          )}
-          {children}
           <section className="tide-citation" id="citation">
             <div className="tide-reading">
               <div className="tide-bib-heading"><h2>BibTeX</h2><CopyButton text={paper.bibtex} /></div>
