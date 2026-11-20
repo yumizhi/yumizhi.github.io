@@ -179,8 +179,38 @@ test('case studies expose anchored design and implementation with keyboard-opera
  await page.getByRole('navigation', { name: 'Other projects' }).getByRole('link', { name: 'OriginMark' }).click();
  await expect(page.locator('#implementation').getByRole('link', { name: /TIDE/ })).toHaveAttribute('href', '/research/tide/');
  await page.goto('/projects/epub-toolkit/#implementation');
- await expect(page.locator('.epub-reassembly')).toBeVisible();
+ await expect(page.locator('.epub-merge-record')).toBeVisible();
  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+});
+
+test('technical walkthroughs reveal paths, evidence, and run stages', async ({ page }) => {
+ await page.setViewportSize({ width: 1280, height: 900 });
+ await page.goto('/projects/epub-toolkit/#implementation');
+ const flow = page.locator('.case-flow');
+ await flow.getByRole('button', { name: 'Play walkthrough' }).click();
+ await expect(flow.getByText('v2/chapters/01.xhtml', { exact: true })).toBeVisible({ timeout: 3800 });
+ await flow.getByRole('button', { name: 'Pause', exact: true }).click();
+ await expect(flow.getByRole('tab', { name: 'Merge', exact: true })).toHaveAttribute('aria-selected', 'true');
+ await page.setViewportSize({ width: 320, height: 750 });
+ expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+ await flow.getByRole('tab', { name: 'Split', exact: true }).click();
+ await expect(flow.getByRole('tabpanel', { name: 'Split' })).toContainText('Two independently readable EPUBs');
+ const disclosure = page.locator('.case-checks').getByRole('button', { name: 'The archive boundary stays explicit' });
+ await disclosure.focus();
+ await page.keyboard.press('Enter');
+ await expect(disclosure).toHaveAttribute('aria-expanded', 'true');
+
+ await page.emulateMedia({ reducedMotion: 'reduce' });
+ await page.goto('/projects/originmark/#implementation');
+ await flow.getByRole('tab', { name: 'Verify', exact: true }).click();
+ const panel = flow.getByRole('tabpanel', { name: 'Verify' });
+ await expect(panel.getByText('Detected', { exact: true })).toBeVisible();
+ await expect(panel.getByText('No credential', { exact: true })).toBeVisible();
+ await expect(panel.getByText('Not evaluated', { exact: true })).toBeVisible();
+
+ await page.goto('/projects/personal-agent/#implementation');
+ await flow.getByRole('tab', { name: 'Execute', exact: true }).click();
+ await expect(flow.getByRole('tabpanel', { name: 'Execute' }).getByText('Generate the report', { exact: true })).toBeVisible();
 });
 
 test('project detail switches real screens and expands the selected view',async({page})=>{
@@ -288,12 +318,13 @@ test('navigation responds during loading and remains interruptible',async({page}
 
 test('project window and tab indicator move continuously and accept rapid changes',async({page})=>{
  await page.setViewportSize(sizes[0]);await page.goto('/projects/epub-toolkit/');await page.locator('.project-demo').scrollIntoViewIfNeeded();await page.evaluate(()=>document.fonts.ready);await page.waitForTimeout(300);
+ const preview=page.getByRole('tablist',{name:'EPUB Toolkit screenshots'});
  const window=page.locator('.stage-window');const before=await window.boundingBox();
  await page.evaluate(()=>{const samples:number[]=[];(globalThis as unknown as {windowWidths:number[]}).windowWidths=samples;const end=performance.now()+800;function sample(){samples.push(document.querySelector('.stage-window')!.getBoundingClientRect().width);if(performance.now()<end)requestAnimationFrame(sample);}requestAnimationFrame(sample);});
- await page.getByRole('tab',{name:'Output',exact:true}).click();await page.waitForTimeout(650);const after=await window.boundingBox();const widths=await page.evaluate(()=>(globalThis as unknown as {windowWidths:number[]}).windowWidths);
+ await preview.getByRole('tab',{name:'Output',exact:true}).click();await page.waitForTimeout(650);const after=await window.boundingBox();const widths=await page.evaluate(()=>(globalThis as unknown as {windowWidths:number[]}).windowWidths);
  expect(before!.width-after!.width).toBeGreaterThan(100);expect(widths.some(w=>w<before!.width-5&&w>after!.width+5)).toBeTruthy();await expect(page.locator('.preview-tab-highlight')).toHaveCount(1);
- for(const name of ['Split','Inspect','Merge']){await page.getByRole('tab',{name,exact:true}).click();await page.waitForTimeout(60);}
- await expect(page.getByRole('tab',{name:'Merge',exact:true})).toHaveAttribute('data-state','active');await expect(page.locator('.stage-capture[aria-hidden=false] img')).toHaveAttribute('src',/epub-panel-merge/);await expect(page.locator('.stage-window')).toHaveCount(1);
+ for(const name of ['Split','Inspect','Merge']){await preview.getByRole('tab',{name,exact:true}).click();await page.waitForTimeout(60);}
+ await expect(preview.getByRole('tab',{name:'Merge',exact:true})).toHaveAttribute('data-state','active');await expect(page.locator('.stage-capture[aria-hidden=false] img')).toHaveAttribute('src',/epub-panel-merge/);await expect(page.locator('.stage-window')).toHaveCount(1);
 });
 test('continuous viewport resize preserves all preview states and inner margins',async({page})=>{
  await page.setViewportSize(sizes[0]);await page.goto('/projects/epub-toolkit/');await page.getByRole('tab',{name:'Output',exact:true}).click();await page.waitForTimeout(600);

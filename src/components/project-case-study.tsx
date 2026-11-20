@@ -1,11 +1,24 @@
 import Link from 'next/link';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { Localized } from './language';
+import { ProjectCaseEvidence } from './project-case-evidence';
 import { EpubEngineStory } from './epub-engine-story';
 import { ProjectCaseFlow } from './project-case-flow';
 import { projects, type Project } from '@/lib/content';
 import { projectStories } from '@/lib/project-stories';
 import './project-case-study.css';
+
+export function ProjectCaseExample({ slug }: { slug: string }) {
+  const story = projectStories[slug];
+  if (!story) return null;
+
+  return (
+    <aside className="case-example" aria-label="Case example">
+      <strong><Localized en="The example" zh="本文用例" /></strong>
+      <p><Localized {...story.example} /></p>
+    </aside>
+  );
+}
 
 export function ProjectCaseStudy({ project }: { project: Project }) {
   const story = projectStories[project.slug];
@@ -35,8 +48,8 @@ export function ProjectCaseStudy({ project }: { project: Project }) {
           <h2 id="case-implementation"><Localized {...story.implementationTitle} /></h2>
         </header>
 
+        {story.steps && story.workflowTitle && <ProjectCaseFlow slug={project.slug} steps={story.steps} title={story.workflowTitle} />}
         {project.slug === 'epub-toolkit' && <EpubEngineStory />}
-        {story.steps && story.workflowTitle && <ProjectCaseFlow steps={story.steps} title={story.workflowTitle} />}
 
         <div className="case-prose">
           {story.implementation.map(block => (
@@ -66,6 +79,7 @@ export function ProjectCaseStudy({ project }: { project: Project }) {
           <h2 id="case-verification"><Localized en="What we verified" zh="实际验证了什么" /></h2>
           <p><Localized {...story.verification} /></p>
         </header>
+        <ProjectCaseEvidence checks={story.checks} />
       </section>
 
       <nav className="case-other-projects" aria-label="Other projects">

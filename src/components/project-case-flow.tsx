@@ -1,21 +1,79 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Pause, Play } from 'lucide-react';
+import { ProjectTraceVisual } from './project-trace-visuals';
 import { Localized, useLanguage } from './language';
+import { Button } from './ui/coss/button';
 import { Tabs, TabsList, TabsPanel, TabsTab } from './ui/coss/tabs';
 import type { ProjectStep } from '@/lib/project-stories';
 
-export function ProjectCaseFlow({ steps, title }: { steps: ProjectStep[]; title: { en: string; zh: string } }) {
+export function ProjectCaseFlow({ slug, steps, title }: {
+  slug: string;
+  steps: ProjectStep[];
+  title: { en: string; zh: string };
+}) {
   const { language } = useLanguage();
   const reduced = useReducedMotion();
+  const figure = useRef<HTMLElement>(null);
+  const [current, setCurrent] = useState(0);
+  const [playing, setPlaying] = useState(false);
   const [hasChangedStage, setHasChangedStage] = useState(false);
 
+  useEffect(() => {
+    if (!playing) return;
+    const timer = window.setTimeout(() => {
+      if (current === steps.length - 1) setPlaying(false);
+      else {
+        setHasChangedStage(true);
+        setCurrent(current + 1);
+      }
+    }, 2200);
+    return () => window.clearTimeout(timer);
+  }, [current, playing, steps.length]);
+
+  useEffect(() => {
+    const target = figure.current;
+    if (!target) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) setPlaying(false);
+    });
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, []);
+
+  function selectStep(value: string) {
+    const index = steps.findIndex(step => step.id === value);
+    if (index < 0) return;
+    setPlaying(false);
+    setHasChangedStage(true);
+    setCurrent(index);
+  }
+
+  function togglePlayback() {
+    if (!playing && current === steps.length - 1) {
+      setHasChangedStage(true);
+      setCurrent(0);
+    }
+    setPlaying(!playing);
+  }
+
+  const animateStage = hasChangedStage && !reduced;
+  const playingLabel = playing
+    ? { en: 'Pause', zh: '暂停' }
+    : { en: 'Play walkthrough', zh: '播放流程' };
+
   return (
-    <figure className="case-flow">
-      <figcaption><Localized {...title} /></figcaption>
-      <Tabs defaultValue={steps[0].id} onValueChange={() => setHasChangedStage(true)}>
+    <figure ref={figure} className="case-flow" data-project-trace={slug}>
+      <figcaption>
+        <span><Localized {...title} /></span>
+        <Button variant="ghost" size="sm" className="case-play" onClick={togglePlayback}>
+          {playing ? <Pause size={14} aria-hidden="true" /> : <Play size={14} aria-hidden="true" />}
+          <Localized {...playingLabel} />
+        </Button>
+      </figcaption>
+      <Tabs value={steps[current].id} onValueChange={selectStep}>
         <TabsList aria-label={language === 'zh' ? title.zh : title.en} className="case-flow-steps">
           {steps.map((step, index) => (
             <TabsTab key={step.id} value={step.id} className="case-flow-step">
@@ -27,18 +85,21 @@ export function ProjectCaseFlow({ steps, title }: { steps: ProjectStep[]; title:
 
         {steps.map(step => (
           <TabsPanel key={step.id} value={step.id} className="case-flow-panel" data-case-step={step.id}>
-            <motion.div className="case-flow-reading"
-              initial={reduced || !hasChangedStage ? false : { opacity: 0, y: 4 }}
+            <motion.div className="case-flow-stage"
+              initial={animateStage ? { opacity: 0, y: 5 } : false}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reduced ? 0 : .18, ease: 'easeOut' }}>
-              <div>
-                <h3><Localized {...step.title} /></h3>
-                <p><Localized {...step.body} /></p>
+              <ProjectTraceVisual slug={slug} step={step.id} animate={animateStage} />
+              <div className="case-flow-reading">
+                <div>
+                  <h3><Localized {...step.title} /></h3>
+                  <p><Localized {...step.body} /></p>
+                </div>
+                <dl className="case-flow-output">
+                  <dt><Localized en="What this step produces" zh="这一步留下什么" /></dt>
+                  <dd><Localized {...step.output} /></dd>
+                </dl>
               </div>
-              <dl className="case-flow-output">
-                <dt><Localized en="What this step produces" zh="这一步留下什么" /></dt>
-                <dd><Localized {...step.output} /></dd>
-              </dl>
             </motion.div>
           </TabsPanel>
         ))}
