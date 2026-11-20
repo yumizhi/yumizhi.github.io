@@ -13,6 +13,7 @@ export type ProjectStory = {
   designTitle: Bilingual;
   design: StoryBlock[];
   implementationTitle: Bilingual;
+  implementationLead: Bilingual;
   implementation: StoryBlock[];
   steps?: ProjectStep[];
   workflowTitle?: Bilingual;
@@ -23,8 +24,8 @@ export type ProjectStory = {
 export const projectStories: Record<string, ProjectStory> = {
   'epub-toolkit': {
     example: {
-      en: 'Take two volumes that both contain chapters/01.xhtml and reference the same font. The collection should have two distinct chapters, one shared font, and enough information to rebuild either volume on its own.',
-      zh: '假设两卷书都包含 chapters/01.xhtml，也都引用内容相同的字体。合集中应该保留两个独立章节、共用一份字体，同时留下足够的信息，让两卷都能独立重建。',
+      en: 'A series spread across separate EPUBs is awkward to read straight through. Combining the volumes makes navigation easier, but readers may still want to export a single volume later. EPUB Toolkit keeps the source structure alongside the combined table of contents, so organizing the series remains reversible.',
+      zh: '一套书拆成多个 EPUB，读到卷末就得换文件。合成一册之后，目录可以连续阅读，日后也可以只取出其中一卷。EPUB Toolkit 在生成合集目录的同时保存原卷结构，让两种读法可以来回切换。',
     },
     workflowTitle: { en: 'Follow the chapter paths through merge and split', zh: '沿着章节路径查看合并与拆分' },
     steps: [
@@ -63,10 +64,10 @@ export const projectStories: Record<string, ProjectStory> = {
     designTitle: { en: 'Let readers check the book before exporting', zh: '先确认阅读顺序，再导出' },
     design: [
       {
-        title: { en: 'Make the table of contents part of the decision', zh: '把目录做成合并前的预览' },
+        title: { en: 'Table of contents preview', zh: '合并前的目录预览' },
         body: {
-          en: 'The upload area starts with one choice: add books. Once the files arrive, the queue, book details and table of contents appear together. Reordering volumes or switching between grouped and continuous navigation changes the preview, so readers can see where each chapter will land before writing the collection.',
-          zh: '空工作台先只给一个入口：添加书籍。读取文件后，分卷队列、书籍信息和目录预览同时出现。调整卷序，或切换分组与连续目录时，预览随之更新。读者在导出前就能确认每一章会出现在什么位置。',
+          en: 'After files are selected, the workspace displays the volume list, book details and a table of contents. Reordering the volumes or switching between grouped and continuous navigation updates that table immediately. A reader can catch an unexpected volume order before exporting.',
+          zh: '选书后，分卷列表、书籍信息和目录预览会一起出现。调整卷序，或在分组目录与连续目录之间切换，预览会即时更新。卷序不对时，导出之前就能发现。',
         },
       },
       {
@@ -77,27 +78,17 @@ export const projectStories: Record<string, ProjectStory> = {
         },
       },
     ],
-    implementationTitle: { en: 'Rebuild the package and keep its source mapping', zh: '重建书籍包，并保存分卷映射' },
+    implementationTitle: { en: 'Two chapters and one shared font', zh: '两份同名章节与一份共用字体' },
+    implementationLead: {
+      en: 'In this example, both volumes contain chapters/01.xhtml and byte-identical copies of one font. The merger preserves both chapters and stores the font once. Splitting copies it back into each volume and restores its local links.',
+      zh: '这个例子里，两卷书都有 chapters/01.xhtml，也各自带了一份相同的字体。合并时保留两个章节，字体只存一份。重新拆卷时，再把字体放回各卷，恢复原有的引用。',
+    },
     implementation: [
       {
-        title: { en: 'Resolve collisions before rewriting links', zh: '先处理路径冲突，再改写引用' },
+        title: { en: 'Restored local links', zh: '拆分后恢复本地链接' },
         body: {
-          en: 'Two volumes can both contain a chapter or cover with the same filename. The engine remaps each volume’s paths before rebuilding its links. It stores byte-identical images and plain fonts once, keyed by media type and content hash. The rewritten chapter still points to the correct resource after a path changes.',
-          zh: '两卷书可能都有同名的章节或封面。引擎先为各卷分配新路径，再重建引用。按媒体类型和内容哈希识别内容完全相同的图片与普通字体，合并后只存一份。路径改变后，章节仍指向正确的资源。',
-        },
-      },
-      {
-        title: { en: 'Define what can be recovered', zh: '明确能恢复到什么程度' },
-        body: {
-          en: 'The package document inventories each book’s resources and defines its reading order. During merge, the engine records each volume’s original paths, order, navigation and rewritten references. Split uses that record to rebuild readable volumes and their assets. The reconstructed package metadata and ZIP serialization can differ from the input files.',
-          zh: 'EPUB 的包文档登记资源并定义阅读顺序。合并时，引擎记录每卷的原始路径、阅读顺序、目录和改写过的引用。拆分按这份记录重建可读的分卷及资源，重新生成的包元数据与 ZIP 封装可以和原文件不同。',
-        },
-      },
-      {
-        title: { en: 'Separate the workspace from the processing engine', zh: '界面和文件处理各自负责什么' },
-        body: {
-          en: 'React owns the file queue and previews. A Web Worker runs the TypeScript archive engine and reports progress back to the page. The Node CLI shares that engine, and a separate Python implementation reads and writes the same merge record. Offline caching saves the application shell and processing code. Book files live in the current browser session.',
-          zh: 'React 管理选书队列与预览，Web Worker 运行 TypeScript 归档引擎并向界面报告进度。Node 命令行复用这套引擎，独立的 Python 实现也能读写同一种合并记录。离线缓存保存应用界面和处理代码，书籍文件留在当前浏览器会话。',
+          en: 'Within the collection, the two chapters live under v1/ and v2/. A stylesheet can now reach the common font through a different relative path. The split tool follows the saved mapping to place the font back in each output and restores the stylesheet’s local reference.',
+          zh: '合集中，两份章节分别位于 v1/ 和 v2/。样式表可能已经改用一条新的相对路径访问同一份字体。拆分引擎按记录把字体放回各卷原来的位置，再恢复样式表中的指向。',
         },
       },
     ],
@@ -108,8 +99,8 @@ export const projectStories: Record<string, ProjectStory> = {
   },
   originmark: {
     example: {
-      en: 'Start with the ceramic teapot from the Studio demo. Its generation produces a clean reference and a marked image. In the verification example, the marked file returns a TIDE detection, while credential and issuer information remain separate.',
-      zh: '从演示里的陶瓷茶壶出发。生成环节产出无水印参考图和带水印图。验证这张图时，报告给出 TIDE 水印结果，同时单独报告内容凭证与签发者信息。',
+      en: 'A generated image usually leaves the system that made it. A verifier later sees the file on its own. OriginMark connects those ends of the workflow: one image can be generated, brought back from the library for protection and checked again from the resulting file.',
+      zh: '图像生成后，通常还会被下载、转发或交给另一套工具。别人拿到的往往只有文件。OriginMark 把这一过程放在同一个工作台里，一张生成图可以从素材库取出来做保护，再用输出文件就地核验。',
     },
     checks: [
       {
@@ -131,15 +122,19 @@ export const projectStories: Record<string, ProjectStory> = {
         },
       },
       {
-        title: { en: 'Show the evidence behind a verdict', zh: '把验证结论拆回不同证据' },
+        title: { en: 'Evidence in the verification panel', zh: '验证页的证据展示' },
         body: {
-          en: 'A watermark result answers a different question from a signed content credential. The Verify screen reports watermark evidence, signature integrity and issuer trust separately. When a detector is still running or lacks a matching calibration, the interface retains the other results and shows the unresolved check on its own.',
-          zh: '水印检测和签名内容凭证回答的问题不同。验证页分别展示水印证据、签名完整性和签发者是否可信。某个检测器还在运行或缺少匹配的校准时，页面保留其他已获得的证据，并单独显示尚未确定的项目。',
+          en: 'Verify has separate entries for the watermark, signature integrity and issuer trust. When a detector is still running or lacks a matching calibration, the interface retains the other results and shows the unresolved check on its own.',
+          zh: '验证页为水印检测、签名完整性和签发者信任分别保留一项结果。某个检测器还在运行或缺少匹配的校准时，页面保留其他已获得的证据，并单独显示尚未确定的项目。',
         },
       },
     ],
-    implementationTitle: { en: 'From a Studio action to verifiable output', zh: '一次工作台操作怎样产出可验证文件' },
-    workflowTitle: { en: 'The image and its evidence move together', zh: '图像与证据如何沿流程流转' },
+    implementationTitle: { en: 'The teapot through generation and verification', zh: '茶壶图像的生成、保护与核验' },
+    implementationLead: {
+      en: 'The Studio demo starts with the same prompt and seed to produce two PNGs. The marked image can be verified as generated, or reused as input to a separate protection run that embeds a watermark and attaches a credential.',
+      zh: '工作台用同一组提示词和随机种子生成两张 PNG。带水印的那张可以直接送检，也可以作为另一次保护操作的输入，写入水印并附加签名凭证。',
+    },
+    workflowTitle: { en: 'Studio walkthrough', zh: '工作台演示' },
     steps: [
       {
         id: 'generate',
@@ -174,17 +169,10 @@ export const projectStories: Record<string, ProjectStory> = {
     ],
     implementation: [
       {
-        title: { en: 'Keep model execution outside the request', zh: '让模型计算独立于网页请求' },
+        title: { en: 'A release tied to the downloaded file', zh: '发布记录对应实际下载文件' },
         body: {
-          en: 'The API records the operation and its input snapshot in PostgreSQL, then places the work on a durable queue. Separate workers execute the selected model. Studio subscribes to persisted run events, so a viewer can leave and later reopen the same operation with its state and outputs.',
-          zh: 'API 在 PostgreSQL 中保存操作与输入快照，再将计算任务交给持久化队列。独立的处理进程运行相应模型。工作台订阅已经记录的运行事件，用户离开页面再回来时，仍可以打开同一次操作及其产物。',
-        },
-      },
-      {
-        title: { en: 'Define the publication boundary', zh: '区分生成产物与正式发布' },
-        body: {
-          en: 'Generation produces reusable files. Formal protection adds a release record only after final-file validation and credential checks. A retry gets its own execution attempt. The published artifact and its evidence remain tied to the file that passed validation.',
-          zh: '生成阶段产出可复用的图像。正式保护只有在最终文件验证和凭证检查完成后，才登记发布记录。重试会创建独立的执行尝试，已登记的产物及证据始终对应当时通过验证的文件。',
+          en: 'The protected PNG and the generated PNG have separate artifact records in the library. Verify reads the bytes it receives. In the demo, the TrustMark payload recovered from the signed file matched the registered release. That match links the file back to the protection run.',
+          zh: '生成的 PNG 与保护之后的 PNG 在素材库里各有一条记录。验证以收到的文件为准。演示里，工具从已签名文件中读回 TrustMark 载荷，并匹配到登记的发布记录。沿着这条记录就能回到保护操作。',
         },
       },
     ],
@@ -195,8 +183,8 @@ export const projectStories: Record<string, ProjectStory> = {
   },
   'personal-agent': {
     example: {
-      en: 'A member asks for a recurring inspection brief for a sample pump. Days later, opening the report has to answer three questions: which plan started the run, which records it used, and where the result was delivered.',
-      zh: '一位成员请助手定期整理演示泵组的巡检简报。隔几天打开报告时，仍要能回答三个问题：哪份计划启动了本次执行、报告用到了哪些资料、结果投递到了哪里。',
+      en: 'A member delegates a recurring inspection brief for the P-17 pump. Days later, the report still opens with the plan that launched its run, the sources it cited and the inbox receipt. Assigning the work can start in Chat, and the report remains available after the conversation has moved on.',
+      zh: '成员把 P-17 泵组的巡检简报交给助手定期整理。几天后打开简报，仍能查到当时的计划、引用资料和投递回执。任务可以从对话里交办，交付结果则可以单独从工作区找回。',
     },
     checks: [
       {
@@ -218,14 +206,18 @@ export const projectStories: Record<string, ProjectStory> = {
         },
       },
       {
-        title: { en: 'Show what happened before asking for trust', zh: '让结果能追溯到执行与原文' },
+        title: { en: 'Reports and their evidence', zh: '报告与执行依据' },
         body: {
           en: 'A result opens as a readable report. Its citations point to the source lines retrieved by that run, and the run panel shows completed steps, pending approvals and delivery. Progress comes from recorded events, with a compact view for the reader and step details available on demand.',
           zh: '交付先以可阅读的报告呈现。正文引用可以打开本次运行检索到的来源行，执行面板再按需展开已完成步骤、待审批操作和投递状态。进度来自真实记录，读者可以先看结果，需要时再查过程。',
         },
       },
     ],
-    implementationTitle: { en: 'Turn a conversation into a recoverable scheduled run', zh: '如何把一段对话变成可恢复的定时执行' },
+    implementationTitle: { en: 'The P-17 inspection brief', zh: 'P-17 巡检简报的执行过程' },
+    implementationLead: {
+      en: 'The inspection assistant uses the equipment register and maintenance manual from the demo project. The member confirms the app, equipment and recipient before scheduling the brief. Each later execution produces a report tied to the actual records it used.',
+      zh: '巡检助手读取演示项目的设备台账和维护手册。成员核对应用、设备和接收人后再安排排期。每次执行都会生成一份报告，并随报告保存此次查阅的资料。',
+    },
     workflowTitle: { en: 'The scheduled inspection example', zh: '以定时设备巡检报告为例' },
     steps: [
       {
@@ -261,17 +253,10 @@ export const projectStories: Record<string, ProjectStory> = {
     ],
     implementation: [
       {
-        title: { en: 'Persist the connection between schedule and run', zh: '保存排期与执行之间的关联' },
+        title: { en: 'Run state in the workspace', zh: '工作区里的执行状态' },
         body: {
-          en: 'The self-hosted Node.js service stores approved plans and run associations in SQLite. A worker executes the application independently of the browser. After a scheduler restart, the persisted association lets it resume following the existing run. Publishing a new app version prompts the member to review and reapprove an older plan before it can use the new version.',
-          zh: '自托管的 Node.js 服务在 SQLite 中保存已批准计划及其运行关联，执行不依赖网页一直打开。调度器重启后可以继续跟踪已经启动的运行。应用发布新版本后，旧计划要切到新版时，需要成员重新核对并批准。',
-        },
-      },
-      {
-        title: { en: 'Use recorded state as interface state', zh: '让界面跟着真实运行状态变化' },
-        body: {
-          en: 'The mode switch and search use coss UI controls for keyboard navigation. Reading and selection transitions use Motion. The run view takes its statuses from the stored step records. That gives waiting for approval, completed work and delivered results distinct states.',
-          zh: '模式切换和搜索接入 coss UI 的键盘交互，阅读与选中状态用 Motion 做过渡。执行界面的状态直接来自步骤记录，因此等待批准、任务完成和已投递会在不同阶段显示。',
+          en: 'A run can be waiting for approval while the chat that created the plan is closed. The workbench reads the saved step state and shows the pending action. A completed report and a successful delivery have their own records, so the workspace can show a finished run before the report reaches its destination.',
+          zh: '创建计划的对话关掉以后，任务仍可能在等审批。工作区读取已保存的步骤状态，展示待处理的操作。报告生成和投递成功分别留有记录，因此界面也能显示已经执行完、还在等待发送的任务。',
         },
       },
     ],

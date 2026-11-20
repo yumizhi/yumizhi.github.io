@@ -144,15 +144,6 @@
   .case-flow-step svg { display: none; }
 }
 
-.case-example {
-  max-inline-size: var(--editorial-copy-width);
-  margin: 1.5rem auto 0;
-  padding: .15rem 0 .1rem 1rem;
-  border-inline-start: 2px solid color-mix(in srgb, var(--portfolio-link) 47%, var(--border));
-}
-.case-example strong { color: var(--portfolio-link); font-size: .8125rem; font-weight: 670; }
-.case-example p { margin: .375rem 0 0; color: var(--portfolio-ink); font-size: 1rem; line-height: 1.62; text-wrap: pretty; }
-
 .case-flow {
   max-inline-size: 51.5rem;
   border: 1px solid var(--border);
