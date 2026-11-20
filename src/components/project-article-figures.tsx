@@ -1,10 +1,11 @@
 import Image from 'next/image';
-import { ArrowLeftRight, ArrowRight, Check, CircleMinus, Clock3, Cpu, FileCode2, FileText, Inbox, Link2, Monitor, RotateCcw, ShieldX } from 'lucide-react';
+import { ArrowLeftRight, ArrowRight, Check, CircleMinus, Clock3, Cpu, FileCode2, FileText, Inbox, Link2, MessageSquare, Monitor, RotateCcw, ShieldX } from 'lucide-react';
 import { Fragment, type ReactNode } from 'react';
 import { asset } from '@/lib/paths';
 import type { ArticleFigure } from '@/lib/project-chapters';
 import { Localized as Text } from './language';
 import { Diagram, FlowArrow } from './project-architecture';
+import { AgentRuntimeTrace } from './agent-runtime-trace';
 import './project-article-figures.css';
 
 function EpubWorkerFigure() {
@@ -182,6 +183,65 @@ function AgentReportEvidence() {
   );
 }
 
+function AgentWorkflowData() {
+  return (
+    <Diagram id="agent-workflow-data"
+      title={{ en: 'A maintenance workflow assembles a brief', zh: '设备维护流程中的数据交接' }}
+      caption={{
+        en: 'This graph illustrates the workflow contract. Each edge carries the results of a completed predecessor in the same run.',
+        zh: '图中是维护流程的配置示意。连线表示下游读取同一次运行中已完成的上游结果。',
+      }}>
+      <div className="article-path-map">
+        <div className="article-channel-input">
+          <div><strong><Text en="Equipment lookup" zh="查设备台账" /></strong><code>record</code></div>
+          <div><strong><Text en="Manual search" zh="检索维护手册" /></strong><code>citations</code></div>
+        </div>
+        <FlowArrow />
+        <div className="article-thread">
+          <div className="article-thread-title"><Cpu size={18} aria-hidden="true" /><strong><Text en="Versioned Agent node" zh="固定版本的 Agent 节点" /></strong></div>
+          <p><Text en="Use the record and excerpts to prepare a brief" zh="结合台账与来源摘录撰写简报" /></p>
+          <code>summary · evidence</code>
+        </div>
+        <FlowArrow />
+        <div className="article-thread">
+          <div className="article-thread-title"><FileText size={18} aria-hidden="true" /><strong><Text en="Artifact step" zh="成果节点" /></strong></div>
+          <p><Text en="Save the brief and its evidence under the same run" zh="在同一次运行下保存简报与证据" /></p>
+        </div>
+      </div>
+    </Diagram>
+  );
+}
+
+function AgentMessageTransport() {
+  return (
+    <Diagram id="agent-message-transport"
+      title={{ en: 'Different chat transports, one persisted inbox', zh: '不同的接入方式，共用持久收件箱' }}
+      caption={{
+        en: 'For a published app invoked from a bound private chat, the message key identifies the invocation. A later lookup can continue following the same run.',
+        zh: '从绑定私聊调用已发布应用时，消息键也用作调用键。之后查询可以继续跟踪同一次运行。',
+      }}>
+      <div className="article-path-map agent-channel-map">
+        <div className="article-channel-input">
+          <div><strong>QQ</strong><code>WebSocket</code></div>
+          <div><strong><Text en="WeChat" zh="微信" /></strong><code><Text en="Long poll · cursor" zh="长轮询 · 查询游标" /></code></div>
+        </div>
+        <FlowArrow />
+        <div className="article-thread">
+          <div className="article-thread-title"><MessageSquare size={18} aria-hidden="true" /><strong><Text en="Channel gateway" zh="渠道网关" /></strong></div>
+          <p><Text en="Normalize, deduplicate and order per peer" zh="归一化、去重、保持会话内顺序" /></p>
+          <code>inbox · receipts</code>
+        </div>
+        <FlowArrow />
+        <div className="article-thread">
+          <div className="article-thread-title"><Cpu size={18} aria-hidden="true" /><strong><Text en="Published app" zh="已发布应用" /></strong></div>
+          <p><Text en="Open the existing run or submit a new invocation" zh="查找已有运行，或提交一次新调用" /></p>
+          <code>key → run ID</code>
+        </div>
+      </div>
+    </Diagram>
+  );
+}
+
 export function ProjectArticleFigure({ figure }: { figure: ArticleFigure }) {
   switch (figure) {
     case 'epub-worker-handoff': return <EpubWorkerFigure />;
@@ -190,5 +250,8 @@ export function ProjectArticleFigure({ figure }: { figure: ArticleFigure }) {
     case 'originmark-lease-recovery': return <LeaseRecovery />;
     case 'agent-run-link': return <AgentRunLink />;
     case 'agent-report-evidence': return <AgentReportEvidence />;
+    case 'agent-runtime-trace': return <AgentRuntimeTrace />;
+    case 'agent-workflow-data': return <AgentWorkflowData />;
+    case 'agent-message-transport': return <AgentMessageTransport />;
   }
 }

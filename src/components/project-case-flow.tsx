@@ -59,6 +59,7 @@ export function ProjectCaseFlow({ slug, steps, title }: {
     setPlaying(!playing);
   }
 
+  const canPlay = slug === 'epub-toolkit';
   const animateStage = hasChangedStage && !reduced;
   const playingLabel = playing
     ? { en: 'Pause', zh: '暂停' }
@@ -68,10 +69,10 @@ export function ProjectCaseFlow({ slug, steps, title }: {
     <figure ref={figure} className="case-flow" data-project-trace={slug}>
       <figcaption>
         <span><Localized {...title} /></span>
-        <Button variant="ghost" size="sm" className="case-play" onClick={togglePlayback}>
+        {canPlay && <Button variant="ghost" size="sm" className="case-play" onClick={togglePlayback}>
           {playing ? <Pause size={14} aria-hidden="true" /> : <Play size={14} aria-hidden="true" />}
           <Localized {...playingLabel} />
-        </Button>
+        </Button>}
       </figcaption>
       <Tabs value={steps[current].id} onValueChange={selectStep}>
         <TabsList aria-label={language === 'zh' ? title.zh : title.en} className="case-flow-steps">
@@ -96,7 +97,7 @@ export function ProjectCaseFlow({ slug, steps, title }: {
                   <p><Localized {...step.body} /></p>
                 </div>
                 <dl className="case-flow-output">
-                  <dt><Localized en="What this step produces" zh="这一步留下什么" /></dt>
+                  <dt><Localized en="Result" zh="产物" /></dt>
                   <dd><Localized {...step.output} /></dd>
                 </dl>
               </div>

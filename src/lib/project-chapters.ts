@@ -1,9 +1,10 @@
 export type Bilingual = { en: string; zh: string };
 
 export type ArticleFigure = 'epub-worker-handoff' | 'epub-path-roundtrip' | 'originmark-teapot-report' |
-  'originmark-lease-recovery' | 'agent-run-link' | 'agent-report-evidence';
+  'originmark-lease-recovery' | 'agent-run-link' | 'agent-report-evidence' | 'agent-runtime-trace' |
+  'agent-workflow-data' | 'agent-message-transport';
 
-export type Chapter = { title: Bilingual; paragraphs: Bilingual[]; figure?: ArticleFigure };
+export type Chapter = { title: Bilingual; paragraphs: Bilingual[]; id?: string; figure?: ArticleFigure };
 
 type TechnicalArticle = {
   architectureTitle: Bilingual;
@@ -386,10 +387,10 @@ export const projectChapters: Record<string, TechnicalArticle> = {
     ],
   },
   'personal-agent': {
-    architectureTitle: { en: 'Scheduled runs and delivery records', zh: '定时运行与交付记录' },
+    architectureTitle: { en: 'Model turns, workflow steps and message delivery', zh: '模型回合、工作流步骤与消息投递' },
     architectureLead: {
-      en: 'The pump inspection brief starts in the member workspace and runs later in the background. The approved plan records the application version, schedule and recipient. Each delivery keeps a link to the particular run that produced it.',
-      zh: '泵组巡检在成员工作区交办，到点后才由后台执行。批准后的计划记录应用版本、执行时间和收件人。每次报告投递都保留指向原运行的链接。',
+      en: 'A scheduled report starts with an approved app version and ends with a receipt. In between, the platform has to drive a workflow, execute individual model turns and keep their evidence available after either a worker or chat client disconnects.',
+      zh: '一份定时报告，从选定应用版本到收件箱回执，中间要过三道边界。工作流负责推进步骤，模型运行时负责一轮内的工具调用，消息通道负责把结果送到成员手里。这三段可以在不同时间恢复，最后用同一条运行记录对起来。',
     },
     architecture: [
       {
@@ -402,6 +403,59 @@ export const projectChapters: Record<string, TechnicalArticle> = {
           {
             en: 'Project membership grants the rights a run can use. A member can start a published app with the appropriate access, while editing releases and approving writes are distinct project roles. The server checks those rights on execution and again when accessing a result. That matters in a shared workspace where the person who builds a workflow, the person who schedules it and the person who approves a write can be different people.',
             zh: '运行可用的权限来自项目成员身份。成员在获授权后可以启动已发布的应用，编辑或发布版本、审批外部写入则是不同的项目权限。服务端在执行前检查，也会在访问成果时重新核对。在共享工作区里，编排工作流、安排任务和批准写入往往由不同的人负责。',
+          },
+        ],
+      },
+      {
+        id: 'agent-pi-runtime',
+        title: { en: 'A Pi loop inside a workflow step', zh: 'Pi 循环嵌在一个工作流节点里' },
+        figure: 'agent-runtime-trace',
+        paragraphs: [
+          {
+            en: 'The runtime adapter creates a fresh instance of Pi’s Agent for the step. Pi supplies the model and tool loop: it sends the messages and tool definitions to the provider, receives a tool request, adds the tool result to the turn and continues until the model ends the exchange. The project loads the pinned Agent definition, selects a model from the member’s authorized aliases, and hands Pi the configured provider stream. For a deployed app, each model request also rechecks the release’s model grant and reserves usage before it goes out.',
+            zh: '工作流走到一个 Agent 节点时，适配器为这一步创建一个新的 Pi Agent。模型调用和工具循环由 Pi 提供：模型收到消息与工具定义，发起一次工具调用，Pi 把工具结果放回本轮上下文，再继续请求模型，直到本轮结束。项目要交给 Pi 的是已有授权的模型、供应商流接口和固定版本的 Agent 定义。对已部署应用，每次请求发出前还会复查部署的模型授权，并预占当日用量。',
+          },
+          {
+            en: 'The engine prepares three pieces of input: the task, the collected business records and a bounded set of cited excerpts. It wraps authorized read capabilities as Pi tools. A tool call passes back through the engine, which checks the current run and project scope, validates the payload and records the outcome. Pi reports usage at turn boundaries. In debug runs the adapter also batches visible text deltas and writes them as trace events. The finished step has a separate record with the summary, sources, model and usage.',
+            zh: '调用开始前，引擎先备好三部分输入：任务原文、业务记录，以及限量的来源摘录。项目把获授权的只读能力包装成 Pi 工具；真正调用时，仍回到引擎核对当前运行和项目范围、验证参数并记录结果。Pi 在每轮结束时回报用量。草稿调试还会把用户可见的文本增量分批记入追踪事件。一步结束后，系统另外保存摘要、来源、模型与用量，这份记录才供后续节点和运行详情读取。',
+          },
+          {
+            en: 'P-17 uses the local evidence adapter under the same runtime contract. It reads the configured tool and assembles its report from the returned records and source excerpts. The scheduled acceptance therefore exercises the path from trigger to receipt with fixed data. Separate protocol tests exercise the Pi adapter with a controlled provider. This division makes failures easier to locate: a missing receipt can be investigated independently of the model’s ability to write a useful brief.',
+            zh: 'P-17 验收在同一个运行时契约下选用本地证据适配器。它调用指定的读取工具，用返回记录和来源摘录组装简报，所以可以用固定数据检查整条调度与投递链路。另有协议测试通过受控供应商覆盖 Pi 的调用。这样排查少了一层猜测：收件箱收不到简报时，可以单独检查调度、运行与回执，不必先从模型生成质量查起。',
+          },
+        ],
+      },
+      {
+        id: 'agent-workflow-handoff',
+        title: { en: 'Information passes through committed step results', zh: '节点通过已提交的结果接力' },
+        figure: 'agent-workflow-data',
+        paragraphs: [
+          {
+            en: 'A workflow can pin different Agent versions at different nodes. When advancing a node, the engine walks back through the graph and loads completed ancestor outputs for this run. It collects business records, citations and structured values into context. An artifact step can also read the latest upstream summary. Each Agent runtime gets its own input, the records and evidence selected for that step, and a list of available tools. The Agent session starts fresh at each node, and the artifact reads the upstream summary through the workflow context.',
+            zh: '工作流的不同节点可以绑定不同的 Agent 版本。推进一个节点时，引擎顺着图往回找，只读本次运行中已完成的上游步骤，把业务记录、引用和结构化值整理成上下文。成果节点还可以读取最近一份上游摘要。每个 Agent 运行时收到的是这一步所需输入、记录、证据和可用工具，每个节点会新建自己的 Pi 会话，上游摘要则由成果节点从工作流上下文读取。',
+          },
+          {
+            en: 'For a maintenance workflow, a read node can return the equipment record, a knowledge node can attach manual excerpts, and the Agent can use both to prepare the brief. The artifact node gathers the resulting summary and evidence under the same run. Because the links are explicit, the run view can show which steps supplied records and which step wrote the summary. The runner can checkpoint those handoffs in SQLite and resume at the next eligible node.',
+            zh: '以设备维护工作流为例，读取节点可以返回设备记录，知识节点可以附上手册摘录，Agent 再据此整理简报。成果节点把摘要和证据收进同一次运行。运行详情里能看到设备记录来自哪一步、摘要由哪一步生成。引擎把这些交接写成 SQLite 检查点，恢复时沿已完成的结果找到下一个可执行节点。',
+          },
+        ],
+      },
+      {
+        id: 'agent-messages',
+        title: { en: 'Channel messages and workflow events', zh: '渠道消息与工作流事件' },
+        figure: 'agent-message-transport',
+        paragraphs: [
+          {
+            en: 'The QQ adapter receives gateway events over the bot SDK’s WebSocket. WeChat uses long polling. When a WeChat response arrives, its messages and the next cursor are saved together in one SQLite transaction. Both adapters pass normalized messages to the same gateway. It derives a deduplication key from the channel account, peer and source message ID, with group context where applicable. Pending messages from one peer remain ordered, while a transport retry can reuse an already computed reply.',
+            zh: 'QQ 通过机器人 SDK 的 WebSocket 接收网关事件，微信走长轮询。微信返回一批消息时，入箱与推进查询游标会在同一笔 SQLite 事务里完成。两个适配器再把消息交给同一个网关。网关根据渠道账号、会话来源和原消息编号生成去重键，群聊还会纳入群上下文。同一会话的待处理消息保持顺序，发送失败重试时也可以复用已经算好的回复。',
+          },
+          {
+            en: 'A bound private chat can invoke a published app. Its message key becomes the invocation key, so checking a queued or running reply can follow the existing run. The channel receives a reply or a waiting status, together with the run reference. Inside the application, the steps still communicate through saved state and evidence. Studio reads that durable record to show progress. The platform can finish the run even if the chat transport or the browser has disconnected.',
+            zh: '绑定后的私聊可以调用已发布应用，入站消息的去重键也会成为调用键。轮询一条还在排队的回复时，可以接着查原来的运行。渠道收到的是答复或等待状态，以及对应运行的编号。应用内部仍然通过保存的步骤结果与证据推进，Studio 则读取这些记录展示进度。聊天连接断开或浏览器关闭之后，应用可以继续跑。',
+          },
+          {
+            en: 'The project also includes a Kafka-to-webhook example for event-driven entry. It derives a stable key from the topic, partition and offset, and commits the offset only after the application endpoint accepts the event. If that acknowledgement is lost, the consumer can present the same key again. Scheduled delivery has its own receipt and uncertainty state. That keeps a completed run, a channel acknowledgement and a reader opening the result as distinct events.',
+            zh: '事件入口还有一个 Kafka 到 Webhook 的接入示例。桥接器用主题、分区和 offset 生成稳定的调用键，等应用接口接受事件之后才提交 offset。确认丢失时，消费端可以带同一个键重新提交。定时成果的发送另有投递回执和不确定状态，因而应用执行结束、渠道接受消息、收件人打开报告是三个分别留痕的事件。',
           },
         ],
       },
