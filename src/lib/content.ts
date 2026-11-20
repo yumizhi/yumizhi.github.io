@@ -54,7 +54,7 @@ export const papers: Paper[] = [
 ];
 export type Project = {
  slug:string;title:string;category:string;year:number;summary:string;description:string;image:string;imageAlt:string;gallery:string[];
- repo?:string;demo?:string;release?:string;features:{title:string;titleZh:string;description:string;descriptionZh:string}[];technology:string;categoryZh?:string;summaryZh?:string;descriptionZh?:string;technologyZh?:string;
+ repo?:string;demo?:string;release?:string;technology:string;categoryZh?:string;summaryZh?:string;descriptionZh?:string;technologyZh?:string;
  cardSummary?:{en:string;zh:string};
  previews?:{id:string;label:string;labelZh?:string;image:string;width:number;height:number;mobile?:string;mobileWidth?:number;mobileHeight?:number;alt:string;caption?:string;captionZh?:string}[];
 };
@@ -76,11 +76,6 @@ export const projects:Project[] = [{
   repo: 'https://github.com/yumizhi/lightweight_epub_merge_tool',
   demo: 'https://yumizhi.github.io/lightweight_epub_merge_tool/',
   release: 'https://github.com/yumizhi/lightweight_epub_merge_tool/releases',
-  features: [
-    {title:'Merge',titleZh:'合并分卷',description:'Arrange books in reading order and combine them into one EPUB, with a grouped or continuous table of contents.',descriptionZh:'调整书籍的阅读顺序，合并为一个 EPUB。目录可以按书分组，也可以使用连续的章节列表。'},
-    {title:'Split',titleZh:'还原单册',description:'Restore the individual volumes of a collection previously merged with this toolkit.',descriptionZh:'将本工具合并的合集拆回单册，单独下载或打包保存。'},
-    {title:'Inspect',titleZh:'查看结构',description:'Explore a book’s metadata, chapter navigation, and packaged files.',descriptionZh:'查看书名、作者等元数据，以及章节导航和书籍内部的文件结构。'},
-  ],
   technology: 'The web app supports offline use. Python and Node.js command-line tools are also available.',
   technologyZh:'支持离线使用，也提供 Python 和 Node.js 命令行工具。',
 
@@ -98,11 +93,6 @@ export const projects:Project[] = [{
       alt: 'OriginMark comparison canvas with clean and watermarked TIDE outputs', caption: 'A clean and watermarked pair in the demo workspace.', captionZh: '演示空间中的无水印与带水印图像对照。' },
     { id: 'verify', label: 'Verify', labelZh: '验证', image: '/images/projects/originmark-verify.webp', width: 972, height: 690,
       alt: 'OriginMark verification preview with separate watermark and content-credential results', caption: 'Watermark evidence and content credentials are reported separately.', captionZh: '水印证据和内容凭证分别呈现。' },
-  ],
-  features: [
-    { title: 'Generate', titleZh: '生成图像', description: 'Compare clean and TIDE-watermarked images from the same generation setup.', descriptionZh: '对照同一生成设置下的无水印与 TIDE 水印图像。' },
-    { title: 'Protect', titleZh: '保护图片', description: 'Apply a watermark to an existing image and inspect the resulting artifact.', descriptionZh: '给已有图片添加水印，查看处理后的图像。' },
-    { title: 'Verify', titleZh: '查看证据', description: 'Read watermark evidence and signed content credentials as separate checks.', descriptionZh: '分别查看水印证据和签名内容凭证。' },
   ],
   technology: 'Source code is private.',
   technologyZh: '源码暂未公开。',
@@ -122,11 +112,6 @@ export const projects:Project[] = [{
       alt: 'Personal Agent demo assistant directory with actions for chatting and scheduling work', caption: 'Start a conversation with an assistant or schedule work from its entry.', captionZh: '从助手目录发起会话或安排定时工作。' },
     { id: 'runs', label: 'Run history', labelZh: '执行记录', image: '/images/projects/personal-agent-runs.webp', width: 487, height: 734,
       alt: 'Personal Agent demo run panel with completed execution steps and a delivery receipt', caption: 'A demo task with recorded execution steps and its delivery receipt.', captionZh: '演示任务的实际执行步骤和交付回执。' },
-  ],
-  features: [
-    { title: 'Chat', titleZh: '聊天', description: 'Resume an earlier conversation or choose an available model in the composer.', descriptionZh: '继续之前的会话，或在输入区选择可用模型。' },
-    { title: 'Delegate', titleZh: '交办任务', description: 'Find an assistant and start a conversation or schedule recurring work.', descriptionZh: '找到合适的助手，发起会话或安排定时工作。' },
-    { title: 'Review results', titleZh: '回看结果', description: 'Find a delivered result and inspect the steps that produced it.', descriptionZh: '打开已交付成果并回看对应的执行步骤。' },
   ],
   technology: 'Source code is private.',
   technologyZh: '源码暂未公开。',

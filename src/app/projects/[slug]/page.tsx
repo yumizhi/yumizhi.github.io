@@ -1,14 +1,16 @@
 import {absoluteURL} from '@/lib/paths';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { ChevronRight,ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { projects } from '@/lib/content';
 import { TransitionLink } from '@/components/providers';
 import { ProjectGallery } from '@/components/project-gallery';
 import { ProjectStage } from '@/components/project-stage';
 import { Button } from '@/components/ui/button';
 import { Localized } from '@/components/language';
-import { EpubEngineStory } from '@/components/epub-engine-story';
+import { ProjectCaseStudy } from '@/components/project-case-study';
+import { ProjectCaseContents } from '@/components/project-case-contents';
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator } from '@/components/ui/coss/breadcrumb';
 import '../../portfolio-editorial.css';
 export function generateStaticParams(){return projects.map(p=>({slug:p.slug}));}
 export const dynamicParams=false;
@@ -18,7 +20,13 @@ export default async function Project({params}:{params:Promise<{slug:string}>}) 
  const p=projects.find(p=>p.slug===slug);
  if(!p)notFound();
  return <article className="editorial-shell portfolio-editorial project-detail">
-  <nav className="breadcrumb" aria-label="Breadcrumb"><TransitionLink href="/projects/"><Localized en="Projects" zh="项目"/></TransitionLink><ChevronRight size={13}/><span>{p.title}</span></nav>
+  <Breadcrumb className="breadcrumb" aria-label="Project breadcrumb">
+   <BreadcrumbList>
+    <BreadcrumbItem><BreadcrumbLink render={<TransitionLink href="/projects/" />}><Localized en="Projects" zh="项目" /></BreadcrumbLink></BreadcrumbItem>
+    <BreadcrumbSeparator />
+    <BreadcrumbItem><BreadcrumbLink href="#main-content" aria-current="page">{p.title}</BreadcrumbLink></BreadcrumbItem>
+   </BreadcrumbList>
+  </Breadcrumb>
   <header className="detail-heading portfolio-heading">
    <p className="eyebrow"><Localized en={p.category} zh={p.categoryZh??p.category}/> · {p.year}</p>
    <h1 lang="en">{p.title}</h1>
@@ -30,19 +38,11 @@ export default async function Project({params}:{params:Promise<{slug:string}>}) 
    </div>}
    {!p.repo && <p className="project-source-note"><Localized en={p.technology} zh={p.technologyZh??p.technology} /></p>}
   </header>
-  <figure className="project-workflow" aria-label="Application preview">
+  <ProjectCaseContents />
+  <figure id="preview" tabIndex={-1} className="project-workflow" aria-label="Application preview">
    {p.previews?.length?<div className="workflow-preview"><ProjectStage project={p}/></div>:<ProjectGallery title={p.title} images={p.gallery}/>}
   </figure>
-  <section className="project-usage" aria-labelledby="project-usage-heading">
-   <header className="project-story-heading">
-    <h2 id="project-usage-heading"><Localized en={p.slug==='epub-toolkit'?'Organizing a collection':'Overview'} zh={p.slug==='epub-toolkit'?'整理一套书的阅读顺序':'项目概览'}/></h2>
-    <p><Localized en={p.description} zh={p.descriptionZh??p.description}/></p>
-   </header>
-   <div className="project-capabilities">
-    {p.features.map(f=><div key={f.title}><h3><Localized en={f.title} zh={f.titleZh}/></h3><p><Localized en={f.description} zh={f.descriptionZh}/></p></div>)}
-   </div>
-  </section>
-  {p.slug==='epub-toolkit'&&<EpubEngineStory/>}
+  <ProjectCaseStudy project={p} />
   {p.repo && <p className="project-availability"><Localized en={p.technology} zh={p.technologyZh??p.technology}/> <a href={p.repo} target="_blank" rel="noreferrer"><Localized en="Documentation" zh="使用文档"/> <ArrowUpRight size={13}/></a></p>}
  </article>;
 }
