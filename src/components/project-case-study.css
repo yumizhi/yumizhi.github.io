@@ -3,7 +3,9 @@ html:has(.project-detail) { scroll-padding-top: 0; }
 .case-contents {
   position: sticky;
   inset-block-start: 0;
-  background: var(--background);
+  width: fit-content;
+  max-width: 100%;
+  background: transparent;
   z-index: 12;
   pointer-events: none;
   padding-block: .45rem;
@@ -251,7 +253,7 @@ html:has(.project-detail) { scroll-padding-top: 0; }
 .project-detail :is(.case-section, #preview, .case-chapter, .architecture-figure)[id] { scroll-margin-top: 4.25rem; }
 @media screen and (min-width: 51rem) and (min-height: 32rem) {
   .case-contents {
-    top: var(--margin-top); height: 0; padding: 0; margin: 0; background: transparent;
+    top: var(--margin-top); width: 100%; height: 0; padding: 0; margin: 0;
   }
   .case-contents .article-section-nav {
     position: absolute; left: calc(100% + var(--margin-gap)); width: var(--margin-rail-width);

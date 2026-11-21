@@ -531,7 +531,7 @@ test('increased contrast keeps the photo menu solid and the document unfiltered'
  await expect(page.locator('[data-optical-target]')).toHaveCount(0);
 });
 
-test('reading rails clear the article, and small windows give the toolbar its own paper strip', async ({ page }) => {
+test('reading rails clear the article, and small windows keep the sticky wrapper transparent', async ({ page }) => {
  await page.goto('/research/tide/#method');
  for (const width of [1440, 1024, 834, 768, 390, 320]) {
    await page.setViewportSize({ width, height: 800 });
@@ -546,7 +546,7 @@ test('reading rails clear the article, and small windows give the toolbar its ow
      expect(dock.x).toBeGreaterThan(eq.x + eq.width);
      await expect(page.locator('.reader-contents-label')).toBeVisible();
    } else {
-     await expect(page.locator('.paper-reader-sticky')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+     await expect(page.locator('.paper-reader-sticky')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
      expect(dock.y + dock.height).toBeLessThanOrEqual(eq.y + 1);
    }
  }
@@ -592,4 +592,54 @@ test('scrubbing a glass preview commits on release and dragging away cancels', a
    return Math.abs(b.x - start.x) + Math.abs(b.width - start.width);
  }).toBeLessThan(1);
  await expect(indicator).not.toHaveAttribute('data-lifted', '');
+});
+
+test('the first painted indicator is aligned and an edge grab follows the drag direction', async ({ page }) => {
+ await page.addInitScript(() => {
+   function observe() {
+     const group = document.querySelector('.ph-tide-segments');
+     const thumb = group?.querySelector<HTMLElement>('[data-slot="segmented-control-indicator"]');
+     const active = group?.querySelector('[aria-pressed=true]');
+     if (!thumb || thumb.hidden || !active) { requestAnimationFrame(observe); return; }
+     const a = active.getBoundingClientRect(), b = thumb.getBoundingClientRect();
+     document.documentElement.dataset.firstIndicatorError = String(Math.abs((a.x + a.width / 2) - (b.x + b.width / 2)));
+   }
+   requestAnimationFrame(observe);
+ });
+ await page.goto('/');
+ await expect.poll(async () => Number(await page.locator('html').getAttribute('data-first-indicator-error') ?? 'Infinity')).toBeLessThan(1);
+ const group = page.locator('.ph-tide-segments'), inject = group.getByRole('button', {name:'Inject'}), thumb = group.locator('[data-slot="segmented-control-indicator"]');
+ await inject.click();
+ const item = (await inject.boundingBox())!;
+ const center = async () => {const box = (await thumb.boundingBox())!; return box.x + box.width / 2;};
+ await expect.poll(async () => Math.abs(await center() - item.x - item.width/2)).toBeLessThan(.5);
+ await page.mouse.move(item.x + 3, item.y + item.height/2);
+ await page.mouse.down();
+ await page.mouse.move(item.x + 11, item.y + item.height/2, {steps:2});
+ await expect.poll(center).toBeGreaterThan(item.x + item.width/2 + 5);
+ await page.mouse.up();
+});
+
+test('mobile project navigation keeps its glass within the control and remembers both preferences', async ({ page }) => {
+ await page.setViewportSize({ width: 390, height: 844 });
+ await page.emulateMedia({ colorScheme: 'dark' });
+ await page.goto('/projects/personal-agent/');
+ const contents = page.locator('.case-contents');
+ const width = (await contents.getByRole('button').boundingBox())!.width;
+ await expect(contents).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+ expect((await contents.boundingBox())!.width).toBeCloseTo(width, 0);
+ await page.getByRole('button', { name: 'Open navigation' }).click();
+ const sheet = page.getByRole('dialog');
+ await sheet.getByRole('combobox', { name: 'Language' }).selectOption('zh');
+ await sheet.getByRole('combobox', { name: '外观' }).selectOption('light');
+ await expect(page.locator('html')).toHaveClass(/light/);
+ await sheet.getByRole('combobox', { name: '外观' }).selectOption('system');
+ await expect(page.locator('html')).toHaveClass(/dark/);
+ await page.reload();
+ await page.getByRole('button', { name: '打开导航' }).click();
+ await expect(sheet.getByRole('combobox', { name: '语言' })).toHaveValue('zh');
+ await expect(sheet.getByRole('combobox', { name: '外观' })).toHaveValue('system');
+ await sheet.getByRole('link', { name: '写作' }).click();
+ await expect(page).toHaveURL(/\/writing\//);
+ await expect(sheet).toHaveCount(0);
 });

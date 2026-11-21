@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import dynamic from 'next/dynamic';
-import { ArrowUpRight, BookOpen, FileText, Folder, House, LibraryBig, Menu, Moon, NotebookPen, Search, Sun } from 'lucide-react';
+import { ArrowUpRight, BookOpen, FileText, Folder, House, LibraryBig, Languages, ChevronDown, Monitor, X, Menu, Moon, NotebookPen, Search, Sun } from 'lucide-react';
 import { Button } from './ui/coss/button';
 import { SegmentedControl } from './ui/coss/segmented-control';
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from './ui/sheet';
+import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from './ui/sheet';
 import { TransitionLink } from './providers';
 import { Localized, useLanguage } from './language';
 import type { SearchItem } from '@/lib/search';
@@ -33,7 +33,7 @@ export function Header({ index }: { index: SearchItem[] }) {
   const [open, setOpen] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [menu, setMenu] = useState(false);
-  const { resolvedTheme, setTheme } = useTheme();
+  const { theme, resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const searchTrigger = useRef<HTMLButtonElement>(null);
   const dark = mounted && resolvedTheme === 'dark';
@@ -87,8 +87,11 @@ export function Header({ index }: { index: SearchItem[] }) {
           <Button variant="ghost" size="icon" className="header-preference" onClick={toggleTheme} aria-label={themeLabel}><ThemeIcon size={18} /></Button>
           <Sheet open={menu} onOpenChange={setMenu}>
             <SheetTrigger asChild><Button variant="ghost" size="icon" className="mobile-menu" aria-label={language === 'en' ? 'Open navigation' : '打开导航'}><Menu size={20} /></Button></SheetTrigger>
-            <SheetContent className="site-drawer" aria-describedby={undefined}>
-              <div className="mobile-nav-heading"><SheetTitle><Localized en="Explore" zh="浏览" /></SheetTitle></div>
+            <SheetContent className="site-drawer" showCloseButton={false} aria-describedby={undefined}>
+              <div className="mobile-nav-heading">
+                <SheetTitle><Localized en="Explore" zh="浏览" /></SheetTitle>
+                <SheetClose className="drawer-close" aria-label={language === 'zh' ? '关闭' : 'Close'}><X size={18} /></SheetClose>
+              </div>
               <nav className="sheet-nav" aria-label="Mobile navigation">
                 {destinations.map(({ href, icon: Icon, ...name }) => (
                   <TransitionLink key={href} href={href} onClick={() => setMenu(false)} aria-current={sectionOf(pathname, href) ? 'page' : undefined}>
@@ -97,8 +100,22 @@ export function Header({ index }: { index: SearchItem[] }) {
                 ))}
               </nav>
               <div className="drawer-preferences">
-                <button onClick={toggleLanguage} aria-label={languageLabel}>{language === 'en' ? '中文' : 'English'}</button>
-                <button onClick={toggleTheme} aria-label={themeLabel}><ThemeIcon size={17} />{dark ? <Localized en="Light mode" zh="浅色模式" /> : <Localized en="Dark mode" zh="深色模式" />}</button>
+                <label className="drawer-setting">
+                  <Languages size={18} aria-hidden="true" /><span><Localized en="Language" zh="语言" /></span>
+                  <select aria-label={language === 'zh' ? '语言' : 'Language'} value={language} onChange={event => setLanguage(event.target.value === 'zh' ? 'zh' : 'en')}>
+                    <option value="en">English</option><option value="zh">中文</option>
+                  </select>
+                  <ChevronDown size={14} aria-hidden="true" />
+                </label>
+                <label className="drawer-setting">
+                  <Monitor size={18} aria-hidden="true" /><span><Localized en="Appearance" zh="外观" /></span>
+                  <select aria-label={language === 'zh' ? '外观' : 'Appearance'} value={mounted ? theme ?? 'system' : 'system'} onChange={event => setTheme(event.target.value)}>
+                    <option value="system">{language === 'zh' ? '跟随系统' : 'System'}</option>
+                    <option value="light">{language === 'zh' ? '浅色' : 'Light'}</option>
+                    <option value="dark">{language === 'zh' ? '深色' : 'Dark'}</option>
+                  </select>
+                  <ChevronDown size={14} aria-hidden="true" />
+                </label>
               </div>
             </SheetContent>
           </Sheet>

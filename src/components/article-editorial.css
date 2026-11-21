@@ -130,7 +130,7 @@
 .paper-reader-sticky {
   position: sticky;
   inset-block-start: 0;
-  background: var(--background);
+  background: transparent;
   z-index: 13;
   pointer-events: none;
 }
@@ -159,7 +159,6 @@
   padding: .4rem .7rem;
   background: transparent;
   color: var(--editorial-link);
-  text-shadow: 0 0 2px var(--background), 0 0 5px var(--background);
   box-shadow: none;
   border: 0;
   border-radius: 999px;
