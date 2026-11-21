@@ -202,7 +202,7 @@ export function TidePlate() {
       </svg>
       <span className="ph-preview-note"><Localized en="Trajectory illustration" zh="轨迹示意" /></span>
       <div className="ph-tide-controls">
-        <Button className="ph-tide-play" variant="secondary" size="icon-sm" onClick={togglePlayback}
+        <Button className="ph-tide-play reader-glass" variant="secondary" size="icon-sm" onClick={togglePlayback}
           aria-label={language === 'zh' ? (reduced ? '下一阶段' : playing ? '暂停轨迹' : '播放轨迹') : (reduced ? 'Next trajectory stage' : playing ? 'Pause trajectory' : 'Play trajectory')}>
           {reduced ? <SkipForward aria-hidden="true" /> : playing ? <Pause aria-hidden="true" /> : <Play aria-hidden="true" />}
         </Button>

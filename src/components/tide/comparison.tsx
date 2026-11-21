@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { ArrowUpRight } from 'lucide-react';
 import { asset } from '@/lib/paths';
@@ -18,6 +18,7 @@ const sample = (method: string, scene: string) => asset(`/images/tide-paper/${me
 export function TideComparison({ original, caption }: { original: string; caption: Paper['imageCaption'] }) {
   const [scene, setScene] = useState(scenes[0]);
   const [method, setMethod] = useState('tree');
+  const frame = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const { language } = useLanguage();
   return (
@@ -27,13 +28,13 @@ export function TideComparison({ original, caption }: { original: string; captio
           <img width={226} height={226} src={sample('clean', scene.id)} alt={`Unwatermarked · ${scene.en}`} />
           <span className="tide-reference"><Localized en="Unwatermarked" zh="无水印" /></span>
         </div>
-        <div className="tide-sample tide-versions">
+        <div ref={frame} className="tide-sample tide-versions">
           {methods.map(item => (
             <motion.img key={item.value} className="tide-version" width={226} height={226} src={sample(item.value, scene.id)}
               initial={false} animate={{ opacity: item.value === method ? 1 : 0 }} transition={{ duration: reduced ? 0 : .22 }}
               aria-hidden={item.value !== method} alt={item.value === method ? `${item.label} · ${scene.en}` : ''} />
           ))}
-          <div className="tide-lens"><GlassChoice label={language === 'zh' ? '水印方法' : 'Watermark method'} items={methods} value={method} onChange={setMethod} /></div>
+          <div className="tide-lens"><GlassChoice scene={{ src: sample(method, scene.id), frame }} label={language === 'zh' ? '水印方法' : 'Watermark method'} items={methods} value={method} onChange={setMethod} /></div>
         </div>
       </div>
       <div className="tide-scene-picker" role="group" aria-label={language === 'zh' ? '选择场景' : 'Image prompt'}>

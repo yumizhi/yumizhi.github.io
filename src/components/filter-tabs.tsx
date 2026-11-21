@@ -14,7 +14,7 @@ export function FilterTabs({ value, onChange, options, label, className = '' }: 
 }) {
   return (
     <SegmentedControl
-      className={`site-segments ${className}`}
+      className={`site-segments reader-glass ${className}`}
       render={
         <ToggleGroup
           value={[value]}

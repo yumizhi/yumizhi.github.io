@@ -1,11 +1,11 @@
-import { ArrowRight, ArrowUpRight, FileText, Mail } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Mail } from 'lucide-react';
 import { HomeBackground } from '@/components/home-background';
 import { SasboPlate } from '@/components/home/research-plates';
 import { ProjectCard } from '@/components/project-card';
 import { TidePlate } from '@/components/home/tide-preview';
 import { Localized } from '@/components/language';
 import { PaperTitle } from '@/components/paper-title';
-import { Button } from '@/components/ui/coss/button';
+import { PublicationActions } from '@/components/publication-actions';
 import { TransitionLink } from '@/components/providers';
 import { asset } from '@/lib/paths';
 import { papers, projects, site, type Paper } from '@/lib/content';
@@ -40,16 +40,7 @@ function PaperFeature({ paper }: { paper: Paper }) {
             ? <Localized en="TIDE embeds a watermark during denoising and adjusts its guidance to preserve image content." zh="TIDE 在去噪过程中写入水印，并动态调整水印引导，以保留图像内容。" />
             : <Localized en="SASBO learns which pixels to change and by how much, then prunes unnecessary perturbations." zh="SASBO 学习扰动哪些像素、改动多少，再移除多余的扰动。" />}
         </p>
-        <div className="ph-paper-links">
-          <Button variant="secondary" size="sm" className="ph-study-action"
-            render={<TransitionLink href={url} />}>
-            <Localized en="Read the study" zh="阅读研究" /> <ArrowRight size={14} aria-hidden="true" />
-          </Button>
-          <Button variant="ghost" size="sm" className="ph-study-action ph-study-action--quiet"
-            render={<a href={asset(paper.paper)} target="_blank" rel="noreferrer" />}>
-            <FileText size={14} aria-hidden="true" /> PDF
-          </Button>
-        </div>
+        <PublicationActions paper={paper} fromHome />
       </header>
     </article>
   );

@@ -15,5 +15,5 @@ const tideSections = [
 ];
 
 export function PaperNav({ expanded = false }: { expanded?: boolean }) {
-  return <ArticleSectionNav sections={expanded ? tideSections : baseSections} label={{ en: 'Paper sections', zh: '论文目录' }} />;
+  return <ArticleSectionNav embedded sections={expanded ? tideSections : baseSections} label={{ en: 'Paper sections', zh: '论文目录' }} />;
 }

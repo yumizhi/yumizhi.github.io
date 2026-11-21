@@ -1,55 +1,41 @@
-/* Neutral, transmitting material. The narrow optical rim samples the page
-   separately from the frosted centre, so the edge stays crisp over photographs. */
+/* Keep the centre quiet. The optical layer bends the scene at the shoulder of
+   the lens without drawing a coloured or white perimeter over it. */
 .reader-glass {
   --glass-solid: var(--background);
-  --glass-wash: rgb(255 255 255 / .52);
-  --glass-light: rgb(255 255 255 / .96);
-  --glass-low: rgb(98 74 105 / .20);
-  --glass-depth: rgb(46 27 48 / .095);
+  --glass-wash: color-mix(in srgb, var(--background) 59%, transparent);
+  --glass-selection: color-mix(in srgb, var(--foreground) 9%, transparent);
+  --glass-depth: rgb(35 27 45 / .18);
   position: relative;
   isolation: isolate;
   border: 0;
   border-radius: 999px;
   background: var(--glass-solid);
   color: var(--foreground);
-  box-shadow: inset 0 0 0 .7px var(--glass-low), 0 2px 5px -2px var(--glass-depth), 0 5px 16px -6px var(--glass-depth);
+  box-shadow: 0 1px 3px -1px var(--glass-depth), 0 4px 14px -7px var(--glass-depth);
 }
 .dark .reader-glass {
-  --glass-wash: rgb(32 29 36 / .63);
-  --glass-light: rgb(255 255 255 / .28);
-  --glass-low: rgb(228 212 235 / .22);
-  --glass-depth: rgb(0 0 0 / .4);
-}
-.reader-glass::before, .reader-glass::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-}
-.reader-glass::before { z-index: -2; }
-.reader-glass::after {
-  z-index: -1;
-  padding: var(--rim-size, 1.3px);
-  background: linear-gradient(152deg, color-mix(in srgb, var(--glass-light) 72%, transparent), transparent 25%, transparent 58%, var(--glass-low) 76%, color-mix(in srgb, var(--glass-light) 64%, transparent));
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: exclude;
+  --glass-wash: rgb(34 31 37 / .7);
+  --glass-selection: rgb(249 239 252 / .14);
+  --glass-depth: rgb(0 0 0 / .54);
 }
 @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .reader-glass {
     background: var(--glass-wash);
-    -webkit-backdrop-filter: saturate(145%) blur(var(--frost, 5px));
-    backdrop-filter: saturate(145%) blur(var(--frost, 5px));
+    -webkit-backdrop-filter: saturate(130%) blur(var(--frost, 5px));
+    backdrop-filter: saturate(130%) blur(var(--frost, 5px));
   }
-  .reader-glass:has(> svg[width="0"]) { --rim-size: 3px; }
-  .reader-glass::after {
-    -webkit-backdrop-filter: saturate(150%) contrast(112%);
-    backdrop-filter: saturate(150%) contrast(112%) var(--rim-filter, saturate(100%));
+  .reader-glass:has(> svg[width="0"]):not(:has(> .lens-scene))::before {
+    content: '';
+    position: absolute;
+    pointer-events: none;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    backdrop-filter: var(--rim-filter, none);
   }
 }
 button.reader-glass, a.reader-glass { -webkit-tap-highlight-color: transparent; }
-button.reader-glass:active, a.reader-glass:active { scale: .965; }
-button.reader-glass:active::before { box-shadow: inset 0 1px 7px var(--glass-light); }
+button.reader-glass:active, a.reader-glass:active { scale: .975; }
 .reader-glass:focus-visible { outline: 2px solid var(--nju); outline-offset: 2px; }
 .glass-trigger {
   display: inline-flex;
@@ -64,7 +50,8 @@ button.reader-glass:active::before { box-shadow: inset 0 1px 7px var(--glass-lig
   cursor: pointer;
   white-space: nowrap;
 }
-.glass-trigger > svg:not([width="0"]) { color: var(--nju); }
+.lens-scene { inset: 0; z-index: -1; overflow: hidden; border-radius: inherit; clip-path: inset(0 round 999px); }
+.glass-trigger > svg:not([width="0"]):not(.lens-scene) { color: var(--nju); }
 .glass-trigger[aria-expanded=true] svg:last-child { rotate: 180deg; }
 .glass-trigger:focus:not(:focus-visible) { outline: none; }
 .glass-trigger:focus-visible, .reader-glass a:focus-visible { outline: 2px solid var(--nju); outline-offset: 2px; }
@@ -116,7 +103,7 @@ button.reader-glass:active::before { box-shadow: inset 0 1px 7px var(--glass-lig
 }
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more), (forced-colors: active) {
   .reader-glass, .glass-menu.reader-glass { background: var(--glass-solid); backdrop-filter: none; -webkit-backdrop-filter: none; outline: 1px solid currentColor; }
-  .reader-glass::before, .reader-glass::after { display: none; }
+  .reader-glass::before, .reader-glass::after, .lens-scene { display: none; }
 }
 @media (pointer: coarse) {
   .glass-trigger, .glass-option, .glass-menu a.glass-option { min-height: 2.75rem; }

@@ -440,17 +440,18 @@ test('navigation responds during loading and remains interruptible',async({page}
  let release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve;});
  await page.route(/\/resources(?:[/.?]|$)/,async route=>{await gate;await route.fallback();});
  await page.goto('/research/');await page.evaluate(()=>document.fonts.ready);
- const nav=page.getByRole('navigation',{name:'Main navigation'});const before=(await page.locator('.nav-active').boundingBox())!;
+ const nav=page.getByRole('navigation',{name:'Main navigation'});const before=(await page.locator('.site-rail [data-slot=segmented-control-indicator]').boundingBox())!;
  await nav.getByRole('link',{name:'Resources',exact:true}).evaluate(link=>{
   link.addEventListener('click',()=>{
-   const frames:{t:number;x:number}[]=[];Object.assign(window,{navigationFrames:frames});const start=performance.now();
-   function sample(){frames.push({t:performance.now()-start,x:document.querySelector('.nav-active')!.getBoundingClientRect().x});if(performance.now()-start<450)requestAnimationFrame(sample);}
+   const frames:{t:number;x:number;y:number}[]=[];Object.assign(window,{navigationFrames:frames});const start=performance.now();
+   function sample(){const {x,y}=document.querySelector('.site-rail [data-slot=segmented-control-indicator]')!.getBoundingClientRect();frames.push({t:performance.now()-start,x,y});if(performance.now()-start<450)requestAnimationFrame(sample);}
    requestAnimationFrame(sample);
   },{once:true});
  });
  await nav.getByRole('link',{name:'Resources',exact:true}).click();await page.waitForTimeout(460);
  await expect(page.getByRole('heading',{level:1,name:'Research',exact:true})).toBeVisible();await expect(nav.getByRole('link',{name:'Resources',exact:true})).toHaveAttribute('data-selected','true');
- const after=(await page.locator('.nav-active').boundingBox())!;const frames=await page.evaluate(()=>(window as unknown as {navigationFrames:{t:number;x:number}[]}).navigationFrames);
+ const after=(await page.locator('.site-rail [data-slot=segmented-control-indicator]').boundingBox())!;const frames=await page.evaluate(()=>(window as unknown as {navigationFrames:{t:number;x:number;y:number}[]}).navigationFrames);
+ expect(Math.max(...frames.map(f=>Math.abs(f.y-before.y)))).toBeLessThan(1);expect(after.height).toBeGreaterThan(25);
  expect(frames.filter(f=>f.x>before.x+3&&f.x<after.x-3).length).toBeGreaterThan(2);expect(frames.find(f=>f.x>before.x+3)!.t).toBeLessThan(150);
  release();await expect(page).toHaveURL(/\/resources\/$/);await page.unroute(/\/resources(?:[/.?]|$)/);
  for(const name of ['Projects','Writing','CV'])await nav.getByRole('link',{name,exact:true}).click();

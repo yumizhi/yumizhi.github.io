@@ -102,6 +102,7 @@ const activeItemSelector =
   ':scope > [data-checked], :scope > [aria-current="page"], :scope > [data-pressed]';
 
 const observedAttributes: string[] = [
+  "data-selected",
   "data-checked",
   "aria-current",
   "data-pressed",
@@ -178,9 +179,16 @@ function SegmentedControlIndicator(): React.ReactElement {
       return;
     }
 
+    let previousLeft: number | undefined;
     const update = (): void => {
-      const item = root.querySelector<HTMLElement>(activeItemSelector);
-      const next = item ? measureItem(item, root) : null;
+      const item = root.querySelector<HTMLElement>(':scope > [data-selected="true"]') ?? root.querySelector<HTMLElement>(activeItemSelector);
+      const next = item?.offsetWidth ? measureItem(item, root) : null;
+      if (ref.current && next) {
+        if (previousLeft !== undefined && previousLeft !== next.left) {
+          ref.current.dataset.direction = next.left > previousLeft ? 'right' : 'left';
+        }
+        previousLeft = next.left;
+      }
       setRect((previous) => (isSameRect(previous, next) ? previous : next));
     };
 
@@ -221,6 +229,14 @@ function SegmentedControlIndicator(): React.ReactElement {
         segmentedControlIndicatorSurfaceClassName,
       )}
       data-slot="segmented-control-indicator"
+      onTransitionRun={event => {
+        if (event.propertyName === 'left' || event.propertyName === 'right') event.currentTarget.dataset.moving = '';
+      }}
+      onTransitionEnd={event => {
+        const thumb = event.currentTarget;
+        if (event.propertyName === (thumb.dataset.direction === 'right' ? 'left' : 'right')) delete thumb.dataset.moving;
+      }}
+      onTransitionCancel={event => { delete event.currentTarget.dataset.moving; }}
       hidden={!rect}
       ref={ref}
       style={
