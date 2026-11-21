@@ -71,6 +71,14 @@
   .media-glass [data-slot="segmented-control-item"] { color: var(--foreground); }
   .media-glass [data-slot="segmented-control-item"][data-pressed] { color: var(--nju); }
 }
+/* The face carries the label; the softer shoulders still show what scrolls past. */
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :is(.paper-reader-toolbar .reader-dock, .article-section-nav .glass-trigger).reader-glass {
+    background-image: radial-gradient(ellipse 66% 67% at 50% 48%,
+      var(--glass-solid) 34%, color-mix(in srgb, var(--glass-solid) 92%, transparent) 56%,
+      color-mix(in srgb, var(--glass-solid) 24%, transparent) 88%, transparent 100%);
+  }
+}
 button.reader-glass, a.reader-glass { -webkit-tap-highlight-color: transparent; }
 button.reader-glass:active, a.reader-glass:active { scale: .975; }
 .reader-glass:focus-visible { outline: 2px solid var(--nju); outline-offset: 2px; }
