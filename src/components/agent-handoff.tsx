@@ -1,11 +1,5 @@
-'use client';
-
-import { useState } from 'react';
 import { GitPullRequestArrow } from 'lucide-react';
-import { motion, useReducedMotion } from 'motion/react';
-import { FilterTabs } from './filter-tabs';
-import { Localized as Text, useLanguage } from './language';
-import { TransitionPanel } from './ui/motion-primitives/transition-panel';
+import { Localized as Text } from './language';
 import './agent-handoff.css';
 
 const runs = [
@@ -31,28 +25,14 @@ export function AgentHandoffCover() {
 }
 
 export function AgentHandoff() {
-  const [version, setVersion] = useState<string>(runs[0].id);
-  const { language } = useLanguage();
-  const reduced = useReducedMotion();
-  const index = runs.findIndex(run => run.id === version);
-  const selected = runs[index];
-  const transition = { duration: reduced ? 0 : .18, ease: 'easeOut' as const };
-  return <div className="handoff-chart reader" data-handoff={version}>
-    <div className="handoff-chart-heading">
-      <span><GitPullRequestArrow size={17} aria-hidden="true" /> I-204</span>
-      <FilterTabs label={language === 'zh' ? '交接记录' : 'Handoff record'} value={version} onChange={setVersion}
-        options={runs.map(run => ({value: run.id, label: run[language]}))} surface="inline" />
+  return <div className="handoff-print">
+    <div className="handoff-compare-axis"><span>08:10 UTC</span><span><Text en="45 min limit" zh="45 分钟时限" /></span></div>
+    <div className="handoff-compare-data">
+      {runs.map(run => <div className="handoff-reading" key={run.id} data-reading={run.id}>
+        <div className="handoff-reading-label"><strong><Text en={run.en} zh={run.zh} /></strong><span>{run.time} UTC</span></div>
+        <div className="handoff-reading-track"><i style={{width:run.minutes/60*100+'%'}} /></div>
+        <div className="handoff-outcome"><b>{run.minutes} <Text en="min" zh="分钟" /></b><span><Text {...run.result} /></span></div>
+      </div>)}
     </div>
-    <div className="handoff-readout" aria-live="polite" aria-atomic="true">
-      <strong>{selected.minutes} <small><Text en="min" zh="分钟" /></small></strong>
-      <span>{selected.result[language]}</span>
-    </div>
-    <div className="handoff-plot">
-      <ScaleLabels />
-      <div className="handoff-track"><motion.i initial={false} animate={{scaleX: selected.minutes / 60}} transition={transition} /></div>
-    </div>
-    <TransitionPanel activeIndex={index} transition={transition} variants={{enter:{opacity:0},center:{opacity:1},exit:{opacity:0}}}>
-      {runs.map(run => <div className="handoff-stamps" key={run.id}><Text en="Acknowledged" zh="确认时间" /><time>{run.time} UTC</time></div>)}
-    </TransitionPanel>
   </div>;
 }

@@ -143,26 +143,26 @@ export const projectStories: Record<string, ProjectStory> = {
       "zh": "改动一个时间，结论随之改变"
     },
     "example": {
-      "en": "At 08:10 UTC, a dispatcher opens a handoff for inspection I-204. The first acknowledgement on file is at 09:04. With 45 minutes allowed, the studio records a nine-minute overrun, cites the agreement and waits for a member to approve a work order. The arithmetic checks out. Later, a reviewer notices that the paper register gives an earlier acknowledgement time.",
+      "en": "In the fictional I-204 inspection, a dispatcher opens a handoff at 08:10 UTC. The first acknowledgement on file is at 09:04. With 45 minutes allowed, the studio records a nine-minute overrun, cites the agreement and waits for a member to approve a work order. The arithmetic checks out. Later, a reviewer notices that the paper register gives an earlier acknowledgement time.",
       "zh": "在合成巡检案例 I-204 中，交接于 08:10 UTC 登记，系统里填的确认时间是 09:04。按约定的 45 分钟计算，这次晚了 9 分钟。工作室在报告里列出条款，等成员批准后登记工单。计算本身没有错。直到复核人拿纸质登记来核对，才发现确认时间录晚了。"
     },
     "design": [
       {
         "en": "Changing the timestamp to 08:49 puts the handoff inside the allowance. By then someone has already approved a write on the strength of the first report. Editing its conclusion in place would leave a perfectly plausible report attached to a work order issued for a different reason. The reviewer therefore records the discrepancy on the original, and the workspace opens a second run. You can inspect either report and follow its own receipt.",
-        "zh": "把确认时间改为 08:49，交接只用了 39 分钟，仍在时限内。但第一份报告已经触发过一次经人批准的写入。直接改正文，会让后来的人拿着“未超时”的结论，去解释当时为什么开了工单。工作台把复核意见留在原稿上，让更正后的输入另起一次运行。两份报告各有依据，也各有回执。"
+        "zh": "把确认时间改为 08:49，交接只用了 39 分钟，仍在时限内。但第一份报告已经触发过一次经人批准的写入。如果只改报告正文，工单还在，最初触发它的超时记录却消失了。工作台把复核意见留在原稿上，让更正后的输入另起一次运行。两份报告各有依据，也各有回执。"
       },
       {
-        "en": "The same workspace serves a quieter kind of work. A reader following SQLite releases wants a useful change brought to their attention, occasionally corrects the priority and expects that decision to survive the next poll. In both cases the useful unit of history is a run: what came in, which rule was in effect, what reached a person and what they decided afterwards.",
-        "zh": "同一个工作台也接得住更轻的事情。持续跟进数据库动态的人，可能只想收到与事务机制有关的变化，也可能读完一条才发现不值得打扰。下一轮采集需要记住这次反馈。这两类工作的共同之处，是日后总要回答同一组具体问题：当时读到了什么、按哪条规则处理、谁收到了结果、后来又做了什么决定。"
+        "en": "An hourly release watch leaves a similar trail on a smaller scale. A reader asks for a release digest, marks a noisy item irrelevant and expects tomorrow’s digest to respect that choice. The saved run connects the incoming release, the policy in force and the resulting delivery. In the studio, that same distinction lets a reviewer trace a work order back to the register as it stood on the day of approval.",
+        "zh": "每小时运行的订阅任务也有一段值得保存的历史。读者订了一份发布摘要，读完以后，把其中一条标为“不相关”。第二天回看，应该能从运行记录里找到原来的发布条目、当时生效的优先规则，以及那次真正送进收件箱的内容。巡检也是如此。沿着一份工单往回读，看到的应当是批准当天的登记。"
       }
     ],
     "implementationTitle": {
-      "en": "How a handoff becomes a work order",
-      "zh": "一条交接记录怎样变成工单"
+      "en": "From the handoff register to the service desk",
+      "zh": "从交接登记到工单回执"
     },
     "implementationLead": {
-      "en": "The studio ships the inspection as a project template. Installing it supplies a published workflow, a reviewer, a small collection of source records and a synthetic work-order tool. Its eight nodes can be followed from the submitted record to the project inbox. The most important boundary is between calculating a finding and authorizing its consequences.",
-      "zh": "安装工作室里的巡检模板，会得到一份已发布的工作流、一个核查助手、少量示例资料和模拟工单工具。八个节点从接收交接记录一直连到项目收件箱。理解这条链路，先要看清两个时刻：系统什么时候已经有资格得出结论，成员又在什么时候授权它采取行动。"
+      "en": "The studio ships the inspection as a template with a published workflow, a reviewer, source records and a mock service desk. Follow a single handoff through its eight nodes. The register establishes the timestamps, the agreement supplies the limit, and a member authorizes the resulting write. An error at any of these points leaves a different trace.",
+      "zh": "巡检模板包含一份已发布的工作流、一名核查助手、一组来源记录和一个模拟工单服务。沿着一条交接登记走过八个节点，时间戳取自登记表，时限来自协议，写入工单则需要成员批准。录入有误、条款不适用、审批未完成，三种情况会分别停在不同的位置。"
     },
     "checks": [
       {

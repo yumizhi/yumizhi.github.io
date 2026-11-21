@@ -246,7 +246,7 @@ test('mobile project showcases keep private repository links out of the page', a
  await page.getByRole('link', { name: 'EPUB Toolkit', exact: true }).click();
  await expect(page.locator('.project-detail').getByRole('link', { name: 'GitHub', exact: true })).toHaveAttribute('href', /lightweight_epub_merge_tool/);
 });
-test('case studies expose anchored design and implementation with keyboard-operable workflow steps', async ({ page }) => {
+test('case studies expose anchored design and all four runtime stages', async ({ page }) => {
  await page.setViewportSize({ width: 390, height: 844 });
  await page.goto('/projects/personal-agent/');
  const sections = page.getByRole('navigation', { name: 'Project sections' });
@@ -256,15 +256,9 @@ test('case studies expose anchored design and implementation with keyboard-opera
  await jumpToSection(page, 'Implementation');
  await expect(page).toHaveURL(/#implementation$/);
  await expect(sections.getByRole('button')).toHaveAccessibleName(/, Implementation$/);
- const flow = page.getByRole('tablist', { name: 'Runtime steps' });
- const context = flow.getByRole('tab', { name: 'Context', exact: true });
- await expect(context).toHaveAttribute('aria-selected', 'true');
- await context.focus();
- await page.keyboard.press('ArrowRight');
- const tool = flow.getByRole('tab', { name: 'Tool call', exact: true });
- await expect(tool).toBeFocused();
- await page.keyboard.press('Enter');
- await expect(page.getByRole('tabpanel', { name: 'Tool call', exact: true })).toContainText('validated result');
+ const sequence = page.locator('#agent-runtime-trace .runtime-sequence li');
+ await expect(sequence).toHaveCount(4);
+ await expect(sequence.nth(1)).toContainText('validates the call');
  await jumpToSection(page, 'Validation');
  await expect(page.locator('#verification')).toContainText('no third receipt appears');
  await expect(sections.getByRole('button')).toHaveAccessibleName(/, Validation$/);
@@ -279,7 +273,7 @@ test('project architecture figures preserve their evidence on desktop and mobile
  for (const { slug, evidence, details } of [
   { slug: 'epub-toolkit', evidence: 'Merge record', details: ['epub-worker-handoff', 'epub-path-roundtrip'] },
   { slug: 'originmark', evidence: 'Commit output under the current lease', details: ['originmark-teapot-report', 'originmark-lease-recovery'] },
-  { slug: 'personal-agent', evidence: 'Delivery receipt', details: ['agent-run-link', 'agent-report-evidence', 'agent-runtime-trace', 'agent-workflow-data', 'agent-message-transport', 'agent-watch-replay', 'agent-handoff-comparison'] },
+  { slug: 'personal-agent', evidence: 'Delivery receipt', details: ['agent-run-link', 'agent-report-evidence', 'agent-runtime-trace', 'agent-workflow-data', 'agent-message-transport', 'agent-watch-replay', 'agent-context-selection', 'agent-collection-schedule', 'agent-browser-measurements', 'agent-handoff-comparison'] },
  ]) {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto(`/projects/${slug}/#architecture`);
@@ -328,11 +322,9 @@ test('technical walkthroughs reveal paths, evidence, and run stages', async ({ p
 
  await page.goto('/projects/personal-agent/#agent-runtime-trace');
  const trace = page.locator('#agent-runtime-trace');
- await trace.getByRole('tab', { name: 'Checkpoint', exact: true }).click();
- await expect(trace.getByRole('tabpanel', { name: 'Checkpoint' })).toContainText('summary · evidence · model · usage');
- await trace.getByRole('tab', { name: 'Resume', exact: true }).click();
- await expect(trace.locator('.agent-runtime-map')).toHaveAttribute('data-step', 'resume');
- await expect(trace.getByRole('tabpanel', { name: 'Resume' })).toContainText('next eligible node');
+ const checkpoint = trace.getByRole('listitem').filter({ hasText: 'Checkpoint' });
+ await expect(checkpoint).toContainText('summary, evidence references, model and usage');
+ await expect(trace.getByRole('listitem').filter({ hasText: 'Resume' })).toContainText('next eligible node');
 });
 
 test('project detail switches real screens and expands the selected view',async({page})=>{
@@ -644,17 +636,49 @@ test('mobile project navigation keeps its glass within the control and remembers
  await expect(sheet).toHaveCount(0);
 });
 
-test('a corrected handoff moves the finish across the same allowance', async ({ page }) => {
- await page.setViewportSize({ width: 390, height: 844 });
- await page.emulateMedia({ reducedMotion: 'reduce' });
+test('both inspection results share a visible allowance on mobile', async ({ page }) => {
+ await page.setViewportSize({ width: 320, height: 740 });
  await page.goto('/projects/personal-agent/#agent-handoff-comparison');
  const chart = page.locator('#agent-handoff-comparison');
- await expect(chart.locator('.handoff-readout')).toContainText('9 minutes overdue');
- const rule = chart.locator('.handoff-ticks').getByText('45 min limit');
- const before = await rule.boundingBox();
- await chart.getByRole('button', { name: 'Corrected', exact: true }).click();
- await expect(chart.locator('.handoff-readout')).toContainText('39');
- await expect(chart.locator('.handoff-stamps').last()).toContainText('08:49 UTC');
- expect((await rule.boundingBox())!.x).toBeCloseTo(before!.x, 1);
- await expect(chart.locator('.handoff-track i')).toHaveCSS('transform', 'matrix(0.65, 0, 0, 1, 0, 0)');
+ await expect(chart.getByText('45 min limit')).toBeVisible();
+ await expect(chart.locator('[data-reading="original"]')).toContainText('9 minutes overdue');
+ await expect(chart.locator('[data-reading="corrected"]')).toContainText('08:49 UTC');
+ const lengths = await chart.locator('.handoff-reading-track i').evaluateAll(nodes => nodes.map(n=>n.getBoundingClientRect().width));
+ expect(lengths[1] / lengths[0]).toBeCloseTo(39 / 54, 2);
+});
+
+test('the measurement legend only displays the active language', async ({ page }) => {
+ await page.goto('/projects/personal-agent/#agent-browser-measurements');
+ const legend = page.locator('#agent-browser-measurements .agent-measure-legend');
+ await expect(legend.getByText('Baseline', { exact: true })).toBeVisible();
+ await expect(legend.getByText('基线', { exact: true })).toBeHidden();
+});
+
+test('both digest paths are readable at rest and the logged checks open from the keyboard', async ({ page }) => {
+ await page.setViewportSize({ width: 320, height: 740 });
+ await page.emulateMedia({ reducedMotion: 'reduce' });
+ await page.goto('/projects/personal-agent/#agent-watch-replay');
+ const chart = page.locator('#agent-watch-replay');
+ await expect(chart.locator('.digest-label')).toHaveCount(4);
+ await expect(chart.getByText('Two waiting items delivered together')).toBeVisible();
+ await expect(chart.getByRole('button',{ name:'Replay' })).toBeHidden();
+ const log = chart.getByRole('button', { name: 'Seven-check log' });
+ await log.focus();
+ await page.keyboard.press('Enter');
+ await expect(chart.getByRole('table').locator('tbody tr')).toHaveCount(7);
+ expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+});
+
+test('both source schedules remain on matching axes after replay', async ({ page }) => {
+ await page.goto('/projects/personal-agent/#agent-collection-schedule');
+ const chart = page.locator('#agent-collection-schedule');
+ const serial = chart.locator('[data-mode="1"]');
+ const parallel = chart.locator('[data-mode="3"]');
+ await expect(serial).toHaveCount(6);
+ await expect(parallel).toHaveCount(6);
+ await chart.getByRole('button', { name: 'Replay' }).click();
+ await expect.poll(() => serial.last().locator('i').evaluate(el => el.getBoundingClientRect().width)).toBeGreaterThan(2);
+ const first = (await parallel.first().locator('div').boundingBox())!;
+ const third = (await parallel.nth(2).locator('div').boundingBox())!;
+ expect(third.x).toBeCloseTo(first.x,1);
 });
