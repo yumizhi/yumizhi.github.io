@@ -286,11 +286,11 @@
 }
 
 @media screen and (min-width: 40.001rem) {
-  .paper-reader-toolbar.reader-glass { background: transparent; box-shadow: none; isolation: auto; }
+  .paper-reader-toolbar.reader-glass { background: transparent; box-shadow: none; isolation: auto; backdrop-filter: none; -webkit-backdrop-filter: none; }
   .paper-reader-toolbar.reader-glass::before, .paper-reader-toolbar.reader-glass::after { display: none; }
 }
 @media screen and (max-width: 40rem) {
-  .paper-reader-toolbar.reader-glass { padding: .1rem .23rem; gap: 0; pointer-events: auto; }
-  .paper-reader-toolbar .reader-glass { background: transparent; box-shadow: none; }
+  .paper-reader-toolbar.reader-glass { --glass-wash: color-mix(in srgb, var(--background) 88%, transparent); --frost: 11px; padding: .1rem .23rem; gap: 0; pointer-events: auto; }
+  .paper-reader-toolbar .reader-glass { background: transparent; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
   .paper-reader-toolbar .reader-glass::before, .paper-reader-toolbar .reader-glass::after { display: none; }
 }

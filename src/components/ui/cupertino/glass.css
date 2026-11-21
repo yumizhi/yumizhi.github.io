@@ -36,8 +36,7 @@
   mask-composite: exclude;
 }
 @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .reader-glass { background: transparent; }
-  .reader-glass::before {
+  .reader-glass {
     background: var(--glass-wash);
     -webkit-backdrop-filter: saturate(145%) blur(var(--frost, 5px));
     backdrop-filter: saturate(145%) blur(var(--frost, 5px));
