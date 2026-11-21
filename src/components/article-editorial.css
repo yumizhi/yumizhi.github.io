@@ -129,7 +129,8 @@
 
 .paper-reader-sticky {
   position: sticky;
-  inset-block-start: 52px;
+  inset-block-start: 0;
+  background: var(--background);
   z-index: 13;
   pointer-events: none;
 }
@@ -142,10 +143,6 @@
   margin-inline: auto;
 }
 .paper-reader-toolbar .reader-dock {
-  /* Text can scroll directly under all three labels. Keep their reading
-     contrast while preserving transmission around the shorter control. */
-  --glass-wash: color-mix(in srgb, var(--background) 30%, transparent);
-  --frost: .8px;
   display: inline-flex;
   align-items: center;
   width: max-content;
@@ -266,23 +263,37 @@
   .reader-menu [data-slot="menu-link-item"] { min-block-size: 2.75rem; }
 }
 
+.reader-dock .reader-paper-icon, .reader-contents-label { display: none; }
+.editorial-paper :is(section, div, h3, figure)[id] { scroll-margin-top: 4.25rem; }
 @media screen and (max-width: 40rem) {
+  .paper-reader-toolbar .reader-back { min-width: 2.75rem; padding-inline: 0; }
+  .paper-reader-toolbar :is(.reader-switch, .reader-back, .glass-trigger) { min-height: 2.75rem; }
+}
+@media screen and (min-width: 51rem) and (min-height: 32rem) {
   .paper-reader-sticky {
-    position: fixed;
-    inset: auto .75rem max(.8rem, env(safe-area-inset-bottom));
-    width: fit-content;
-    max-width: calc(100% - 1.5rem);
-    margin-inline: auto;
-    z-index: 24;
+    top: var(--margin-top); height: 0; background: transparent;
   }
   .paper-reader-toolbar {
-    width: auto;
-    display: flex;
-    gap: .3rem;
-    min-height: 0;
+    position: absolute; right: var(--margin-offset); width: var(--margin-rail-width); min-height: 0;
   }
-  .paper-reader-toolbar .reader-back { min-width: 2.75rem; padding-inline: 0; }
-  .paper-reader-toolbar .reader-switch, .paper-reader-toolbar .reader-back { min-height: 2.75rem; }
-  .editorial-paper :is(section, div, h3)[id] { scroll-margin-top: 72px; }
-  body:has(.paper-reader-sticky) .site-footer { padding-bottom: 5rem; }
+  .paper-reader-toolbar .reader-dock {
+    width: 100%; flex-direction: column; align-items: stretch; padding: 4px; border-radius: 1.48rem;
+  }
+  .reader-dock .article-section-nav { width: 100%; }
+  .reader-dock :is(.reader-back, .reader-switch-menu, .glass-trigger) {
+    width: 100%; min-height: 2.55rem; padding: 0; border-radius: 1.15rem; gap: .55rem;
+  }
+  .reader-dock .reader-disclosure-icon, .reader-dock .glass-trigger > svg:last-child { display: none; }
+  .reader-dock .reader-paper-icon, .reader-dock .reader-contents-label { display: block; }
+  .reader-dock .glass-trigger .reader-current-section { display: none; }
+  .editorial-paper :is(section, div, h3, figure)[id] { scroll-margin-top: var(--margin-top); }
+}
+@media screen and (51rem <= width < 73rem) and (min-height: 32rem) {
+  .reader-dock :is(.reader-back, .reader-switch-menu, .glass-trigger) { flex-direction: column; gap: 3px; min-height: 3.1rem; font-size: .625rem; line-height: 1.1; }
+  .reader-dock .reader-back-label { white-space: normal; }
+}
+@media screen and (min-width: 73rem) and (min-height: 32rem) {
+  .reader-dock :is(.reader-back, .reader-switch-menu, .glass-trigger) { justify-content: start; padding-inline: .65rem; }
+  .reader-dock :is(.reader-back-label, .reader-switch > span, .glass-trigger > span) { display: inline; }
+  .reader-dock .reader-back-label { white-space: nowrap; }
 }

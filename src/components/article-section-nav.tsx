@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LensRefraction } from './ui/cupertino/glass-optics';
 import { Check, ChevronDown, List } from 'lucide-react';
 import { Menu, MenuLinkItem, MenuPopup, MenuTrigger } from './ui/coss/menu';
@@ -15,19 +15,16 @@ export function ArticleSectionNav({ sections, label, embedded = false }: {
   embedded?: boolean;
 }) {
   const { language } = useLanguage();
-  const nav = useRef<HTMLElement>(null);
   const [active, setActive] = useState(sections[0].id);
   const current = sections.find(section => section.id === active) ?? sections[0];
 
   useEffect(() => {
     const targets = sections.map(({ id }) => document.getElementById(id));
-    const header = document.querySelector('.site-header');
-    const mobileDock = matchMedia('(max-width: 40rem)');
+    const first = targets.find(target => target !== null);
     let frame = 0;
 
     function update() {
-      const toolbar = mobileDock.matches ? header : nav.current;
-      const cutoff = (toolbar?.getBoundingClientRect().bottom ?? 52) + 32;
+      const cutoff = first ? (parseFloat(getComputedStyle(first).scrollMarginTop) || 0) + 8 : 32;
       const reached = targets.findLast(target => target && target.getBoundingClientRect().top <= cutoff);
       const atEnd = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
       setActive(atEnd ? sections[sections.length - 1].id : reached?.id ?? sections[0].id);
@@ -50,12 +47,13 @@ export function ArticleSectionNav({ sections, label, embedded = false }: {
   }, [sections]);
 
   return (
-    <nav ref={nav} className="article-section-nav" aria-label={label[language]}>
+    <nav className="article-section-nav" aria-label={label[language]}>
       <Menu modal={false}>
-        <MenuTrigger className={embedded ? "glass-trigger" : "glass-trigger reader-glass"} aria-label={`${label[language]}, ${current[language]}`}>
+        <MenuTrigger className={embedded ? "glass-trigger" : "glass-trigger reader-glass"} title={label[language]} aria-label={`${label[language]}, ${current[language]}`}>
           {!embedded && <LensRefraction />}
           <List size={16} aria-hidden="true" />
-          <span>{current[language]}</span>
+          <span className={embedded ? 'reader-current-section' : undefined}>{current[language]}</span>
+          {embedded && <span className="reader-contents-label"><Localized en="Guide" zh="导读" /></span>}
           <ChevronDown size={13} aria-hidden="true" />
         </MenuTrigger>
         <MenuPopup align="start" sideOffset={6} className="reader-glass glass-menu">

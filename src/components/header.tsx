@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import dynamic from 'next/dynamic';
 import { ArrowUpRight, BookOpen, FileText, Folder, House, LibraryBig, Menu, Moon, NotebookPen, Search, Sun } from 'lucide-react';
-import { PageLenses } from './ui/cupertino/page-lenses';
 import { Button } from './ui/coss/button';
 import { SegmentedControl } from './ui/coss/segmented-control';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from './ui/sheet';
@@ -66,21 +65,20 @@ export function Header({ index }: { index: SearchItem[] }) {
   const themeLabel = dark ? 'Switch to light theme' : 'Switch to dark theme';
 
   return <>
-    <PageLenses />
     <header className="site-header">
       <div className="header-inner">
-        <SegmentedControl render={<nav aria-label="Main navigation" data-page-lens="" />} className="site-rail reader-glass">
+        <SegmentedControl render={<nav aria-label="Main navigation" data-glass-selection="" />} className="site-rail reader-glass">
           {destinations.map(({ href, icon: Icon, ...name }) => (
             <TransitionLink key={href} className="destination" href={href}
               onNavigate={() => setPending(href)} aria-label={name[language]} title={name[language]}
               aria-current={sectionOf(pathname, href) ? 'page' : undefined}
               data-selected={sectionOf(pending ?? pathname, href) || undefined}>
               <Icon size={17} strokeWidth={1.75} aria-hidden="true" />
-              {href !== '/' && <span>{name[language]}</span>}
+              <span>{name[language]}</span>
             </TransitionLink>
           ))}
         </SegmentedControl>
-        <div className="header-actions reader-glass" data-page-lens="">
+        <div className="header-actions reader-glass">
           <button className="language-switch header-preference" onClick={toggleLanguage} aria-label={languageLabel}>
             {language === 'en' ? '中文' : 'EN'}
           </button>

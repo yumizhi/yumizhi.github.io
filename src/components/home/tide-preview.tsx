@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState, useSyncExternalStore } from 'react';
 import { animate, motion, useMotionValue, useMotionValueEvent, useTransform } from 'motion/react';
 import { Pause, Play, SkipForward } from 'lucide-react';
+import { MediaLenses } from '@/components/ui/cupertino/media-lenses';
 import { FilterTabs } from '../filter-tabs';
 import { Localized, useLanguage } from '../language';
 import { Button } from '../ui/coss/button';
@@ -140,7 +141,8 @@ export function TidePlate() {
 
   return (
     <div ref={preview} className="ph-preview ph-preview--tide" data-stage={stage}>
-      <svg className="ph-tide-map" viewBox="0 0 416 220" role="img" aria-labelledby={`${id}-title ${id}-desc`}>
+      <MediaLenses />
+      <svg data-lens-source="" className="ph-tide-map" viewBox="0 0 416 220" role="img" aria-labelledby={`${id}-title ${id}-desc`}>
         <title id={`${id}-title`}>{language === 'zh' ? 'TIDE 去噪轨迹示意' : 'Illustration of the TIDE denoising trajectory'}</title>
         <desc id={`${id}-desc`}>{language === 'zh'
           ? '从噪声出发。写入水印时轨迹发生跳跃，后续引导帮助保留水印，同时让轨迹更接近无水印参考。'
@@ -197,16 +199,16 @@ export function TidePlate() {
           <circle cx="344" cy="58" r="2.5" fill="#695978" />
           <text x="350" y="53" fill="#5c4b69">{language === 'zh' ? '参考' : 'Reference'}</text>
           <text x="354" y="83" fill="#702276">TIDE</text>
-          <text x="345" y="151" textAnchor="end" fill="#704637">{language === 'zh' ? '未引导' : 'No guidance'}</text>
+          <text x="351" y="122" textAnchor="end" fill="#704637">{language === 'zh' ? '未引导' : 'No guidance'}</text>
         </motion.g>
       </svg>
       <span className="ph-preview-note"><Localized en="Trajectory illustration" zh="轨迹示意" /></span>
-      <div className="ph-tide-controls">
-        <Button className="ph-tide-play reader-glass" variant="secondary" size="icon-sm" onClick={togglePlayback}
+      <div className="ph-tide-controls reader-glass media-glass" data-media-lens="">
+        <Button className="ph-tide-play" variant="ghost" size="icon-sm" onClick={togglePlayback}
           aria-label={language === 'zh' ? (reduced ? '下一阶段' : playing ? '暂停轨迹' : '播放轨迹') : (reduced ? 'Next trajectory stage' : playing ? 'Pause trajectory' : 'Play trajectory')}>
           {reduced ? <SkipForward aria-hidden="true" /> : playing ? <Pause aria-hidden="true" /> : <Play aria-hidden="true" />}
         </Button>
-        <FilterTabs overlay value={stage} onChange={selectStage} className="ph-tide-segments"
+        <FilterTabs surface="grouped" value={stage} onChange={selectStage} className="ph-tide-segments"
           label={language === 'zh' ? '轨迹阶段' : 'Trajectory stages'}
           options={stages.map(item => ({ value: item.value, label: <Localized en={item.en} zh={item.zh} /> }))} />
       </div>

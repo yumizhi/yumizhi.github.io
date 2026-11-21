@@ -444,15 +444,15 @@ test('navigation responds during loading and remains interruptible',async({page}
  await nav.getByRole('link',{name:'Resources',exact:true}).evaluate(link=>{
   link.addEventListener('click',()=>{
    const frames:{t:number;x:number;y:number}[]=[];Object.assign(window,{navigationFrames:frames});const start=performance.now();
-   function sample(){const {x,y}=document.querySelector('.site-rail [data-slot=segmented-control-indicator]')!.getBoundingClientRect();frames.push({t:performance.now()-start,x,y});if(performance.now()-start<450)requestAnimationFrame(sample);}
+   function sample(){const {x,y,width}=document.querySelector('.site-rail [data-slot=segmented-control-indicator]')!.getBoundingClientRect();frames.push({t:performance.now()-start,x:x+width/2,y});if(performance.now()-start<450)requestAnimationFrame(sample);}
    requestAnimationFrame(sample);
   },{once:true});
  });
  await nav.getByRole('link',{name:'Resources',exact:true}).click();await page.waitForTimeout(460);
  await expect(page.getByRole('heading',{level:1,name:'Research',exact:true})).toBeVisible();await expect(nav.getByRole('link',{name:'Resources',exact:true})).toHaveAttribute('data-selected','true');
  const after=(await page.locator('.site-rail [data-slot=segmented-control-indicator]').boundingBox())!;const frames=await page.evaluate(()=>(window as unknown as {navigationFrames:{t:number;x:number;y:number}[]}).navigationFrames);
- expect(Math.max(...frames.map(f=>Math.abs(f.y-before.y)))).toBeLessThan(1);expect(after.height).toBeGreaterThan(25);
- expect(frames.filter(f=>f.x>before.x+3&&f.x<after.x-3).length).toBeGreaterThan(2);expect(frames.find(f=>f.x>before.x+3)!.t).toBeLessThan(150);
+ expect(Math.max(...frames.map(f=>Math.abs(f.x-(before.x+before.width/2))))).toBeLessThan(1);expect(after.height).toBeGreaterThan(25);
+ expect(frames.filter(f=>f.y>before.y+3&&f.y<after.y-3).length).toBeGreaterThan(2);expect(frames.find(f=>f.y>before.y+3)!.t).toBeLessThan(150);
  release();await expect(page).toHaveURL(/\/resources\/$/);await page.unroute(/\/resources(?:[/.?]|$)/);
  for(const name of ['Projects','Writing','CV'])await nav.getByRole('link',{name,exact:true}).click();
  await expect(page).toHaveURL(/\/cv\/$/);await expect(nav.getByRole('link',{name:'CV',exact:true})).toHaveAttribute('aria-current','page');
@@ -501,7 +501,7 @@ test('SASBO compares the pixel map with pointer and keyboard in a stable frame',
  expect(await frame.boundingBox()).toEqual(before);
 });
 
-test('the open image picker uses the displayed photograph and page filters return to paper', async ({ page }) => {
+test('the open image picker uses the displayed photograph and document text stays untreated', async ({ page }) => {
  await page.goto('/research/tide/');
  const trigger = page.getByRole('combobox', { name: /Watermark method/ });
  await trigger.scrollIntoViewIfNeeded();
@@ -514,9 +514,7 @@ test('the open image picker uses the displayed photograph and page filters retur
  await expect(trigger.locator('image')).toHaveAttribute('href', /robin-car\.webp$/);
  const title = page.locator('#method h2').first();
  await title.evaluate(el => window.scrollBy({top: el.getBoundingClientRect().top - 12, behavior: 'instant'}));
- await expect(title).toHaveAttribute('data-optical-target', '');
- await page.evaluate(() => window.scrollTo({top: 0, behavior: 'instant'}));
- await expect(title).not.toHaveAttribute('data-optical-target', '');
+ await expect(title).toHaveCSS('filter', 'none');
  await page.goto('/research/');
  await expect(page.getByRole('group', { name: 'Filter research' })).toHaveClass(/inline-segments/);
 });
@@ -531,4 +529,67 @@ test('increased contrast keeps the photo menu solid and the document unfiltered'
  await page.keyboard.press('Escape');
  await page.locator('#method h2').first().evaluate(el => window.scrollBy({top: el.getBoundingClientRect().top-12, behavior: 'instant'}));
  await expect(page.locator('[data-optical-target]')).toHaveCount(0);
+});
+
+test('reading rails clear the article, and small windows give the toolbar its own paper strip', async ({ page }) => {
+ await page.goto('/research/tide/#method');
+ for (const width of [1440, 1024, 834, 768, 390, 320]) {
+   await page.setViewportSize({ width, height: 800 });
+   const equation = page.locator('.paper-equation').first();
+   await equation.evaluate(el => scrollBy({ top: el.getBoundingClientRect().top - 50, behavior: 'instant' }));
+   const eq = (await equation.boundingBox())!;
+   const dock = (await page.locator('.reader-dock').boundingBox())!;
+   await expect(equation).toHaveCSS('filter', 'none');
+   if (width >= 816) {
+     const rail = (await page.locator('.site-rail').boundingBox())!;
+     expect(rail.x + rail.width).toBeLessThan(eq.x);
+     expect(dock.x).toBeGreaterThan(eq.x + eq.width);
+     await expect(page.locator('.reader-contents-label')).toBeVisible();
+   } else {
+     await expect(page.locator('.paper-reader-sticky')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+     expect(dock.y + dock.height).toBeLessThanOrEqual(eq.y + 1);
+   }
+ }
+});
+
+test('preview lenses affect only their own active artwork', async ({ page }) => {
+ await page.goto('/');
+ const tide = page.locator('.ph-preview--tide');
+ await tide.scrollIntoViewIfNeeded();
+ await expect(tide.locator('.ph-tide-map')).toHaveAttribute('data-optical-target', '');
+ const epub = page.locator('.project-card-cover--epub');
+ await epub.scrollIntoViewIfNeeded();
+ await epub.getByRole('button', { name: 'Split', exact: true }).click();
+ await expect(epub.locator('img[aria-hidden="false"]')).toHaveAttribute('data-optical-target', '');
+ await expect(epub.locator('img[aria-hidden="true"]')).not.toHaveAttribute('data-optical-target', '');
+ await expect(page.locator('[data-optical-target]:not([data-lens-source])')).toHaveCount(0);
+});
+
+test('scrubbing a glass preview commits on release and dragging away cancels', async ({ page }) => {
+ await page.goto('/');
+ const group = page.getByRole('group', { name: 'Trajectory stages' });
+ const frame = page.locator('.ph-preview--tide');
+ await group.scrollIntoViewIfNeeded();
+ const denoise = group.getByRole('button', { name: 'Denoise' });
+ const guide = group.getByRole('button', { name: 'Guide' });
+ const start = (await denoise.boundingBox())!, end = (await guide.boundingBox())!;
+ const x = end.x + end.width / 2, y = end.y + end.height / 2;
+ await denoise.click();
+ for (const outside of [true, false]) {
+   await page.mouse.move(start.x + start.width / 2, y);
+   await page.mouse.down();
+   await page.mouse.move(x, y, { steps: 8 });
+   await expect(frame).toHaveAttribute('data-stage', 'denoise');
+   if (outside) await page.mouse.move(x, y + 80);
+   await page.mouse.up();
+   await expect(frame).toHaveAttribute('data-stage', outside ? 'denoise' : 'guide');
+ }
+ await page.emulateMedia({ reducedMotion: 'reduce' });
+ await denoise.click();
+ const indicator = group.locator('[data-slot="segmented-control-indicator"]');
+ await expect.poll(async () => {
+   const b = (await indicator.boundingBox())!;
+   return Math.abs(b.x - start.x) + Math.abs(b.width - start.width);
+ }).toBeLessThan(1);
+ await expect(indicator).not.toHaveAttribute('data-lifted', '');
 });

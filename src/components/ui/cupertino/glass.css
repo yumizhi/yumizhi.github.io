@@ -52,19 +52,26 @@
 }
 .lens-defs { position: absolute; width: 0; height: 0; pointer-events: none; }
 [data-optical-target] { filter: var(--page-optics); }
-/* A softly lit band behind the lettering preserves contrast on moving type.
-   The shoulder remains transparent so linework bends visibly at its boundary. */
-.reader-glass[data-page-lens]::before {
-  content: '';
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  background: color-mix(in srgb, var(--background) 69%, transparent);
-  -webkit-backdrop-filter: blur(2.1px);
-  backdrop-filter: blur(2.1px);
-  mask-image: linear-gradient(0deg, #0004, black 32%, black 68%, #0004);
+/* On a lit image, the lens keeps its centre clear and gathers the image's
+   colour at the shoulder. These previews use the same light paper in both themes. */
+.reader-glass.media-glass {
+  --glass-wash: rgb(248 240 255 / .16);
+  --light-arc: rgb(255 255 255 / .93);
+  --shade-arc: rgb(63 32 75 / .31);
+  --frost: .4px;
+  color: #3a2942;
+  background-image: linear-gradient(160deg, #ffffff48, transparent 48%, #75468318);
+  box-shadow: inset 1px 1px 1px #fffb, inset -1px -1px 1.5px #68457740,
+    0 2px 4px -2px #32153e48, 0 5px 12px -6px #32153e52;
+}
+.media-glass [data-slot="segmented-control-item"] { color: #493550; }
+.media-glass [data-slot="segmented-control-item"][data-pressed] { color: #681b70; }
+.media-glass [data-slot="segmented-control-indicator"] {
+  background: linear-gradient(140deg, #ffffffe0, #faf3ff59 62%, #cbb2d852);
+}
+@media (prefers-contrast: more), (prefers-reduced-transparency: reduce), (forced-colors: active) {
+  .media-glass [data-slot="segmented-control-item"] { color: var(--foreground); }
+  .media-glass [data-slot="segmented-control-item"][data-pressed] { color: var(--nju); }
 }
 button.reader-glass, a.reader-glass { -webkit-tap-highlight-color: transparent; }
 button.reader-glass:active, a.reader-glass:active { scale: .975; }
@@ -179,7 +186,7 @@ button.reader-glass:active, a.reader-glass:active { scale: .975; }
   .reader-glass[data-photo-glass], .glass-menu.reader-glass[data-photo-glass] { background: var(--glass-solid); }
   .reader-glass[data-photo-glass], .glass-menu[data-photo-glass] .glass-option { color: var(--foreground); text-shadow: none; }
   .glass-menu[data-photo-glass] .glass-option:is([aria-selected=true], [data-selected]) { color: var(--nju); }
-  .reader-glass::before, .reader-glass::after, .reader-glass[data-page-lens]::before, .reader-glass[data-photo-glass]::before, .lens-scene { display: none; }
+  .reader-glass::before, .reader-glass::after, .reader-glass[data-photo-glass]::before, .lens-scene { display: none; }
 }
 @media (pointer: coarse) {
   .glass-trigger, .glass-option, .glass-menu a.glass-option { min-height: 2.75rem; }

@@ -51,7 +51,7 @@
 .project-card-switcher.site-segments[data-slot="segmented-control"] {
   position: absolute;
   z-index: 1;
-  inset: auto auto .5rem .5rem;
+  inset: auto .65rem .55rem auto;
 }
 .project-card-switcher.site-segments [data-slot="segmented-control-item"] {
   min-block-size: 1.625rem;
