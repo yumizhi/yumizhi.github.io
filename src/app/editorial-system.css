@@ -30,10 +30,6 @@ body { font-family: var(--editorial-font); }
 .section-heading>a { font-size: 12px; }
 .site-footer { padding-top: 65px; padding-bottom: 32px; margin-top: 50px; }
 .research-plate-link { display: block; border-radius: 16px; overflow: hidden; }
-.paper-links { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; margin-top: 19px; }
-.research-card .paper-links a { font-size: 12px; color: var(--foreground); display: inline-flex; align-items: center; gap: 7px; }
-.research-card .paper-links a:first-child { background: var(--foreground); color: var(--background); padding: 6px 14px; border-radius: 999px; }
-.research-card .paper-links a:first-child:hover { background: color-mix(in srgb,var(--foreground) 83%,var(--background)); }
 .research-caption h3 { font-family: var(--font-display); letter-spacing: -.028em; }
 .research-caption h3 a:hover { color: var(--foreground); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; }
 .venue-name { color: var(--nju); font-size: 11px; font-weight: 600; }

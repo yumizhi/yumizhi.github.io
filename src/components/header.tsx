@@ -1,24 +1,121 @@
 'use client';
-import {motionTokens} from '@/lib/motion';
+
 import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
-import { motion, useReducedMotion } from 'motion/react';
-import { Search, Sun, Moon, Menu, House, ArrowUpRight } from 'lucide-react';
-import { Button } from '@/components/ui/coss/button';
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import dynamic from 'next/dynamic';
-const SiteSearch=dynamic(()=>import('./site-search'));
+import { ArrowUpRight, BookOpen, FileText, Folder, House, LibraryBig, Menu, Moon, NotebookPen, Search, Sun } from 'lucide-react';
+import { Button } from './ui/coss/button';
+import { SegmentedControl } from './ui/coss/segmented-control';
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from './ui/sheet';
 import { TransitionLink } from './providers';
-import type { SearchItem } from '@/lib/search';
 import { Localized, useLanguage } from './language';
-const links=[['/research/','Research','研究'],['/projects/','Projects','项目'],['/writing/','Writing','写作'],['/resources/','Resources','资源'],['/cv/','CV','简历']];
-export function Header({index}:{index:SearchItem[]}){
- const {language,setLanguage}=useLanguage();const pathname=usePathname();const reduced=useReducedMotion();const [pending,setPending]=useState<string|null>(null);const [open,setOpen]=useState(false);const [hasSearched,setHasSearched]=useState(false);const [menu,setMenu]=useState(false);const {resolvedTheme,setTheme}=useTheme();const [mounted,setMounted]=useState(false);
- const searchTrigger = useRef<HTMLButtonElement>(null);
- useEffect(()=>{setMounted(true);const key=(e:KeyboardEvent)=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();setHasSearched(true);setOpen(v=>!v);}};document.addEventListener('keydown',key);return()=>document.removeEventListener('keydown',key);},[]);
- useEffect(()=>{setPending(null);setMenu(false);setOpen(false);},[pathname]);
- const isActive=(href:string)=>href==='/'?pathname==='/':pathname===href||pathname.startsWith(href);
- return <><header className="site-header"><div className="header-inner"><TransitionLink className="home-link reader-glass" href="/" aria-current={pathname === '/' ? 'page' : undefined} aria-label={language==='en'?'Home':'返回首页'}><House size={22} strokeWidth={1.7} aria-hidden="true"/></TransitionLink><nav className="desktop-nav reader-glass" aria-label="Main navigation">{links.map(([href,label,chinese])=><TransitionLink key={href} href={href} className="nav-link" onNavigate={()=>setPending(href)} data-selected={((pending??pathname)===href||(pending??pathname).startsWith(href))||undefined} aria-current={isActive(href)?'page':undefined}>{((pending??pathname)===href||(pending??pathname).startsWith(href))&&<motion.span className="nav-active" layoutId="active-navigation" transition={reduced?{duration:0}:motionTokens.navigation}/>}<span><Localized en={label} zh={chinese}/></span></TransitionLink>)}</nav><div className="header-actions reader-glass"><button className="language-switch" onClick={()=>setLanguage(language==='en'?'zh':'en')} aria-label={language==='en'?'中文 (Switch to Chinese)':'EN (Switch to English)'}><span aria-hidden="true">{language==='en'?'中文':'EN'}</span></button><Button ref={searchTrigger} variant="ghost" size="icon" aria-label={language === 'en' ? 'Search site' : '站内搜索'} onClick={()=>{setHasSearched(true);setOpen(true);}}><Search size={18}/></Button><Button variant="ghost" size="icon" onClick={()=>setTheme(resolvedTheme==='dark'?'light':'dark')} aria-label={mounted&&resolvedTheme==='dark'?'Switch to light theme':'Switch to dark theme'}>{mounted&&resolvedTheme==='dark'?<Sun size={18}/>:<Moon size={18}/>}</Button><Sheet open={menu} onOpenChange={setMenu}><SheetTrigger asChild><Button variant="ghost" size="icon" className="mobile-menu" aria-label="Open navigation"><Menu size={20}/></Button></SheetTrigger><SheetContent className="site-drawer" aria-describedby={undefined}><div className="mobile-nav-heading"><SheetTitle><Localized en="Explore" zh="浏览"/></SheetTitle></div><nav className="sheet-nav" aria-label="Mobile navigation">{[['/','Home','首页'],...links].map(([href,label,chinese])=><TransitionLink key={href} href={href} onClick={()=>setMenu(false)} aria-current={isActive(href)?'page':undefined}><Localized en={label} zh={chinese}/><ArrowUpRight size={18}/></TransitionLink>)}</nav></SheetContent></Sheet></div></div></header>{hasSearched&&<SiteSearch index={index} open={open} onOpenChange={setOpen} trigger={searchTrigger}/>}</>;
+import type { SearchItem } from '@/lib/search';
+
+const SiteSearch = dynamic(() => import('./site-search'));
+const destinations = [
+  { href: '/', en: 'Home', zh: '首页', icon: House },
+  { href: '/research/', en: 'Research', zh: '研究', icon: BookOpen },
+  { href: '/projects/', en: 'Projects', zh: '项目', icon: Folder },
+  { href: '/writing/', en: 'Writing', zh: '写作', icon: NotebookPen },
+  { href: '/resources/', en: 'Resources', zh: '资源', icon: LibraryBig },
+  { href: '/cv/', en: 'CV', zh: '简历', icon: FileText },
+];
+
+function sectionOf(path: string, href: string) {
+  return href === '/' ? path === '/' : path === href.slice(0, -1) || path.startsWith(href);
 }
-export function Footer(){return <footer className="site-footer shell"><p><Localized en="Nanjing University · Computer Science" zh="南京大学 · 计算机科学"/></p><div className="footer-links"><a href="mailto:mengyihan@smail.nju.edu.cn"><Localized en="Get in touch" zh="联系我"/> <ArrowUpRight size={14}/></a><a href="https://github.com/yumizhi" target="_blank" rel="noreferrer">GitHub <ArrowUpRight size={14}/></a><span>© {new Date().getFullYear()}</span></div></footer>;}
+
+export function Header({ index }: { index: SearchItem[] }) {
+  const { language, setLanguage } = useLanguage();
+  const pathname = usePathname();
+  const [pending, setPending] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [menu, setMenu] = useState(false);
+  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  const searchTrigger = useRef<HTMLButtonElement>(null);
+  const dark = mounted && resolvedTheme === 'dark';
+  const ThemeIcon = dark ? Sun : Moon;
+
+  useEffect(() => {
+    setMounted(true);
+    const key = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+        event.preventDefault();
+        setMenu(false);
+        setHasSearched(true);
+        setOpen(previous => !previous);
+      }
+    };
+    document.addEventListener('keydown', key);
+    return () => document.removeEventListener('keydown', key);
+  }, []);
+
+  useEffect(() => {
+    setPending(null);
+    setMenu(false);
+    setOpen(false);
+  }, [pathname]);
+
+  const toggleLanguage = () => setLanguage(language === 'en' ? 'zh' : 'en');
+  const toggleTheme = () => setTheme(dark ? 'light' : 'dark');
+  const languageLabel = language === 'en' ? '中文 (Switch to Chinese)' : 'EN (Switch to English)';
+  const themeLabel = dark ? 'Switch to light theme' : 'Switch to dark theme';
+
+  return <>
+    <header className="site-header">
+      <div className="header-inner">
+        <SegmentedControl render={<nav aria-label="Main navigation" />} className="site-rail reader-glass">
+          {destinations.map(({ href, icon: Icon, ...name }) => (
+            <TransitionLink key={href} className="destination" href={href}
+              onNavigate={() => setPending(href)} aria-label={name[language]} title={name[language]}
+              aria-current={sectionOf(pathname, href) ? 'page' : undefined}
+              data-selected={sectionOf(pending ?? pathname, href) || undefined}>
+              <Icon size={17} strokeWidth={1.75} aria-hidden="true" />
+              {href !== '/' && <span>{name[language]}</span>}
+            </TransitionLink>
+          ))}
+        </SegmentedControl>
+        <div className="header-actions reader-glass">
+          <button className="language-switch header-preference" onClick={toggleLanguage} aria-label={languageLabel}>
+            {language === 'en' ? '中文' : 'EN'}
+          </button>
+          <Button ref={searchTrigger} variant="ghost" size="icon" aria-label={language === 'en' ? 'Search site' : '站内搜索'}
+            onClick={() => { setHasSearched(true); setOpen(true); }}><Search size={18} /></Button>
+          <Button variant="ghost" size="icon" className="header-preference" onClick={toggleTheme} aria-label={themeLabel}><ThemeIcon size={18} /></Button>
+          <Sheet open={menu} onOpenChange={setMenu}>
+            <SheetTrigger asChild><Button variant="ghost" size="icon" className="mobile-menu" aria-label={language === 'en' ? 'Open navigation' : '打开导航'}><Menu size={20} /></Button></SheetTrigger>
+            <SheetContent className="site-drawer" aria-describedby={undefined}>
+              <div className="mobile-nav-heading"><SheetTitle><Localized en="Explore" zh="浏览" /></SheetTitle></div>
+              <nav className="sheet-nav" aria-label="Mobile navigation">
+                {destinations.map(({ href, icon: Icon, ...name }) => (
+                  <TransitionLink key={href} href={href} onClick={() => setMenu(false)} aria-current={sectionOf(pathname, href) ? 'page' : undefined}>
+                    <Icon size={18} aria-hidden="true" />{name[language]}
+                  </TransitionLink>
+                ))}
+              </nav>
+              <div className="drawer-preferences">
+                <button onClick={toggleLanguage} aria-label={languageLabel}>{language === 'en' ? '中文' : 'English'}</button>
+                <button onClick={toggleTheme} aria-label={themeLabel}><ThemeIcon size={17} />{dark ? <Localized en="Light mode" zh="浅色模式" /> : <Localized en="Dark mode" zh="深色模式" />}</button>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </div>
+    </header>
+    {hasSearched && <SiteSearch index={index} open={open} onOpenChange={setOpen} trigger={searchTrigger} />}
+  </>;
+}
+
+export function Footer() {
+  return <footer className="site-footer shell">
+    <p><Localized en="Nanjing University · Computer Science" zh="南京大学 · 计算机科学" /></p>
+    <div className="footer-links">
+      <a href="mailto:mengyihan@smail.nju.edu.cn"><Localized en="Get in touch" zh="联系我" /> <ArrowUpRight size={14} /></a>
+      <a href="https://github.com/yumizhi" target="_blank" rel="noreferrer">GitHub <ArrowUpRight size={14} /></a>
+      <span>© {new Date().getFullYear()}</span>
+    </div>
+  </footer>;
+}

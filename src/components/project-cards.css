@@ -52,17 +52,12 @@
   position: absolute;
   z-index: 1;
   inset: auto auto .5rem .5rem;
-  background: #eee6f2;
-  box-shadow: 0 1px 8px #33154422;
 }
 .project-card-switcher.site-segments [data-slot="segmented-control-item"] {
   min-block-size: 1.625rem;
-  color: #55395e;
   font-size: .7rem;
   padding-inline: .625rem;
 }
-.project-card-switcher.site-segments [data-slot="segmented-control-indicator"] { background: #fff; }
-.project-card-switcher.site-segments [data-slot="segmented-control-item"][data-pressed] { color: #64276d; }
 
 .project-card-copy { padding-block-start: .7rem; }
 .project-card-category { margin: 0 0 .3rem; color: var(--editorial-link); font-size: .75rem; font-weight: 620; }

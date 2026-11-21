@@ -9,9 +9,10 @@ import './article-section-nav.css';
 
 type Section = { id: string; en: string; zh: string };
 
-export function ArticleSectionNav({ sections, label }: {
+export function ArticleSectionNav({ sections, label, embedded = false }: {
   sections: readonly Section[];
   label: { en: string; zh: string };
+  embedded?: boolean;
 }) {
   const { language } = useLanguage();
   const nav = useRef<HTMLElement>(null);
@@ -51,8 +52,8 @@ export function ArticleSectionNav({ sections, label }: {
   return (
     <nav ref={nav} className="article-section-nav" aria-label={label[language]}>
       <Menu modal={false}>
-        <MenuTrigger className="reader-glass glass-trigger" aria-label={`${label[language]}, ${current[language]}`}>
-          <LensRefraction />
+        <MenuTrigger className={embedded ? "glass-trigger" : "glass-trigger reader-glass"} aria-label={`${label[language]}, ${current[language]}`}>
+          {!embedded && <LensRefraction />}
           <List size={16} aria-hidden="true" />
           <span>{current[language]}</span>
           <ChevronDown size={13} aria-hidden="true" />
