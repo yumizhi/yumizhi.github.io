@@ -20,7 +20,7 @@ export async function generateMetadata({params}: {params: Promise<{slug: string}
  const url = absoluteURL(`/projects/${slug}/`);
  const metadata: Metadata = {title: project?.title, description: project?.summary, alternates: {canonical: url}};
  if (project?.slug === 'personal-agent') {
-   const preview = project.previews?.find(view => view.id === 'studio');
+   const preview = project.previews?.[0];
    if (preview) {
      const images = [{url: absoluteURL(preview.image), width: preview.width, height: preview.height, alt: preview.alt}];
      metadata.openGraph = {type: 'article', siteName: 'Yihan Meng', title: project.title, description: project.summary, url, images};

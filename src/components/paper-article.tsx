@@ -1,3 +1,4 @@
+import { studyOpenings } from './paper-figures/study-openings';
 import type { ReactNode } from 'react';
 import { ArrowLeft, ArrowUpRight, ChevronRight, Download, FileText } from 'lucide-react';
 import { papers, type Paper } from '@/lib/content';
@@ -23,6 +24,7 @@ type PaperArticleProps = {
 };
 
 export function PaperArticle({ paper, title, authorNotes, affiliations, abstractBreaks, overviewFigure, children }: PaperArticleProps) {
+  const opening = studyOpenings[paper.slug as keyof typeof studyOpenings];
   const nextIndex = (papers.findIndex(item => item.slug === paper.slug) + 1) % papers.length;
   const current = { slug: paper.slug, shortTitle: paper.shortTitle, venue: paper.venue, year: paper.year };
   const paperLinks = papers.map(({ slug, shortTitle, venue, year }) => ({ slug, shortTitle, venue, year }));
@@ -39,6 +41,7 @@ export function PaperArticle({ paper, title, authorNotes, affiliations, abstract
         <div className="tide-masthead">
           <p className="tide-venue">{paper.venue} {paper.year}{paper.slug === 'sasbo' && ' · Oral'}</p>
           <h1 lang="en">{title ?? paper.title}</h1>
+          <p className="study-lead"><Localized {...opening.lead} /></p>
           <ul className="tide-byline" aria-label="Authors" lang="en">
             {paper.authors.map((author, i) => <li key={author}>{author}<sup>{authorNotes[i]}</sup></li>)}
           </ul>
@@ -63,8 +66,8 @@ export function PaperArticle({ paper, title, authorNotes, affiliations, abstract
       <div className="paper-body-grid">
         <div className="tide-document">
           <section id="overview" className="tide-abstract tide-bound" aria-labelledby="paper-overview-heading">
-            <h2 id="paper-overview-heading"><Localized {...paper.introduction.title} /></h2>
-            {paper.introduction.paragraphs.map(paragraph => (
+            <h2 id="paper-overview-heading"><Localized {...opening.title} /></h2>
+            {opening.paragraphs.map(paragraph => (
               <p key={paragraph.en}><Localized {...paragraph} /></p>
             ))}
           </section>

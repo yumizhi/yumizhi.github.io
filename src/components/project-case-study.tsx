@@ -5,8 +5,8 @@ import { Localized } from './language';
 import { ProjectCaseEvidence } from './project-case-evidence';
 import { EpubEngineStory } from './epub-engine-story';
 import { ProjectCaseFlow } from './project-case-flow';
-import { AgentHandoff } from './agent-handoff';
-import { Diagram, ProjectArchitecture } from './project-architecture';
+import { AgentProductEvidence } from './agent-product-evidence';
+import { ProjectArchitecture } from './project-architecture';
 import { ProjectArticleFigure } from './project-article-figures';
 import { projects, type Project } from '@/lib/content';
 import { projectStories } from '@/lib/project-stories';
@@ -31,11 +31,8 @@ export function ProjectCaseStudy({ project }: { project: Project }) {
             ))}
           </div>
         </div>
-        {project.slug === 'personal-agent' && <Diagram id="agent-handoff-comparison"
-          title={{ en: 'Two readings of the same handoff', zh: '同一笔交接的两次核算' }}
-          caption={{ en: 'Both runs start at 08:10 UTC. Correcting the acknowledgement moves the finish to the other side of the same 45-minute allowance.', zh: '两次运行的起点都是 08:10 UTC。确认时间更正后，终点落到了同一条 45 分钟时限的另一侧。' }}>
-          <AgentHandoff />
-        </Diagram>}
+        {project.slug === 'personal-agent' && <AgentProductEvidence />}
+        {story.steps && story.workflowTitle && <ProjectCaseFlow slug={project.slug} steps={story.steps} title={story.workflowTitle} />}
       </section>
 
       {chapters && (
@@ -61,7 +58,6 @@ export function ProjectCaseStudy({ project }: { project: Project }) {
           </div>
         )}
 
-        {story.steps && story.workflowTitle && <ProjectCaseFlow slug={project.slug} steps={story.steps} title={story.workflowTitle} />}
         {project.slug === 'epub-toolkit' && <EpubEngineStory />}
 
         {chapters && <ChapterProse chapters={chapters.implementation} />}
@@ -91,7 +87,7 @@ export function ProjectCaseStudy({ project }: { project: Project }) {
 
       <section className="case-section case-verification" id="verification" tabIndex={-1} aria-labelledby="case-verification">
         <header className="project-story-heading">
-          <h2 id="case-verification"><Localized en="Validation results" zh="验收结果" /></h2>
+          <h2 id="case-verification"><Localized {...story.resultsTitle} /></h2>
         </header>
         {chapters && <ChapterProse chapters={chapters.verification} />}
         <ProjectCaseEvidence checks={story.checks} />

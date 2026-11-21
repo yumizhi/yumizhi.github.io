@@ -1,6 +1,5 @@
 import { Localized } from '../language';
 import { PaperEquation } from './paper-equation';
-import { SasboArm } from './sasbo-arm';
 import './evidence-figure.css';
 import './worked-figures.css';
 
@@ -55,7 +54,7 @@ export function SasboArmMath() {
       en="Both tests select the coordinate with probability pⱼ. They share the same draw, so the lower and upper shaded intervals determine which two settings will be compared. In the special case where every other coordinate is held fixed, a draw in the overlap selects the entry in both masks. A draw outside both intervals selects it in neither. Those cases contribute zero to the loss difference. The informative draws switch the entry on in one mask and off in the other."
       zh="两种测试选中该坐标的概率都是 pⱼ，而且用的都是同一个随机数。图中下端和上端的阴影分别决定两张掩码选哪些位置。先固定其他坐标，只看这一项。随机数落进重叠区时，两张掩码都打开开关。落在两个区间之外时，两个开关都关闭。这两种情况下损失之差都是零。有效的比较来自只打开其中一个开关的抽样。"
     /></p>
-    <SasboArm />
+
     <PaperEquation number="5, 8" math={tex`\begin{aligned}
       R(\phi)&=\mathbb E_M[F(M)] + \sum_j e_j p_j
     \end{aligned}`} />

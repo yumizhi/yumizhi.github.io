@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { Localized } from './language';
-import { AgentHandoffCover } from './agent-handoff';
 import { EpubPreview } from './epub-preview';
 import { asset } from '@/lib/paths';
 import type { Project } from '@/lib/content';
@@ -9,7 +8,8 @@ import './project-cards.css';
 
 export function ProjectCard({ project, heading: Heading = 'h3' }: { project: Project; heading?: 'h2' | 'h3' }) {
   const href = `/projects/${project.slug}/`;
-  const summary = project.cardSummary ?? { en: project.summary, zh: project.summaryZh ?? project.summary };
+  const overview = { en: project.summary, zh: project.summaryZh ?? project.summary };
+  const summary = Heading === 'h2' ? overview : project.cardSummary ?? overview;
   const merge = project.previews?.find(view => view.id === 'merge');
   const split = project.previews?.find(view => view.id === 'split');
 
@@ -17,7 +17,7 @@ export function ProjectCard({ project, heading: Heading = 'h3' }: { project: Pro
     <article className="project-card" data-project={project.slug}>
       {merge && split ? <EpubPreview views={[merge, split]} /> : (
         <Link href={href} className="project-card-cover" tabIndex={-1} aria-hidden="true">
-          {project.slug === 'personal-agent' ? <AgentHandoffCover /> : <img src={asset(project.image)} loading="lazy" alt="" />}
+          <img src={asset(project.image)} loading="lazy" alt="" />
         </Link>
       )}
       <div className="project-card-copy">

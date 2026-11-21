@@ -13,18 +13,15 @@ export const metadata: Metadata = {
 };
 
 export default function Projects() {
-  const featured = projects.find(project => project.slug === 'epub-toolkit');
-  const others = projects.filter(project => project !== featured);
   return <div className="editorial-shell directory-page portfolio-editorial project-directory">
     <header className="page-heading">
       <h1><Localized en="Projects" zh="项目" /></h1>
 
     </header>
-    <div className="project-index project-list">
-      {featured && <ProjectShowcase project={featured} />}
-      <div className="project-card-list">
-        {others.map(project => <ProjectCard key={project.slug} project={project} heading="h2" />)}
-      </div>
+    <div className="project-index portfolio-project-index">
+      {projects.map(project => project.slug === 'epub-toolkit'
+        ? <ProjectShowcase key={project.slug} project={project} />
+        : <ProjectCard key={project.slug} project={project} heading="h2" />)}
     </div>
   </div>;
 }
