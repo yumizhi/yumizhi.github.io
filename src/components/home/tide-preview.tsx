@@ -206,7 +206,7 @@ export function TidePlate() {
           aria-label={language === 'zh' ? (reduced ? '下一阶段' : playing ? '暂停轨迹' : '播放轨迹') : (reduced ? 'Next trajectory stage' : playing ? 'Pause trajectory' : 'Play trajectory')}>
           {reduced ? <SkipForward aria-hidden="true" /> : playing ? <Pause aria-hidden="true" /> : <Play aria-hidden="true" />}
         </Button>
-        <FilterTabs value={stage} onChange={selectStage} className="ph-tide-segments"
+        <FilterTabs overlay value={stage} onChange={selectStage} className="ph-tide-segments"
           label={language === 'zh' ? '轨迹阶段' : 'Trajectory stages'}
           options={stages.map(item => ({ value: item.value, label: <Localized en={item.en} zh={item.zh} /> }))} />
       </div>

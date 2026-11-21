@@ -1,30 +1,46 @@
-/* Keep the centre quiet. The optical layer bends the scene at the shoulder of
-   the lens without drawing a coloured or white perimeter over it. */
+/* The transparent face and the reflected light are separate. Labels stay on
+   the front plane while the sampled photograph or document bends underneath. */
 .reader-glass {
   --glass-solid: var(--background);
-  --glass-wash: color-mix(in srgb, var(--background) 59%, transparent);
-  --glass-selection: color-mix(in srgb, var(--foreground) 9%, transparent);
-  --glass-depth: rgb(35 27 45 / .18);
+  --glass-wash: color-mix(in srgb, var(--background) 40%, transparent);
+  --glass-selection: color-mix(in srgb, var(--nju) 9%, transparent);
+  --glass-depth: rgb(26 21 32 / .22);
+  --light-arc: rgb(255 255 255 / .82);
+  --shade-arc: rgb(37 31 46 / .26);
   position: relative;
   isolation: isolate;
   border: 0;
   border-radius: 999px;
   background: var(--glass-solid);
   color: var(--foreground);
-  box-shadow: 0 1px 3px -1px var(--glass-depth), 0 4px 14px -7px var(--glass-depth);
+  box-shadow: 0 1px 2px -1px var(--glass-depth), 0 5px 12px -6px var(--glass-depth);
 }
 .dark .reader-glass {
-  --glass-wash: rgb(34 31 37 / .7);
-  --glass-selection: rgb(249 239 252 / .14);
-  --glass-depth: rgb(0 0 0 / .54);
+  --glass-wash: rgb(23 21 29 / .47);
+  --glass-selection: rgb(241 223 247 / .13);
+  --glass-depth: rgb(0 0 0 / .48);
+  --light-arc: rgb(255 255 255 / .44);
+  --shade-arc: rgb(0 0 0 / .48);
+}
+.reader-glass::after {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(139deg,var(--light-arc),transparent 22%,transparent 46%,var(--shade-arc) 71%,transparent 85%,var(--light-arc));
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
 }
 @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .reader-glass {
     background: var(--glass-wash);
-    -webkit-backdrop-filter: saturate(130%) blur(var(--frost, 5px));
-    backdrop-filter: saturate(130%) blur(var(--frost, 5px));
+    -webkit-backdrop-filter: saturate(125%) blur(var(--frost, 2px));
+    backdrop-filter: saturate(125%) blur(var(--frost, 2px));
   }
-  .reader-glass:has(> svg[width="0"]):not(:has(> .lens-scene))::before {
+  .reader-glass:has(> .lens-defs)::before {
     content: '';
     position: absolute;
     pointer-events: none;
@@ -33,6 +49,22 @@
     border-radius: inherit;
     backdrop-filter: var(--rim-filter, none);
   }
+}
+.lens-defs { position: absolute; width: 0; height: 0; pointer-events: none; }
+[data-optical-target] { filter: var(--page-optics); }
+/* A softly lit band behind the lettering preserves contrast on moving type.
+   The shoulder remains transparent so linework bends visibly at its boundary. */
+.reader-glass[data-page-lens]::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--background) 69%, transparent);
+  -webkit-backdrop-filter: blur(2.1px);
+  backdrop-filter: blur(2.1px);
+  mask-image: linear-gradient(0deg, #0004, black 32%, black 68%, #0004);
 }
 button.reader-glass, a.reader-glass { -webkit-tap-highlight-color: transparent; }
 button.reader-glass:active, a.reader-glass:active { scale: .975; }
@@ -50,14 +82,55 @@ button.reader-glass:active, a.reader-glass:active { scale: .975; }
   cursor: pointer;
   white-space: nowrap;
 }
-.lens-scene { inset: 0; z-index: -1; overflow: hidden; border-radius: inherit; clip-path: inset(0 round 999px); }
+.lens-scene {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+}
+.reader-glass[data-photo-glass] {
+  background: rgb(23 20 25 / .32);
+  color: white;
+  text-shadow: 0 1px 3px #110b13e0, 0 0 7px #18121cc0;
+}
+.reader-glass[data-photo-glass]::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(155deg,rgb(33 23 35 / .16),rgb(24 17 28 / .34) 55%,rgb(36 26 34 / .22));
+}
+.glass-menu.reader-glass[data-photo-glass] {
+  min-width: max(8.4rem, var(--anchor-width));
+  background: rgb(27 20 30 / .46);
+}
+.glass-menu[data-photo-glass] .glass-option { color: white; text-shadow: inherit; }
+.glass-menu[data-photo-glass] .glass-option[data-highlighted] { background: rgb(255 255 255 / .14); }
+.glass-menu[data-photo-glass] .glass-option:is([aria-selected=true], [data-selected]) { color: white; }
+.glass-menu[data-photo-glass] .glass-option > svg { filter: drop-shadow(0 1px 2px #251022); }
+.glass-menu[data-photo-glass]::before { display: block; }
+.reader-glass[data-bright-photo], .glass-menu[data-bright-photo] .glass-option,
+.glass-menu[data-bright-photo] .glass-option:is([aria-selected=true], [data-selected]) {
+  color: #211b24;
+  text-shadow: 0 1px 3px #fffc;
+}
+.reader-glass[data-bright-photo]::before {
+  background: linear-gradient(150deg, rgb(255 255 255 / .24), rgb(255 255 255 / .45) 58%, rgb(255 255 255 / .22));
+}
+.glass-menu[data-bright-photo] .glass-option[data-highlighted] { background: rgb(255 255 255 / .32); }
+
+
 .glass-trigger > svg:not([width="0"]):not(.lens-scene) { color: var(--nju); }
 .glass-trigger[aria-expanded=true] svg:last-child { rotate: 180deg; }
 .glass-trigger:focus:not(:focus-visible) { outline: none; }
 .glass-trigger:focus-visible, .reader-glass a:focus-visible { outline: 2px solid var(--nju); outline-offset: 2px; }
 .glass-positioner { z-index: 54; }
 .glass-menu.reader-glass {
-  --glass-wash: color-mix(in srgb, var(--background) 84%, transparent);
+  --glass-wash: color-mix(in srgb, var(--background) 72%, transparent);
   min-width: max(10rem, var(--anchor-width));
   max-width: calc(100vw - 1rem);
   max-height: min(60dvh, var(--available-height));
@@ -72,7 +145,7 @@ button.reader-glass:active, a.reader-glass:active { scale: .975; }
     -webkit-backdrop-filter: blur(14px) saturate(140%);
     backdrop-filter: blur(14px) saturate(140%);
   }
-  .glass-menu.reader-glass::before { display: none; }
+
 }
 .glass-menu [role=listbox], .glass-menu > [role=presentation], .glass-menu > div { padding: .32rem; }
 .glass-option, .glass-menu a.glass-option {
@@ -103,7 +176,10 @@ button.reader-glass:active, a.reader-glass:active { scale: .975; }
 }
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more), (forced-colors: active) {
   .reader-glass, .glass-menu.reader-glass { background: var(--glass-solid); backdrop-filter: none; -webkit-backdrop-filter: none; outline: 1px solid currentColor; }
-  .reader-glass::before, .reader-glass::after, .lens-scene { display: none; }
+  .reader-glass[data-photo-glass], .glass-menu.reader-glass[data-photo-glass] { background: var(--glass-solid); }
+  .reader-glass[data-photo-glass], .glass-menu[data-photo-glass] .glass-option { color: var(--foreground); text-shadow: none; }
+  .glass-menu[data-photo-glass] .glass-option:is([aria-selected=true], [data-selected]) { color: var(--nju); }
+  .reader-glass::before, .reader-glass::after, .reader-glass[data-page-lens]::before, .reader-glass[data-photo-glass]::before, .lens-scene { display: none; }
 }
 @media (pointer: coarse) {
   .glass-trigger, .glass-option, .glass-menu a.glass-option { min-height: 2.75rem; }

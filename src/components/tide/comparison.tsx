@@ -22,7 +22,7 @@ export function TideComparison({ original, caption }: { original: string; captio
   const reduced = useReducedMotion();
   const { language } = useLanguage();
   return (
-    <figure className="tide-comparison" aria-label={language === 'zh' ? '图像对照' : 'Image comparison'}>
+    <figure id="image-comparison" className="tide-comparison" aria-label={language === 'zh' ? '图像对照' : 'Image comparison'}>
       <div className="tide-pair">
         <div className="tide-sample">
           <img width={226} height={226} src={sample('clean', scene.id)} alt={`Unwatermarked · ${scene.en}`} />

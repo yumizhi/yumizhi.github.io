@@ -18,7 +18,7 @@ export function GlassChoice({ label, value, items, onChange, icon: Icon, scene }
   const current = items.find(item => item.value === value);
   return (
     <Select.Root modal={false} items={items} value={value} onValueChange={next => { if (next !== null) onChange(next); }}>
-      <Select.Trigger className="reader-glass glass-trigger" aria-label={`${label}, ${current?.label ?? value}`}>
+      <Select.Trigger className="reader-glass glass-trigger" data-photo-glass={scene ? "" : undefined} aria-label={`${label}, ${current?.label ?? value}`}>
         <LensRefraction scene={scene} />
         {Icon && <Icon size={16} aria-hidden="true" />}
         <Select.Value />
@@ -26,7 +26,8 @@ export function GlassChoice({ label, value, items, onChange, icon: Icon, scene }
       </Select.Trigger>
       <Select.Portal>
         <Select.Positioner className="glass-positioner" alignItemWithTrigger={false} side="top" sideOffset={6} align="start">
-          <Select.Popup className="reader-glass glass-menu">
+          <Select.Popup className="reader-glass glass-menu" data-photo-glass={scene ? "" : undefined}>
+            {scene && <LensRefraction scene={scene} />}
             <Select.List aria-label={label}>
               {items.map(item => (
                 <Select.Item key={item.value} value={item.value} className="glass-option">
