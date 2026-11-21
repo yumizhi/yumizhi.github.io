@@ -5,7 +5,8 @@ import { Localized } from './language';
 import { ProjectCaseEvidence } from './project-case-evidence';
 import { EpubEngineStory } from './epub-engine-story';
 import { ProjectCaseFlow } from './project-case-flow';
-import { ProjectArchitecture } from './project-architecture';
+import { AgentHandoff } from './agent-handoff';
+import { Diagram, ProjectArchitecture } from './project-architecture';
 import { ProjectArticleFigure } from './project-article-figures';
 import { projects, type Project } from '@/lib/content';
 import { projectStories } from '@/lib/project-stories';
@@ -30,6 +31,11 @@ export function ProjectCaseStudy({ project }: { project: Project }) {
             ))}
           </div>
         </div>
+        {project.slug === 'personal-agent' && <Diagram id="agent-handoff-comparison"
+          title={{ en: 'Two readings of the same handoff', zh: '同一笔交接的两次核算' }}
+          caption={{ en: 'Both runs start at 08:10 UTC. Correcting the acknowledgement moves the finish to the other side of the same 45-minute allowance.', zh: '两次运行的起点都是 08:10 UTC。确认时间更正后，终点落到了同一条 45 分钟时限的另一侧。' }}>
+          <AgentHandoff />
+        </Diagram>}
       </section>
 
       {chapters && (

@@ -135,39 +135,39 @@ function OriginMarkArchitecture() {
 function AgentArchitecture() {
   return (
     <Diagram id="personal-agent-overview" project="personal-agent"
-      title={{ en: 'A scheduled application and its delivery records', zh: '定时应用的执行与交付记录' }}
+      title={{ en: 'An inspection from input to review', zh: '一次巡检从输入到复核' }}
       caption={{
-        en: 'The approved plan pins the application release. SQLite links each scheduled occurrence to its run. The inbox receipt leads back to that run and its evidence.',
-        zh: '批准计划时固定应用版本。SQLite 保存每次排期触发与应用运行的关联。收件箱的投递回执可以追溯到这次运行及其引用资料。',
+        en: 'A version fixes the steps. A run binds inputs, evidence and receipts. A correction opens another run on the same version.',
+        zh: '版本固定步骤，运行关联输入、证据与回执。更正输入后，原工作流版本上会新增一次运行。',
       }}>
       <ol className="agent-map" role="list">
         <li className="agent-stage">
-          <div className="agent-stage-head"><CalendarClock size={21} strokeWidth={1.65} aria-hidden="true" /><strong><Text en="Before the scheduled time" zh="排期确认" /></strong></div>
+          <div className="agent-stage-head"><CalendarClock size={21} strokeWidth={1.65} aria-hidden="true" /><strong><Text en="Workflow version" zh="固定流程" /></strong></div>
           <dl>
             <dt><Text en="Project Studio" zh="项目 Studio" /></dt>
             <dd><Text en="Publish an agent or workflow snapshot." zh="发布 Agent 或工作流的版本快照。" /></dd>
-            <dt><Text en="Approved plan" zh="已批准的计划" /></dt>
-            <dd><Text en="Pin the app version, time zone and recipient." zh="固定应用版本、时区和收件人。" /></dd>
+            <dt><Text en="Inspection input" zh="交接输入" /></dt>
+            <dd><Text en="Identify the handoff and its acknowledgement time." zh="指定交接记录及确认时间。" /></dd>
           </dl>
         </li>
         <li className="agent-stage">
           <FlowArrow />
-          <div className="agent-stage-head"><Database size={21} strokeWidth={1.65} aria-hidden="true" /><strong><Text en="When the schedule fires" zh="后台执行" /></strong></div>
+          <div className="agent-stage-head"><Database size={21} strokeWidth={1.65} aria-hidden="true" /><strong><Text en="Execution" zh="后台执行" /></strong></div>
           <dl>
-            <dt><Text en="Scheduler → SQLite" zh="调度器 → SQLite" /></dt>
-            <dd><Text en="Link this occurrence to its application run." zh="保存本次排期实例与应用运行的关联。" /></dd>
-            <dt><Text en="Application worker" zh="应用 Worker" /></dt>
-            <dd><Text en="Read project sources and wait for approval on a gated write." zh="读取项目资料，需审批的写入先挂起。" /></dd>
+            <dt><Text en="Read tools" zh="只读工具" /></dt>
+            <dd><Text en="Read the register, match the clause and calculate elapsed time." zh="读取登记、匹配条款、计算耗时。" /></dd>
+            <dt><Text en="Write approval" zh="写入审批" /></dt>
+            <dd><Text en="Wait for approval of this work order." zh="等待成员批准本次工单。" /></dd>
           </dl>
         </li>
         <li className="agent-stage">
           <FlowArrow />
-          <div className="agent-stage-head"><Inbox size={21} strokeWidth={1.65} aria-hidden="true" /><strong><Text en="After the run" zh="结果交付" /></strong></div>
+          <div className="agent-stage-head"><Inbox size={21} strokeWidth={1.65} aria-hidden="true" /><strong><Text en="Report and review" zh="报告与复核" /></strong></div>
           <dl>
             <dt><Text en="Report and artifact" zh="报告与附件" /></dt>
             <dd><Text en="Store the citations from this run." zh="保留本次运行所用的原文引用。" /></dd>
-            <dt><Text en="Member inbox" zh="成员收件箱" /></dt>
-            <dd><Text en="Record delivery and link to the original run." zh="记录投递结果，并链接到原运行。" /></dd>
+            <dt><Text en="Reviewer" zh="复核人" /></dt>
+            <dd><Text en="Attach a reason and request a corrected run." zh="在原稿附上理由，发起更正运行。" /></dd>
           </dl>
         </li>
       </ol>

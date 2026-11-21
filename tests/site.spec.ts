@@ -226,7 +226,7 @@ test('mobile project showcases keep private repository links out of the page', a
  await page.goto('/projects/');
  for (const project of [
   { title: 'OriginMark', slug: 'originmark', tab: 'Verify', asset: 'originmark-verify' },
-  { title: 'Personal Agent', slug: 'personal-agent', tab: 'Run history', asset: 'personal-agent-runs' },
+  { title: 'Personal Agent', slug: 'personal-agent', tab: 'Corrected run', asset: 'agent-corrected' },
  ]) {
   await page.getByRole('link', { name: project.title, exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/projects/${project.slug}/$`));
@@ -234,9 +234,9 @@ test('mobile project showcases keep private repository links out of the page', a
   await expect(detail).toContainText('Source code is private.');
   await expect(detail.locator('a[href*="github.com"]:not([href^="https://github.com/earendil-works/pi/"])')).toHaveCount(0);
   if (project.slug === 'personal-agent') {
-   await expect(detail.getByRole('combobox', { name: 'Choose preview, Chat' })).toBeVisible();
-   await choosePreview(page, 'Assistants');
-   await expect(detail.locator('.stage-capture[aria-hidden="false"] img')).toHaveAttribute('src', /personal-agent-assistants/);
+   await expect(detail.getByRole('combobox', { name: 'Choose preview, Workflow studio' })).toBeVisible();
+   await choosePreview(page, 'Source watch');
+   await expect(detail.locator('.stage-capture[aria-hidden="false"] img')).toHaveAttribute('src', /agent-watch/);
   }
   await choosePreview(page, project.tab);
   await expect(detail.locator('.stage-capture[aria-hidden="false"] img')).toHaveAttribute('src', new RegExp(project.asset));
@@ -266,7 +266,7 @@ test('case studies expose anchored design and implementation with keyboard-opera
  await page.keyboard.press('Enter');
  await expect(page.getByRole('tabpanel', { name: 'Tool call', exact: true })).toContainText('validated result');
  await jumpToSection(page, 'Validation');
- await expect(page.locator('#verification')).toContainText('web-inbox receipt');
+ await expect(page.locator('#verification')).toContainText('no third receipt appears');
  await expect(sections.getByRole('button')).toHaveAccessibleName(/, Validation$/);
  await page.getByRole('navigation', { name: 'Other projects' }).getByRole('link', { name: 'OriginMark' }).click();
  await expect(page.locator('#implementation').getByRole('link', { name: /TIDE/ })).toHaveAttribute('href', '/research/tide/');
@@ -279,7 +279,7 @@ test('project architecture figures preserve their evidence on desktop and mobile
  for (const { slug, evidence, details } of [
   { slug: 'epub-toolkit', evidence: 'Merge record', details: ['epub-worker-handoff', 'epub-path-roundtrip'] },
   { slug: 'originmark', evidence: 'Commit output under the current lease', details: ['originmark-teapot-report', 'originmark-lease-recovery'] },
-  { slug: 'personal-agent', evidence: 'Delivery receipt', details: ['agent-run-link', 'agent-report-evidence', 'agent-runtime-trace', 'agent-workflow-data', 'agent-message-transport'] },
+  { slug: 'personal-agent', evidence: 'Delivery receipt', details: ['agent-run-link', 'agent-report-evidence', 'agent-runtime-trace', 'agent-workflow-data', 'agent-message-transport', 'agent-watch-replay', 'agent-handoff-comparison'] },
  ]) {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto(`/projects/${slug}/#architecture`);
@@ -642,4 +642,19 @@ test('mobile project navigation keeps its glass within the control and remembers
  await sheet.getByRole('link', { name: '写作' }).click();
  await expect(page).toHaveURL(/\/writing\//);
  await expect(sheet).toHaveCount(0);
+});
+
+test('a corrected handoff moves the finish across the same allowance', async ({ page }) => {
+ await page.setViewportSize({ width: 390, height: 844 });
+ await page.emulateMedia({ reducedMotion: 'reduce' });
+ await page.goto('/projects/personal-agent/#agent-handoff-comparison');
+ const chart = page.locator('#agent-handoff-comparison');
+ await expect(chart.locator('.handoff-readout')).toContainText('9 minutes overdue');
+ const rule = chart.locator('.handoff-ticks').getByText('45 min limit');
+ const before = await rule.boundingBox();
+ await chart.getByRole('button', { name: 'Corrected', exact: true }).click();
+ await expect(chart.locator('.handoff-readout')).toContainText('39');
+ await expect(chart.locator('.handoff-stamps').last()).toContainText('08:49 UTC');
+ expect((await rule.boundingBox())!.x).toBeCloseTo(before!.x, 1);
+ await expect(chart.locator('.handoff-track i')).toHaveCSS('transform', 'matrix(0.65, 0, 0, 1, 0, 0)');
 });

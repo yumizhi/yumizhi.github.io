@@ -67,8 +67,8 @@ export function AgentRuntimeTrace() {
     <Diagram id="agent-runtime-trace"
       title={{ en: 'A model turn within a durable workflow', zh: '一次模型回合在工作流中的位置' }}
       caption={{
-        en: 'Illustration of the Pi adapter. The scheduled P-17 acceptance run used the local evidence adapter through the same runtime contract.',
-        zh: '这里画的是 Pi 适配器的调用过程。P-17 定时验收通过同一运行时契约调用本地证据适配器。',
+        en: 'Illustration of the Pi adapter. The I-204 template uses the deterministic evidence adapter through the same runtime contract.',
+        zh: '这里画的是 Pi 适配器的调用过程。I-204 模板通过同一契约使用确定性的证据适配器。',
       }}>
       <Tabs value={value} className="agent-runtime-tabs" onValueChange={(next: Stage) => { setValue(next); setTouched(true); }}>
         <TabsList className="agent-runtime-switch" aria-label={language === 'zh' ? '运行时步骤' : 'Runtime steps'}>

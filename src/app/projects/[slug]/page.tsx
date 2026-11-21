@@ -14,7 +14,21 @@ import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbS
 import '../../portfolio-editorial.css';
 export function generateStaticParams(){return projects.map(p=>({slug:p.slug}));}
 export const dynamicParams=false;
-export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{const{slug}=await params;const p=projects.find(p=>p.slug===slug);return {title:p?.title,description:p?.summary,alternates:{canonical:absoluteURL(`/projects/${slug}/`)}};}
+export async function generateMetadata({params}: {params: Promise<{slug: string}>}): Promise<Metadata> {
+ const {slug} = await params;
+ const project = projects.find(item => item.slug === slug);
+ const url = absoluteURL(`/projects/${slug}/`);
+ const metadata: Metadata = {title: project?.title, description: project?.summary, alternates: {canonical: url}};
+ if (project?.slug === 'personal-agent') {
+   const preview = project.previews?.find(view => view.id === 'studio');
+   if (preview) {
+     const images = [{url: absoluteURL(preview.image), width: preview.width, height: preview.height, alt: preview.alt}];
+     metadata.openGraph = {type: 'article', siteName: 'Yihan Meng', title: project.title, description: project.summary, url, images};
+     metadata.twitter = {card: 'summary_large_image', title: project.title, description: project.summary, images};
+   }
+ }
+ return metadata;
+}
 export default async function Project({params}:{params:Promise<{slug:string}>}) {
  const {slug}=await params;
  const p=projects.find(p=>p.slug===slug);

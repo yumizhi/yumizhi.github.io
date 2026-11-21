@@ -138,35 +138,63 @@ export const projectStories: Record<string, ProjectStory> = {
     ],
   },
   'personal-agent': {
-    example: {
-      en: 'A member schedules a P-17 inspection brief and closes the browser. The task stays visible in the workspace, and the finished report appears in the inbox. From the report, the member can reopen the run to see which equipment records and manual passages it used.',
-      zh: '成员安排好明早的 P-17 巡检简报，就可以关掉浏览器。排期仍会留在工作台，完成后的报告会送到收件箱。读到一项结论时，还可以从报告回到这次运行，查它用了哪条设备记录、哪一段维护手册。',
+    "designTitle": {
+      "en": "A correction that changes the conclusion",
+      "zh": "改动一个时间，结论随之改变"
     },
-    checks: [
-      {
-        title: { en: 'A real clock triggers the scheduled run', zh: '按真实时钟触发定时任务' },
-        body: { en: 'The demo used synthetic pump data and waited for the scheduled minute. It recorded the schedule entry, associated application run, report sources and web inbox receipt.', zh: '演示使用合成的泵组数据，等待真实排期时间到来，并记录了调度实例、关联应用运行、报告来源和网页收件箱回执。' },
-      },
-      {
-        title: { en: 'Version changes and approvals stay visible', zh: '换版和审批都有单独状态' },
-        body: { en: 'The acceptance scenarios exercised a changed application version, revoked access, rejected approval and pause/resume. The record retains these outcomes alongside normal completion.', zh: '验收场景覆盖了应用换版、撤销权限、拒绝审批和暂停后恢复。执行记录会区分这些结果与正常完成。' },
-      },
-    ],
-    designTitle: { en: 'Keep a task findable after the conversation ends', zh: '对话结束后，任务还能被找回来' },
-    design: [
-      {
-        en: 'The Chat view keeps the composer, model selection and recent conversations close together. Agent groups assistants, planned work and received results. A shared search can return the relevant task, assistant, conversation or report. The switch preserves the member’s context as they move between the two.',
-        zh: '聊天模式把输入、模型选择和最近会话放在一处。Agent 模式集中展示可用助手、已安排的工作和交付结果。共用搜索可以找回相关任务、助手、会话或报告，用户在两种模式之间切换时仍能接着之前的工作。',
-      },
-      {
-        en: 'A result opens as a readable report. Its citations point to the source lines retrieved by that run, and the run panel shows completed steps, pending approvals and delivery. Progress comes from recorded events, with a compact view for the reader and step details available on demand.',
-        zh: '交付先以可阅读的报告呈现。正文引用可以打开本次运行检索到的来源行，执行面板再按需展开已完成步骤、待审批操作和投递状态。进度来自真实记录，读者可以先看结果，需要时再查过程。',
-      },
-    ],
-    implementationTitle: { en: 'The P-17 inspection brief', zh: 'P-17 巡检简报的执行过程' },
-    implementationLead: {
-      en: 'The inspection assistant uses the equipment register and maintenance manual from the demo project. The member confirms the app, equipment and recipient before scheduling the brief. Each later execution produces a report tied to the actual records it used.',
-      zh: '巡检助手读取演示项目的设备台账和维护手册。成员核对应用、设备和接收人后再安排排期。每次执行都会生成一份报告，并随报告保存此次查阅的资料。',
+    "example": {
+      "en": "At 08:10 UTC, a dispatcher opens a handoff for inspection I-204. The first acknowledgement on file is at 09:04. With 45 minutes allowed, the studio records a nine-minute overrun, cites the agreement and waits for a member to approve a work order. The arithmetic checks out. Later, a reviewer notices that the paper register gives an earlier acknowledgement time.",
+      "zh": "在合成巡检案例 I-204 中，交接于 08:10 UTC 登记，系统里填的确认时间是 09:04。按约定的 45 分钟计算，这次晚了 9 分钟。工作室在报告里列出条款，等成员批准后登记工单。计算本身没有错。直到复核人拿纸质登记来核对，才发现确认时间录晚了。"
     },
+    "design": [
+      {
+        "en": "Changing the timestamp to 08:49 puts the handoff inside the allowance. By then someone has already approved a write on the strength of the first report. Editing its conclusion in place would leave a perfectly plausible report attached to a work order issued for a different reason. The reviewer therefore records the discrepancy on the original, and the workspace opens a second run. You can inspect either report and follow its own receipt.",
+        "zh": "把确认时间改为 08:49，交接只用了 39 分钟，仍在时限内。但第一份报告已经触发过一次经人批准的写入。直接改正文，会让后来的人拿着“未超时”的结论，去解释当时为什么开了工单。工作台把复核意见留在原稿上，让更正后的输入另起一次运行。两份报告各有依据，也各有回执。"
+      },
+      {
+        "en": "The same workspace serves a quieter kind of work. A reader following SQLite releases wants a useful change brought to their attention, occasionally corrects the priority and expects that decision to survive the next poll. In both cases the useful unit of history is a run: what came in, which rule was in effect, what reached a person and what they decided afterwards.",
+        "zh": "同一个工作台也接得住更轻的事情。持续跟进数据库动态的人，可能只想收到与事务机制有关的变化，也可能读完一条才发现不值得打扰。下一轮采集需要记住这次反馈。这两类工作的共同之处，是日后总要回答同一组具体问题：当时读到了什么、按哪条规则处理、谁收到了结果、后来又做了什么决定。"
+      }
+    ],
+    "implementationTitle": {
+      "en": "How a handoff becomes a work order",
+      "zh": "一条交接记录怎样变成工单"
+    },
+    "implementationLead": {
+      "en": "The studio ships the inspection as a project template. Installing it supplies a published workflow, a reviewer, a small collection of source records and a synthetic work-order tool. Its eight nodes can be followed from the submitted record to the project inbox. The most important boundary is between calculating a finding and authorizing its consequences.",
+      "zh": "安装工作室里的巡检模板，会得到一份已发布的工作流、一个核查助手、少量示例资料和模拟工单工具。八个节点从接收交接记录一直连到项目收件箱。理解这条链路，先要看清两个时刻：系统什么时候已经有资格得出结论，成员又在什么时候授权它采取行动。"
+    },
+    "checks": [
+      {
+        "title": {
+          "en": "Two approvals, two receipts",
+          "zh": "两次审批，两份回执"
+        },
+        "body": {
+          "en": "The acceptance replay saved the original report, requested a correction, restored a database backup and resumed the corrected run. Retrying the submission located the same run. Each approved mock work order has a distinct receipt.",
+          "zh": "验收回放保存原稿、提交更正，并在恢复的数据库上继续新运行。重试更正请求时仍找到同一运行。两次独立批准的模拟工单各有一份回执。"
+        }
+      },
+      {
+        "title": {
+          "en": "An inapplicable clause stops the write",
+          "zh": "条款不适用时，工单数保持不变"
+        },
+        "body": {
+          "en": "The third replay changed the category covered by the clause. Calculation stopped upstream of approval. The cumulative receipt count stayed at two.",
+          "zh": "第三次回放替换了条款适用的登记类别。流程停在耗时核算，尚未到达审批步骤，工单回执总数仍为两份。"
+        }
+      },
+      {
+        "title": {
+          "en": "Six successful polls, three notifications",
+          "zh": "六次成功采集，三次通知"
+        },
+        "body": {
+          "en": "In a seven-check replay with synthetic release events, six polls succeeded and one source failed. A policy that notified on every successful poll would have sent six notifications. The watch sent three. The run measures interruption frequency on that event stream.",
+          "zh": "在七次合成发布事件回放中，六次采集成功，一次上游故障。若每次成功都通知，会发送六次；长期关注策略实际发送三次。这组记录度量的是这段事件流上的打扰次数。"
+        }
+      }
+    ]
   },
 };

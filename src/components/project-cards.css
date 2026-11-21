@@ -29,16 +29,6 @@
   block-size: 100%;
   object-fit: cover;
 }
-.project-card[data-project="personal-agent"] .project-card-cover { background: #eae8e9; }
-.project-card[data-project="personal-agent"] .project-card-cover img {
-  position: absolute;
-  inset: 9% 0 auto 9%;
-  inline-size: 94%;
-  block-size: auto;
-  border: 1px solid #332e3916;
-  border-radius: .375rem;
-  box-shadow: 0 .35rem 1rem #2c263922;
-}
 .project-card-cover--epub { background: #e8e0ef; }
 .project-card-cover--epub img {
   position: absolute;

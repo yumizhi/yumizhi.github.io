@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { ArrowLeftRight, ArrowRight, Check, CircleMinus, Clock3, Cpu, FileCode2, FileText, Inbox, Link2, MessageSquare, Monitor, RotateCcw, ShieldX } from 'lucide-react';
+import { ArrowLeftRight, ArrowRight, Check, CircleMinus, Clock3, Cpu, FileCode2, FileText, Inbox, MessageSquare, Monitor, RotateCcw, ShieldX } from 'lucide-react';
 import { Fragment, type ReactNode } from 'react';
 import { asset } from '@/lib/paths';
 import type { ArticleFigure } from '@/lib/project-chapters';
@@ -159,53 +159,52 @@ function AgentRunLink() {
 }
 
 function AgentReportEvidence() {
-  return (
-    <Diagram id="agent-report-evidence"
-      title={{ en: 'A citation and receipt from the P-17 acceptance run', zh: 'P-17 验收中的引用与回执' }}
-      caption={{
-        en: 'The excerpt is from the synthetic maintenance manual used by the scheduled demo. The recorded receipt is for the web inbox.',
-        zh: '引用摘自定时验收使用的合成维护手册。回执对应这次运行的网页收件箱。',
-      }}>
-      <div className="article-report">
-        <div className="article-report-source">
-          <div className="article-thread-title"><FileText size={18} aria-hidden="true" /><strong><Text en="Source cited in the brief" zh="简报引用的原文" /></strong></div>
-          <code><Link2 size={13} aria-hidden="true" />manual/pump-rev3#L1</code>
-          <blockquote lang="en">P-17 vibration alerts require an inspection ticket and a technician review.</blockquote>
-        </div>
-        <div className="article-report-receipt">
-          <Inbox size={19} aria-hidden="true" />
-          <strong><Text en="Web inbox receipt" zh="网页收件箱回执" /></strong>
-          <code>inbox_saved</code>
-          <small><Text en="Linked back to the application run" zh="关联到本次应用运行" /></small>
-        </div>
-      </div>
-    </Diagram>
-  );
+  return <Diagram id="agent-report-evidence"
+    title={{ en: 'What the corrected report inherits', zh: '更正报告沿用了什么' }}
+    caption={{ en: 'Both runs used the same workflow version. The second read the sources again and obtained a separate approval and receipt.', zh: '两次运行采用同一工作流版本。第二次重新读取来源，并取得独立的审批与回执。' }}>
+    <div className="article-agent-link">
+      <div className="article-agent-record"><FileText size={18} /><strong><Text en="Original report" zh="执行原稿" /></strong><code>09:04 · 54 min</code><span><Text en="Order approved · correction requested" zh="工单已批准 · 复核要求更正" /></span></div>
+      <div className="article-agent-join"><ArrowRight size={22} /><strong><Text en="Same workflow" zh="同一流程版本" /></strong></div>
+      <div className="article-agent-record"><FileText size={18} /><strong><Text en="Corrected report" zh="更正报告" /></strong><code>08:49 · 39 min</code><span><Text en="New approval · new receipt" zh="重新审批 · 新工单回执" /></span></div>
+    </div>
+  </Diagram>;
+}
+
+function AgentWatchReplay() {
+  const checks = [
+    ['13:00', 'Notify', '优先通知'], ['14:00', 'Defer', '留待摘要'], ['18:00', 'Deliver digest', '发送摘要'],
+    ['19:00', 'No change', '条目无变化'], ['23:00', 'Quiet hours', '免打扰'],
+    ['07:00', 'Deliver', '恢复投递'], ['08:00', 'Retry queued', '等待重试'],
+  ];
+  return <Diagram id="agent-watch-replay" title={{en:'Seven checks across two days', zh:'跨两天的七次采集'}}
+    caption={{en:'Purple marks a delivery. The final source request failed and was queued for retry. Times follow the replay clock.',zh:'紫色标记实际投递。最后一次来源请求失败，进入重试队列。时间取自回放时钟。'}}>
+    <ol className="watch-log">{checks.map(([time,en,zh],index) => <li key={time} data-delivered={[0,2,5].includes(index) || undefined}><time>{time}</time><span><Text en={en} zh={zh} /></span></li>)}</ol>
+  </Diagram>;
 }
 
 function AgentWorkflowData() {
   return (
     <Diagram id="agent-workflow-data"
-      title={{ en: 'A maintenance workflow assembles a brief', zh: '设备维护流程中的数据交接' }}
+      title={{ en: 'From two passages to one calculation', zh: '从两条检索结果到一次核算' }}
       caption={{
         en: 'This graph illustrates the workflow contract. Each edge carries the results of a completed predecessor in the same run.',
         zh: '图中是维护流程的配置示意。连线表示下游读取同一次运行中已完成的上游结果。',
       }}>
       <div className="article-path-map">
         <div className="article-channel-input">
-          <div><strong><Text en="Equipment lookup" zh="查设备台账" /></strong><code>record</code></div>
-          <div><strong><Text en="Manual search" zh="检索维护手册" /></strong><code>citations</code></div>
+          <div><strong><Text en="Register lookup" zh="交接登记" /></strong><code>record</code></div>
+          <div><strong><Text en="Agreement search" zh="检索适用条款" /></strong><code>citations</code></div>
         </div>
         <FlowArrow />
         <div className="article-thread">
-          <div className="article-thread-title"><Cpu size={18} aria-hidden="true" /><strong><Text en="Versioned Agent node" zh="固定版本的 Agent 节点" /></strong></div>
-          <p><Text en="Use the record and excerpts to prepare a brief" zh="结合台账与来源摘录撰写简报" /></p>
-          <code>summary · evidence</code>
+          <div className="article-thread-title"><Cpu size={18} aria-hidden="true" /><strong><Text en="Elapsed-time tool" zh="只读耗时工具" /></strong></div>
+          <p><Text en="Match the category and subtract the timestamps" zh="匹配交接类别，再计算时间差" /></p>
+          <code>elapsed · limit · overdue</code>
         </div>
         <FlowArrow />
         <div className="article-thread">
-          <div className="article-thread-title"><FileText size={18} aria-hidden="true" /><strong><Text en="Artifact step" zh="成果节点" /></strong></div>
-          <p><Text en="Save the brief and its evidence under the same run" zh="在同一次运行下保存简报与证据" /></p>
+          <div className="article-thread-title"><FileText size={18} aria-hidden="true" /><strong><Text en="Approval and report" zh="审批与报告" /></strong></div>
+          <p><Text en="Approve the work order and attach its receipt to the report" zh="批准工单，随报告保存此次写入的回执" /></p>
         </div>
       </div>
     </Diagram>
@@ -251,6 +250,7 @@ export function ProjectArticleFigure({ figure }: { figure: ArticleFigure }) {
     case 'epub-path-roundtrip': return <EpubRoundTrip />;
     case 'originmark-teapot-report': return <TeapotReport />;
     case 'originmark-lease-recovery': return <LeaseRecovery />;
+    case 'agent-watch-replay': return <AgentWatchReplay />;
     case 'agent-run-link': return <AgentRunLink />;
     case 'agent-report-evidence': return <AgentReportEvidence />;
     case 'agent-runtime-trace': return <AgentRuntimeTrace />;
