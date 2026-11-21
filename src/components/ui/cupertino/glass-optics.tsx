@@ -68,20 +68,34 @@ export function LensRefraction({ scene }: { scene?: LensScene }) {
     return () => { control.style.removeProperty('--rim-filter'); };
   }, [id, map, frame]);
 
-  const showScene = scene && geometry?.frameWidth && map;
+  const showScene = !!(scene && geometry?.frameWidth && map);
   return <svg ref={svg} aria-hidden="true" focusable="false" width={showScene ? '100%' : '0'} height={showScene ? '100%' : '0'}
     className={showScene ? 'lens-scene' : undefined} style={{ position: 'absolute', pointerEvents: 'none' }}>
     {geometry && map && <defs>
       <filter id={id} filterUnits="userSpaceOnUse" x="0" y="0" width={geometry.width} height={geometry.height} colorInterpolationFilters="sRGB">
         <feImage href={map} width={geometry.width} height={geometry.height} preserveAspectRatio="none" result="lens" />
-        <feDisplacementMap in="SourceGraphic" in2="lens" scale="19" xChannelSelector="R" yChannelSelector="G" />
+        {/* The neutral map byte is 128. Centre it at exactly one half so
+            identical pixels underneath the flat face remain stationary. */}
+        <feComponentTransfer in="lens" result="centredLens">
+          <feFuncR type="linear" slope="1" intercept={-0.5 / 255} />
+          <feFuncG type="linear" slope="1" intercept={-0.5 / 255} />
+        </feComponentTransfer>
+        <feDisplacementMap in="SourceGraphic" in2="centredLens" scale="19" xChannelSelector="R" yChannelSelector="G" />
       </filter>
+      {scene && <linearGradient id={id + '-light'} x1="0" y1="0" x2="1" y2=".8" gradientUnits="objectBoundingBox">
+        <stop offset="2%" stopColor="white" stopOpacity=".58" />
+        <stop offset="23%" stopColor="white" stopOpacity="0" />
+        <stop offset="76%" stopColor="white" stopOpacity="0" />
+        <stop offset="97%" stopColor="white" stopOpacity=".28" />
+      </linearGradient>}
     </defs>}
     {showScene && <>
       <g filter={`url(#${id})`}>
         <image href={scene.src} x={geometry.x} y={geometry.y} width={geometry.frameWidth} height={geometry.frameHeight} preserveAspectRatio="xMidYMid slice" />
       </g>
       <rect width="100%" height="100%" fill="var(--glass-wash)" />
+      <rect x=".5" y=".5" width={geometry.width - 1} height={geometry.height - 1} rx={geometry.height / 2}
+        fill="none" stroke={`url(#${id}-light)`} strokeWidth=".8" />
     </>}
   </svg>;
 }

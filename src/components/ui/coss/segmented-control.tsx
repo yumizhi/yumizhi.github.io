@@ -229,6 +229,14 @@ function SegmentedControlIndicator(): React.ReactElement {
         segmentedControlIndicatorSurfaceClassName,
       )}
       data-slot="segmented-control-indicator"
+      onTransitionRun={event => {
+        if (event.propertyName === 'left' || event.propertyName === 'right') event.currentTarget.dataset.moving = '';
+      }}
+      onTransitionEnd={event => {
+        const thumb = event.currentTarget;
+        if (event.propertyName === (thumb.dataset.direction === 'right' ? 'left' : 'right')) delete thumb.dataset.moving;
+      }}
+      onTransitionCancel={event => { delete event.currentTarget.dataset.moving; }}
       hidden={!rect}
       ref={ref}
       style={
