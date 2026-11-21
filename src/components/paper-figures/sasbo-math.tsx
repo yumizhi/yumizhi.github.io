@@ -45,6 +45,7 @@ export function SasboMaskMath() {
 
 export function SasboArmMath() {
   return <>
+    <h3 className="paper-subsection"><Localized en="Learning selection probabilities" zh="学习坐标选择概率" /></h3>
     <PaperEquation math={tex`\begin{aligned}
       p_j &= \sigma(\phi_j),\quad M_j\sim\operatorname{Bernoulli}(p_j) \\
       M_j^- &= \mathbf 1[u_j<p_j] \\
@@ -100,7 +101,6 @@ export function SasboArmMath() {
 
 export function SasboAmplitudeMath() {
   return <>
-    <h3 className="paper-subsection"><Localized en="Updating amplitudes on the selected coordinates" zh="在选中的坐标上调整幅度" /></h3>
     <PaperEquation number="12" math={tex`\begin{aligned}
       \min_E\; &\Vert M\odot E\Vert_2 \\
         &\quad+ \lambda\,\mathcal L(f(x+M\odot E),y_t) \\

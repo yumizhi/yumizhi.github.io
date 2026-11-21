@@ -424,12 +424,12 @@ test('project window and tab indicator move continuously and accept rapid change
  await preview.getByRole('tab',{name:'Output',exact:true}).click();await page.waitForTimeout(650);const after=await window.boundingBox();const widths=await page.evaluate(()=>(globalThis as unknown as {windowWidths:number[]}).windowWidths);
  expect(before!.width-after!.width).toBeGreaterThan(100);expect(widths.some(w=>w<before!.width-5&&w>after!.width+5)).toBeTruthy();await expect(page.locator('.preview-tab-highlight')).toHaveCount(1);
  for(const name of ['Split','Inspect','Merge']){await preview.getByRole('tab',{name,exact:true}).click();await page.waitForTimeout(60);}
- await expect(preview.getByRole('tab',{name:'Merge',exact:true})).toHaveAttribute('data-state','active');await expect(page.locator('.stage-capture[aria-hidden=false] img')).toHaveAttribute('src',/epub-panel-merge/);await expect(page.locator('.stage-window')).toHaveCount(1);
+ await expect(preview.getByRole('tab',{name:'Merge',exact:true})).toHaveAttribute('aria-selected','true');await expect(page.locator('.stage-capture[aria-hidden=false] img')).toHaveAttribute('src',/epub-panel-merge/);await expect(page.locator('.stage-window')).toHaveCount(1);
 });
 test('continuous viewport resize preserves all preview states and inner margins',async({page})=>{
  await page.setViewportSize(sizes[0]);await page.goto('/projects/epub-toolkit/');await page.getByRole('tab',{name:'Output',exact:true}).click();await page.waitForTimeout(600);
  for(const width of [1100,820,801,800,700,621,620,600,480,390,375,620,800,1280]){
-  await page.setViewportSize({width,height:900});await page.waitForTimeout(45);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();await expect(page.getByRole('tab',{name:'Output',exact:true})).toHaveAttribute('data-state','active');
+  await page.setViewportSize({width,height:900});await page.waitForTimeout(45);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();await expect(page.getByRole('tab',{name:'Output',exact:true})).toHaveAttribute('aria-selected','true');
   const room=await page.locator('.stage-window').evaluate(frame=>{const box=frame.getBoundingClientRect();const picture=frame.querySelector('[aria-hidden=false]')!.getBoundingClientRect();return{left:picture.left-box.left,right:box.right-picture.right,top:picture.top-box.top,bottom:box.bottom-picture.bottom};});for(const gap of Object.values(room))expect(gap).toBeGreaterThanOrEqual(17);
  }
 });

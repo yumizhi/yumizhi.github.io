@@ -1,48 +1,36 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { ArrowLeft, ArrowRight, Check, ChevronsUpDown } from 'lucide-react';
 import { Button } from './ui/coss/button';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from './ui/coss/breadcrumb';
 import { Menu, MenuLinkItem, MenuPopup, MenuTrigger } from './ui/coss/menu';
 import { Localized, useLanguage } from './language';
+import './ui/cupertino/glass.css';
 import type { Paper } from '@/lib/content';
 
 type PaperLink = Pick<Paper, 'slug' | 'shortTitle' | 'venue' | 'year'>;
-type ReaderLinks = { current: PaperLink; choices: PaperLink[] };
+type ReaderLinks = { current: PaperLink; choices: PaperLink[]; children: ReactNode };
 
 const detailUrl = (slug: string, fromHome: boolean) =>
   `/research/${slug}/${fromHome ? '?from=home' : ''}`;
 
-export function PaperBreadcrumb({ current }: { current: PaperLink }) {
-  const { language } = useLanguage();
-  return (
-    <Breadcrumb className="paper-crumbs" aria-label={language === 'zh' ? '当前位置' : 'Publication breadcrumb'}>
-      <BreadcrumbList>
-        <BreadcrumbItem><BreadcrumbLink render={<Link href="/" />}><Localized en="Home" zh="首页" /></BreadcrumbLink></BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem><BreadcrumbLink render={<Link href="/research/" />}><Localized en="Research" zh="研究成果" /></BreadcrumbLink></BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbLink href="#main-content" aria-current="page">{current.shortTitle}</BreadcrumbLink>
-        </BreadcrumbItem>
-      </BreadcrumbList>
-    </Breadcrumb>
-  );
-}
-
-function ReaderToolbar({ current, choices, fromHome }: ReaderLinks & { fromHome: boolean }) {
+function ReaderToolbar({ current, choices, fromHome, children }: ReaderLinks & { fromHome: boolean }) {
   const { language } = useLanguage();
   return (
     <div className="paper-reader-toolbar" role="group" aria-label={language === 'zh' ? '论文导航' : 'Publication navigation'}>
-      <Button className="reader-back" variant="ghost" size="sm" render={<Link href={fromHome ? '/#publications' : '/research/'} />}>
+      <Button className="reader-back" variant="ghost" size="sm"
+        aria-label={fromHome ? (language === 'zh' ? '回到首页' : 'Back to home') : (language === 'zh' ? '全部论文' : 'All publications')}
+        render={<Link href={fromHome ? '/#publications' : '/research/'} />}>
         <ArrowLeft aria-hidden="true" />
-        {fromHome ? <Localized en="Back to home" zh="回到首页" /> : <Localized en="All publications" zh="全部论文" />}
+        <span className="reader-back-label" aria-hidden="true">
+          {fromHome ? <Localized en="Back to home" zh="回到首页" /> : <Localized en="All publications" zh="全部论文" />}
+        </span>
       </Button>
+      {children}
       <Menu>
-        <MenuTrigger render={<Button variant="secondary" size="sm" className="reader-switch" />}
+        <MenuTrigger render={<Button variant="secondary" size="sm" className="reader-switch reader-glass" />}
           aria-label={language === 'zh' ? `论文，当前为 ${current.shortTitle}` : `Papers, switch publication, current: ${current.shortTitle}`}>
           <span><Localized en="Papers" zh="论文" /></span><ChevronsUpDown aria-hidden="true" />
         </MenuTrigger>

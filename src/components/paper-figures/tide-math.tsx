@@ -35,8 +35,8 @@ export function TideInjectionMath() {
       <figcaption><Localized en="Only the highlighted coefficients are replaced. The other entries carry over from the current denoising state." zh="高亮位置由水印系数替换，其余位置沿用当前去噪状态的系数。" /></figcaption>
     </figure>
     <p className="tide-prose"><Localized
-      en="The inverse transform mixes the changed coefficients throughout the latent. For the next denoising step, this is an actual change of input. Holding the prompt and seed fixed gives us a pair. We run the text-only sampler for the clean reference and write the template into the matching intermediate state in the second run. The pair isolates the consequence of the write and the steps that follow from it. There is a second use for the pair during training, when the model needs an inexpensive way to tell whether the two samples are already drifting apart."
-      zh="逆变换会把发生变化的频率混合回整个潜变量，下一步去噪接收到的输入随之改变。固定提示词和种子后，先跑一次纯文本引导得到无水印参考，再从同一个中间状态写入模板。这组对照把差异限定在写入与余下的采样步骤。训练时也能利用它，以较低开销判断两张图在注入当下是否已经开始偏离。"
+      en="The inverse transform spreads the contributions of those selected coefficients across the latent. What DDIM receives is the reconstructed latent, so the write changes the input to the next step. Training uses the matched clean run to judge the change immediately after injection and at the end of sampling."
+      zh="逆变换把这些频率系数的贡献分布到整个潜变量上，随后 DDIM 从重建后的潜变量继续更新。训练用同一次无水印采样作参照，分别衡量刚写入时的变化和完整采样结束时的变化。"
     /></p>
   </>;
 }
@@ -131,8 +131,8 @@ export function TideGuidanceMath() {
        &+g_t^{\mathrm{wm}}\Delta^{\mathrm{wm}}_{t,\mathrm{null}}
     \end{aligned}`} />
     <p className="tide-prose"><Localized
-      en="The two weights always add to s, and the prompt keeps at least its reserved share. The distance the latent moves also depends on the magnitudes being weighted and the timestep-dependent DDIM update. The rule limits competition with recent text directions. Agreement with the clean image distribution is evaluated using paired images and distribution-level metrics."
-      zh="两路权重始终加起来等于 s，文本至少得到预留的份额。这个等式约束的是权重，下一步潜变量走多远还要看两路残差的幅度，以及 DDIM 在当前步如何更新。引导规则约束了水印与近期文本方向的竞争。成图分布是否仍接近无水印结果，要靠逐图对照和分布指标来检验。"
+      en="The two weights always add to s, and the prompt keeps at least its reserved share. DDIM takes this combined noise prediction and advances the latent. The size of that step also depends on the residual magnitudes and the timestep. In the schematic, the guided branch approaches the reference over several updates. The timing ablation holds the learned watermark fixed and compares the two guidance rules using detection and image fidelity."
+      zh="两路权重的总和始终等于 s，文本至少保留预留的份额。DDIM 用合成后的噪声预测更新潜变量，每一步走多远还取决于残差的幅度和当前步的时间系数。示意图中，受引导的分支经过多步更新后逐渐靠近参照。注入时刻的消融固定学到的水印，以检出率和图像保真度比较固定引导与自适应引导。"
     /></p>
   </>;
 }
@@ -145,7 +145,7 @@ export function TideVerificationMath() {
         \frac{\left\Vert M\odot(\mathcal F(\widehat z_\tau)-W)\right\Vert_1}{|M|}
     \end{aligned}`} />
     <p className="tide-prose"><Localized
-      en="Suppose inversion recovers one written coefficient almost exactly, while a second is shifted by an edit. The first contributes almost no error, the second contributes its absolute mismatch, and everything outside the write mask contributes zero. Those errors are averaged over the selected coefficients. The resulting distance is useful only against the clean distribution of the same statistic. A cutoff chosen from its lower tail determines how often an unmarked image can pass; the reported true-positive rate tells us how many watermarked images pass that very cutoff."
+      en="Suppose inversion recovers one written coefficient almost exactly, while a second is shifted by an edit. The first contributes almost no error, the second contributes its absolute mismatch, and everything outside the write mask contributes zero. Those errors are averaged over the selected coefficients. To interpret that distance, the detector uses the distribution of distances on clean images. A cutoff in its lower tail sets how often an unmarked image can pass. The true-positive rate is the share of watermarked images that pass the same cutoff."
       zh="假设反演几乎恢复了第一个写入系数，第二个系数受编辑影响发生偏移。第一处几乎不计误差，第二处计入差值的绝对量，掩码外全部跳过。最后把误差除以选中系数的数量。得到的距离需要和无水印图上的同一统计量对照。阈值取在无水印距离分布的低端，控制无水印图偶然通过的比例。真阳性率则衡量带水印的图中有多少能通过同一个阈值。"
     /></p>
   </>;

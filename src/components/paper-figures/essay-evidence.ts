@@ -2,20 +2,18 @@ import type { EssayChapter } from './essay-chapters';
 
 export const sasboEvidence: EssayChapter[] = [
   {
-    title: { en: 'Holding the target class fixed makes the comparison fair', zh: '定向实验先固定要走到的类别' },
     body: [
       {
         en: 'A targeted comparison can be biased by its choice of destination. If one method gets a class whose score is already close to the original prediction and another gets a distant one, the coordinate counts reflect both the algorithm and the difficulty of the assigned class. SASBO’s experiment samples a target label and holds it consistent across methods. In the untargeted experiment, any incorrect class qualifies, so the optimizer has more ways to satisfy the objective.',
         zh: '定向实验的比较会受目标类别影响。某个方法得到的是一个分数已接近原预测的类别，另一个方法却要走到相差很远的类别，坐标数就同时反映了算法差异和任务难度。论文先随机选出目标标签，同一张图在各方法之间使用同一个目标。非定向实验允许任意错误类别，搜索可以通过更多方式达到目标。',
       },
       {
-        en: 'The paper draws its test images from CIFAR-10 and ImageNet and runs the comparisons on their respective classifiers. Within a setting, every method is tested with the same amplitude threshold. That combination of a shared target and a shared threshold gives the count a clear interpretation: it is a measure of how economically the method uses coordinates under the chosen test.',
-        zh: '论文分别从 CIFAR-10 和 ImageNet 选测试图，并在对应分类器上做对照。同一设置下，各方法使用相同的幅度上限。这两个控制让坐标数变得好解释：目标一致，每处能动多少也一致，最终就能看不同方法在这个测试条件下有多节省位置。',
+        en: 'The paper draws its test images from CIFAR-10 and ImageNet and runs the comparisons on their respective classifiers. Within a setting, every method is tested with the same amplitude threshold. With the target and amplitude held fixed, the nonzero count measures how economically each method uses coordinates.',
+        zh: '论文分别从 CIFAR-10 和 ImageNet 选测试图，并在对应分类器上做对照。同一设置下，各方法使用相同的幅度上限。目标和幅度上限都固定后，非零坐标数就能用来比较各方法对位置预算的使用效率。',
       },
     ],
   },
   {
-    title: { en: 'The same success rate can hide different budgets', zh: '成功率相同，坐标开销可以很不同' },
     body: [
       {
         en: 'In the previewed CIFAR-10 settings, the success column is already saturated. The number of changed coordinates then tells us how much of the image each method had to use. The targeted setting makes that particularly clear. GreedyFool and SASBO both reach the prescribed class on the test cases, but the latter needs substantially fewer nonzero coordinates. This is evidence about coordinate efficiency in that setting. The image itself still needs to be inspected when the allowed amplitude is large.',
@@ -28,11 +26,11 @@ export const sasboEvidence: EssayChapter[] = [
     ],
   },
   {
-    title: { en: 'ImageNet tests the same idea at a different scale', zh: '换到 ImageNet，检验坐标选择能否在更大图像上成立' },
+    title: { en: 'ImageNet results', zh: 'ImageNet 实验' },
     body: [
       {
-        en: 'The ImageNet experiment uses a larger visual input and a different classifier. Under the loose amplitude limit, the mean nonzero count goes from 71.65 for GreedyFool to 50.87 for SASBO in the untargeted setting. The gap is narrower than in the displayed CIFAR-10 example. Looking at both datasets therefore gives a more honest picture of the gains than quoting just the largest relative reduction.',
-        zh: 'ImageNet 实验换了更大的图像输入和另一个分类器。在幅度限制较宽的非定向设置下，GreedyFool 平均用了 71.65 个非零坐标，SASBO 为 50.87。两者差距比页面上的 CIFAR-10 示例小。把两个数据集放在一起读，才能看出坐标节约的幅度会怎样随实验设置变化。',
+        en: 'The ImageNet experiment uses a larger visual input and a different classifier. Under the loose amplitude limit, the mean nonzero count goes from 71.65 for GreedyFool to 50.87 for SASBO in the untargeted setting. The gap is narrower than in the displayed CIFAR-10 example. The coordinate savings vary with the dataset and classifier.',
+        zh: 'ImageNet 实验换了更大的图像输入和另一个分类器。在幅度限制较宽的非定向设置下，GreedyFool 平均用了 71.65 个非零坐标，SASBO 为 50.87。两者差距比页面上的 CIFAR-10 示例小。节省的坐标数会随数据集和分类器而变。',
       },
       {
         en: 'Table 2 also shows that making the amplitude limit much tighter changes what is comparable. Three methods still reach full success, while the projected-gradient baseline succeeds on only a subset. A smaller average count would be difficult to interpret in isolation there. Success and sparsity have to be read together before attributing an improvement to the choice of coordinates.',
@@ -41,7 +39,6 @@ export const sasboEvidence: EssayChapter[] = [
     ],
   },
   {
-    title: { en: 'The final count summarizes a search', zh: '最终的坐标数，是一次搜索的结果' },
     body: [
       {
         en: 'The two stages of the method leave different traces in the measurement. The alternating stage finds a ranked set of locations and magnitudes at an initial allowance. The second stage reuses that ranking and tests smaller subsets. An example with a very low final count may have started with a considerably larger search budget. The final count tells us about the perturbation that survived the test. The number of optimization updates is a separate measure of cost.',
@@ -53,7 +50,6 @@ export const sasboEvidence: EssayChapter[] = [
 
 export const samEvidence: EssayChapter[] = [
   {
-    title: { en: 'The source-model score and transfer score tell different stories', zh: '源模型分数和迁移分数讲的是两件事' },
     body: [
       {
         en: 'For each method, the ablation evaluates the same images on their source model and on held-out classifiers. VGG19 gives the single-model baseline its optimization signal. A high score there confirms that the sparse perturbation fits the source. The six held-out classifiers never supply that signal. Their results test whether its effect survives the change to a different architecture. It is possible to do well on the first and poorly on the second, which is why the paper keeps those columns separate.',
@@ -66,7 +62,6 @@ export const samEvidence: EssayChapter[] = [
     ],
   },
   {
-    title: { en: 'The amplitude limit changes the shape of the comparison', zh: '幅度上限也在改变比较的条件' },
     body: [
       {
         en: 'The lower-amplitude experiment is a separate operating point. It permits more locations to change, each by a smaller amount. Multiple independent targets benefit from cross-model feedback in this setting too. The main question for this ablation is the difference between SA and SAM within each setting, where the two methods share the same amplitude and pixel allowances.',
@@ -79,7 +74,7 @@ export const samEvidence: EssayChapter[] = [
     ],
   },
   {
-    title: { en: 'ImageNet puts transfer under more varied conditions', zh: 'ImageNet 提供了另一组迁移条件' },
+    title: { en: 'Transfer on ImageNet', zh: 'ImageNet 上的迁移' },
     body: [
       {
         en: 'The ImageNet experiments extend the comparison to a different input scale and include InceptionV3 among the held-out models. In the looser-amplitude setting, SAM obtains 34.7% on InceptionV3, against 24.5% for the shown GreedyFool setting and 10.4% for the shown SparseFool setting. The direction of the result is compatible with the CIFAR-10 transfer experiment, while the absolute scores show how much more room there is for failure in this setting.',
