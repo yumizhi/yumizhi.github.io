@@ -500,3 +500,35 @@ test('SASBO compares the pixel map with pointer and keyboard in a stable frame',
  expect(Number(await slider.getAttribute('aria-valuenow'))).toBeLessThan(50);
  expect(await frame.boundingBox()).toEqual(before);
 });
+
+test('the open image picker uses the displayed photograph and page filters return to paper', async ({ page }) => {
+ await page.goto('/research/tide/');
+ const trigger = page.getByRole('combobox', { name: /Watermark method/ });
+ await trigger.scrollIntoViewIfNeeded();
+ await trigger.click();
+ const menu = page.locator('.glass-menu[data-photo-glass]');
+ await expect(menu.locator('image')).toHaveAttribute('href', /tree-car\.webp$/);
+ await page.getByRole('option', { name: 'ROBIN', exact: true }).click();
+ await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+ await expect(page.getByRole('listbox')).toHaveCount(0);
+ await expect(trigger.locator('image')).toHaveAttribute('href', /robin-car\.webp$/);
+ const title = page.locator('#method h2').first();
+ await title.evaluate(el => window.scrollBy({top: el.getBoundingClientRect().top - 12, behavior: 'instant'}));
+ await expect(title).toHaveAttribute('data-optical-target', '');
+ await page.evaluate(() => window.scrollTo({top: 0, behavior: 'instant'}));
+ await expect(title).not.toHaveAttribute('data-optical-target', '');
+ await page.goto('/research/');
+ await expect(page.getByRole('group', { name: 'Filter research' })).toHaveClass(/inline-segments/);
+});
+
+test('increased contrast keeps the photo menu solid and the document unfiltered', async ({ page }) => {
+ await page.emulateMedia({ contrast: 'more' });
+ await page.goto('/research/tide/#image-comparison');
+ await page.getByRole('combobox', { name: /Watermark method/ }).click();
+ const menu = page.locator('.glass-menu[data-photo-glass]');
+ await expect(menu).toHaveCSS('backdrop-filter', 'none');
+ await expect(menu.locator('.lens-scene')).toBeHidden();
+ await page.keyboard.press('Escape');
+ await page.locator('#method h2').first().evaluate(el => window.scrollBy({top: el.getBoundingClientRect().top-12, behavior: 'instant'}));
+ await expect(page.locator('[data-optical-target]')).toHaveCount(0);
+});

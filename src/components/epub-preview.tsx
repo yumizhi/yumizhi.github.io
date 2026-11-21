@@ -22,7 +22,7 @@ export function EpubPreview({ views }: { views: [Preview, Preview] }) {
           loading="lazy" initial={false} animate={{ opacity: view === preview.id ? 1 : 0 }}
           transition={{ duration: reduced ? 0 : .18 }} />
       ))}
-      <FilterTabs className="project-card-switcher" label={language === 'zh' ? 'EPUB 操作预览' : 'EPUB workflow preview'}
+      <FilterTabs overlay className="project-card-switcher" label={language === 'zh' ? 'EPUB 操作预览' : 'EPUB workflow preview'}
         options={views.map(preview => ({ value: preview.id, label: <Localized en={preview.label} zh={preview.labelZh ?? preview.label} /> }))}
         value={view} onChange={setView} />
     </div>

@@ -5,16 +5,18 @@ import { Toggle } from '@base-ui/react/toggle';
 import { ToggleGroup } from '@base-ui/react/toggle-group';
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/coss/segmented-control';
 
-export function FilterTabs({ value, onChange, options, label, className = '' }: {
+export function FilterTabs({ value, onChange, options, label, overlay = false, className = '' }: {
   value: string;
   onChange: (value: string) => void;
   options: { value: string; label: ReactNode }[];
   label: string;
   className?: string;
+  overlay?: boolean;
 }) {
   return (
     <SegmentedControl
-      className={`site-segments reader-glass ${className}`}
+      className={`site-segments ${overlay ? 'reader-glass' : 'inline-segments'} ${className}`}
+      data-page-lens={overlay ? "" : undefined}
       render={
         <ToggleGroup
           value={[value]}

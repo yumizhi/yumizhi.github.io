@@ -8,7 +8,6 @@ import { Button } from './ui/coss/button';
 import { Menu, MenuLinkItem, MenuPopup, MenuTrigger } from './ui/coss/menu';
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from './ui/sheet';
 import { Localized, useLanguage } from './language';
-import { LensRefraction } from './ui/cupertino/glass-optics';
 import './ui/cupertino/glass.css';
 import type { Paper } from '@/lib/content';
 
@@ -25,8 +24,7 @@ function ReaderToolbar({ current, choices, fromHome, children }: ReaderLinks & {
   const pickerContent = <>{pickerTitle}<ChevronsUpDown size={13} aria-hidden="true" /></>;
   return (
     <div className="paper-reader-toolbar" role="group" aria-label={language === 'zh' ? '论文导航' : 'Publication navigation'}>
-      <div className="reader-dock reader-glass">
-        <LensRefraction />
+      <div className="reader-dock reader-glass" data-page-lens="">
         <Button className="reader-back" variant="ghost" size="sm"
           aria-label={fromHome ? (language === 'zh' ? '回到首页' : 'Back to home') : (language === 'zh' ? '全部论文' : 'All publications')}
           render={<Link href={fromHome ? '/#publications' : '/research/'} />}>
@@ -60,7 +58,7 @@ function ReaderToolbar({ current, choices, fromHome, children }: ReaderLinks & {
           <SheetContent side="bottom" showCloseButton={false} aria-describedby={undefined} className="reader-paper-sheet">
             <div className="reader-sheet-heading">
               <SheetTitle>{pickerTitle}</SheetTitle>
-              <SheetClose className="reader-sheet-close reader-glass" aria-label={language === 'zh' ? '关闭' : 'Close'}>
+              <SheetClose className="reader-sheet-close" aria-label={language === 'zh' ? '关闭' : 'Close'}>
                 <X size={17} aria-hidden="true" />
               </SheetClose>
             </div>

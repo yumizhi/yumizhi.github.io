@@ -4,8 +4,8 @@ header.site-header { background: transparent; backdrop-filter: none; pointer-eve
 .site-header .header-actions { display: flex; gap: 0; padding: 2px; }
 .site-header .header-actions button { border-radius: 999px; }
 .site-header .reader-glass {
-  --glass-wash: color-mix(in srgb, var(--background) 79%, transparent);
-  --frost: 6px;
+  --glass-wash: color-mix(in srgb, var(--background) 40%, transparent);
+  --frost: .85px;
 }
 .site-rail[data-slot="segmented-control"], .site-segments[data-slot="segmented-control"] {
   position: relative;
@@ -35,6 +35,11 @@ header.site-header { background: transparent; backdrop-filter: none; pointer-eve
   font-weight: 560;
   -webkit-tap-highlight-color: transparent;
 }
+.site-rail .destination, .site-header .header-actions button {
+  color: color-mix(in srgb, var(--foreground) 88%, var(--background));
+  text-shadow: 0 0 2px var(--background), 0 0 5px var(--background);
+}
+.site-header .header-actions svg, .site-rail .destination svg { filter: drop-shadow(0 0 1px var(--background)); }
 .site-rail .destination:first-of-type { min-width: 2.45rem; }
 .site-rail .destination:not(:first-of-type) svg { display: none; }
 .site-rail .destination:is(:hover,[data-selected]), .site-segments [data-slot="segmented-control-item"][data-pressed] { color: var(--nju); }
@@ -48,8 +53,9 @@ header.site-header { background: transparent; backdrop-filter: none; pointer-eve
   width: auto;
   translate: none;
   border-radius: 999px;
-  background: var(--glass-selection);
-  box-shadow: none;
+  background: linear-gradient(140deg, color-mix(in srgb,var(--background) 58%,transparent),
+    color-mix(in srgb,var(--nju) 8%,transparent) 54%, color-mix(in srgb,var(--background) 28%,transparent));
+  box-shadow: inset 1px 1px 1.5px var(--light-arc), inset -1px -1px 2px var(--shade-arc), 0 1px 3px #18121c16;
   /* The leading edge arrives just before the trailing edge. Both retarget
      from their current positions when another destination is tapped. */
   transition: left .29s cubic-bezier(.24,.83,.23,1), right .34s cubic-bezier(.24,.83,.23,1);
@@ -70,6 +76,12 @@ header.site-header { background: transparent; backdrop-filter: none; pointer-eve
   }
   :is(.site-rail, .site-segments) > [data-slot="segmented-control-indicator"][data-moving]::after { opacity: 1; }
 }
+.inline-segments[data-slot="segmented-control"] { background: transparent; }
+.inline-segments[data-slot="segmented-control"] > [data-slot="segmented-control-indicator"] {
+  background: color-mix(in srgb, var(--nju) 8%, transparent);
+  box-shadow: none;
+}
+.inline-segments > [data-slot="segmented-control-indicator"]::after { content: none; }
 .site-rail .destination:focus-visible, .header-actions button:focus-visible,
 .site-segments [data-slot="segmented-control-item"]:focus-visible {
   outline: 2px solid var(--nju);

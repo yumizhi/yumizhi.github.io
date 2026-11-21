@@ -109,6 +109,7 @@ html:has(.tide-paper) { scroll-padding-top: 0; }
 .tide-pipeline-inset > button[aria-expanded=true] svg:last-child { rotate: 180deg; }
 .tide-pipeline-inset .tide-paper-entry { margin: 18px 0 0; }
 .tide-comparison {
+  scroll-margin-block-start: 7.5rem;
   display: grid;
   grid-template-columns: minmax(0,1fr);
   gap: .8rem;
@@ -125,12 +126,6 @@ html:has(.tide-paper) { scroll-padding-top: 0; }
 .tide-scene-picker img { display: block; width: 2.2rem; height: 2.2rem; border-radius: .5rem; }
 .tide-scene-picker button { position: relative; }
 .tide-scene-picker [aria-pressed=true] img { outline: 2px solid var(--nju); outline-offset: 2px; }
-.tide-lens .glass-trigger { --frost: 2.5px; --glass-wash: rgb(255 255 255 / .56); color: #19131d; text-shadow: 0 0 4px #fff8; }
-.dark .tide-lens .glass-trigger { --glass-wash: rgb(26 23 30 / .68); color: white; text-shadow: 0 0 4px #0006; }
-@media (prefers-contrast: no-preference) {
-  .tide-lens .glass-trigger:active { --glass-wash: rgb(255 255 255 / .43); }
-  .dark .tide-lens .glass-trigger:active { --glass-wash: rgb(26 23 30 / .55); }
-}
 .tide-figure-note, .tide-bib-heading, .tide-paper-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .tide-comparison figcaption { margin: 0; }
 .tide-figure-note { flex-wrap: wrap; }
