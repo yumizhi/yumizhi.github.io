@@ -55,19 +55,17 @@
 /* On a lit image, the lens keeps its centre clear and gathers the image's
    colour at the shoulder. These previews use the same light paper in both themes. */
 .reader-glass.media-glass {
-  --glass-wash: rgb(248 240 255 / .16);
-  --light-arc: rgb(255 255 255 / .93);
-  --shade-arc: rgb(63 32 75 / .31);
-  --frost: .4px;
+  --glass-wash: rgb(250 247 255 / .19);
+  --light-arc: rgb(255 255 255 / .55);
+  --shade-arc: rgb(63 32 75 / .16);
+  --frost: .6px;
   color: #3a2942;
-  background-image: linear-gradient(160deg, #ffffff48, transparent 48%, #75468318);
-  box-shadow: inset 1px 1px 1px #fffb, inset -1px -1px 1.5px #68457740,
-    0 2px 4px -2px #32153e48, 0 5px 12px -6px #32153e52;
+  box-shadow: 0 1px 5px #32153e14;
 }
 .media-glass [data-slot="segmented-control-item"] { color: #493550; }
 .media-glass [data-slot="segmented-control-item"][data-pressed] { color: #681b70; }
 .media-glass [data-slot="segmented-control-indicator"] {
-  background: linear-gradient(140deg, #ffffffe0, #faf3ff59 62%, #cbb2d852);
+  background: rgb(96 61 108 / .085);
 }
 @media (prefers-contrast: more), (prefers-reduced-transparency: reduce), (forced-colors: active) {
   .media-glass [data-slot="segmented-control-item"] { color: var(--foreground); }
