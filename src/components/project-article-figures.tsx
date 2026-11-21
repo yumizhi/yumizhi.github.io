@@ -186,7 +186,7 @@ function AgentWatchReplay() {
     { time: '07:00', changed: 0, pending: 0, delivered: 1, event: { en: 'Next morning', zh: '次日早晨' } },
     { time: '08:00', changed: null, pending: null, delivered: 0, event: { en: 'Source failed', zh: '来源故障' } },
   ];
-  return <Diagram id="agent-watch-replay" title={{ en: 'One evening in the digest queue', zh: '一份晚报的入队与投递' }}
+  return <Diagram id="agent-watch-replay" title={{ en: 'One immediate notice and one evening digest', zh: '一次即时提醒，一份晚报' }}
     caption={{ en: 'Three afternoon checks from a seven-check replay, using synthetic releases and a working web inbox. In the full log, each dot is one item. A dash marks missing source data.', zh: '图中三个时刻取自七次采集回放，使用合成发布数据和实际网页收件箱。完整记录里每个点代表一条内容，短横表示缺少来源数据。' }}>
     <AgentDigestReplay>
     <table className="agent-watch-table"><thead><tr>

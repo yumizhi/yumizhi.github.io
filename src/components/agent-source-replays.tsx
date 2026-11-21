@@ -1,110 +1,84 @@
 'use client';
 
-import { useId, useState, type ReactNode } from 'react';
-import { CalendarDays, GitPullRequest, Inbox, Layers2, Newspaper } from 'lucide-react';
-import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
-import { FilterTabs } from './filter-tabs';
-import { Localized as Text, useLanguage } from './language';
-import { Accordion, AccordionItem, AccordionPanel, AccordionTrigger } from './ui/coss/accordion';
-import './agent-source-replays.css';
+import { Fragment, useState, type ReactNode } from 'react';
+import { RotateCcw } from 'lucide-react';
+import { motion, useReducedMotion } from 'motion/react';
 import { Diagram } from './project-architecture';
+import { Localized as Text } from './language';
+import { Accordion, AccordionItem, AccordionPanel, AccordionTrigger } from './ui/coss/accordion';
+import { Button } from './ui/coss/button';
+import './agent-source-replays.css';
 
-const articles = {
-  priority: { icon: GitPullRequest, firstSeen: null, title: { en: 'Agent runtime release', zh: 'Agent 运行时发布' } },
-  notes: { icon: CalendarDays, firstSeen: '13:00', title: { en: 'Conference programme', zh: '会议日程' } },
-  followup: { icon: Newspaper, firstSeen: '14:00', title: { en: 'Follow-up release', zh: '后续版本发布' } },
-} as const;
-
-type Article = keyof typeof articles;
-const frames = [
-  { time: '13:00', queue: ['notes'], digest: [], status: { en: 'A priority release reached the inbox. The conference programme stayed in the queue.', zh: '优先发布已送达，会议日程留在队列。' } },
-  { time: '14:00', queue: ['notes', 'followup'], digest: [], status: { en: 'The follow-up release joined the programme in the queue. No message was sent.', zh: '后续发布进入队列，和会议日程一起等晚报。' } },
-  { time: '18:00', queue: [], digest: ['notes', 'followup'], status: { en: 'Both queued items arrived in one digest. There were no new updates at this check.', zh: '队列里的两条内容合为一份晚报，本轮没有新增。' } },
-] as const;
-
-function ArticleSlip({ article }: { article: Article }) {
-  const { icon: Icon, title, firstSeen } = articles[article];
-  const reduced = useReducedMotion();
-  return <motion.li layoutId={reduced ? undefined : article} layout={reduced ? false : 'position'}
-    initial={false} transition={{ type: 'spring', stiffness: 390, damping: 39 }}
-    className="digest-slip" data-article={article}>
-    <Icon size={15} strokeWidth={1.65} aria-hidden="true" />
-    <div><Text {...title} />{firstSeen && <small className="digest-origin"><Text en="First seen" zh="首次采集" /> <time>{firstSeen}</time></small>}</div>
-  </motion.li>;
+function Replay({ onClick }: { onClick: () => void }) {
+  return <Button variant="link" size="sm" className="ink-replay" onClick={onClick}>
+    <RotateCcw size={14} aria-hidden="true" /><Text en="Replay" zh="重播" />
+  </Button>;
 }
 
+const threads = [
+  { d: 'M9 30 H118', delay: 0, duration: .28, tone: 'immediate' },
+  { d: 'M20 90 V150 C20 182 48 207 75 210 H116', delay: .2, duration: 1.25, tone: 'programme' },
+  { d: 'M87 150 V167 C87 189 78 203 75 210 H116', delay: .72, duration: .73, tone: 'release' },
+];
+
 export function AgentDigestReplay({ children }: { children: ReactNode }) {
-  const [selected, setSelected] = useState<string>('14:00');
-  const { language } = useLanguage();
-  const instance = useId();
-  const frame = frames.find(item => item.time === selected)!;
-  return <div className="digest-replay">
-    <div className="digest-controls">
-      <FilterTabs label={language === 'zh' ? '采集时刻' : 'Collection time'} options={frames.map(({time}) => ({value:time,label:<time>{time}</time>}))}
-        value={selected} onChange={setSelected} />
+  const [pass, replay] = useState(0);
+  const reduced = useReducedMotion();
+  return <div className="digest-ink">
+    <div className="digest-route">
+      <time className="digest-clock" style={{gridRow:'1'}}>13:00</time>
+      <time className="digest-clock" style={{gridRow:'2'}}>13:00</time>
+      <time className="digest-clock" style={{gridRow:'3'}}>14:00</time>
+      <time className="digest-clock" style={{gridRow:'4'}}>18:00</time>
+      <svg viewBox="0 0 125 240" preserveAspectRatio="none" className="digest-threads" aria-hidden="true">
+        {threads.map(line => <path key={line.tone} d={line.d} className="digest-guide" />)}
+        <g key={pass}>{threads.map(line => <motion.path key={line.tone} d={line.d} data-tone={line.tone}
+          initial={pass && !reduced ? {pathLength:0} : false} animate={{pathLength:1}}
+          transition={{duration:reduced ? 0 : line.duration,delay:reduced ? 0 : line.delay,ease:'linear'}} />)}</g>
+        <g className="digest-starts">
+          {['M9 30h.01','M20 90h.01','M87 150h.01'].map(d => <g key={d}><path d={d} /><path d={d} /></g>)}
+        </g>
+        <path d="m111 25 7 5-7 5" className="digest-arrow" /><path d="M117 210h.01" className="digest-delivered" />
+      </svg>
+      <div className="digest-label" style={{gridRow:'1'}}><strong><Text en="Agent runtime release" zh="Agent 运行时发布" /></strong><small><Text en="Priority notice, delivered immediately" zh="优先通知，当轮送达" /></small></div>
+      <div className="digest-label" style={{gridRow:'2'}}><strong><Text en="Conference programme" zh="会议日程" /></strong><small><Text en="Saved for the evening digest" zh="留待晚报" /></small></div>
+      <div className="digest-label" style={{gridRow:'3'}}><strong><Text en="Follow-up release" zh="后续版本发布" /></strong><small><Text en="Queued after the reader lowered its priority" zh="读者调低优先级，加入待发队列" /></small></div>
+      <div className="digest-label digest-result" style={{gridRow:'4'}}><strong><Text en="One evening digest" zh="一份晚报" /></strong><small><Text en="Two waiting items delivered together" zh="两条待发内容一起送达" /></small></div>
     </div>
-    <LayoutGroup id={instance}>
-      <div className="digest-spread" data-time={selected}>
-        <section className="digest-column" aria-labelledby={instance + '-queue'}>
-          <h4 id={instance + '-queue'}><Layers2 size={17} aria-hidden="true" /><Text en="Digest queue" zh="等待晚报" /></h4>
-          <ul className="digest-sheet" data-lane="queue">
-            {frame.queue.map(article => <ArticleSlip key={article} article={article} />)}
-            {!frame.queue.length && <li className="digest-empty"><Text en="Queue cleared" zh="队列已清空" /></li>}
-          </ul>
-        </section>
-        <section className="digest-column" aria-labelledby={instance + '-inbox'}>
-          <h4 id={instance + '-inbox'}><Inbox size={17} aria-hidden="true" /><Text en="Reader’s inbox" zh="读者收件箱" /></h4>
-          <div className="digest-sheet" data-lane="inbox">
-            <p className="digest-stamp"><time>13:00</time><Text en="Priority notice" zh="优先通知" /></p>
-            <ul><ArticleSlip article="priority" /></ul>
-            {frame.digest.length > 0 && <div className="digest-envelope">
-              <p className="digest-stamp"><time>18:00</time><Text en="Evening digest" zh="晚间摘要" /></p>
-              <ul>{frame.digest.map(article => <ArticleSlip key={article} article={article} />)}</ul>
-            </div>}
-          </div>
-        </section>
-      </div>
-    </LayoutGroup>
-    <p className="digest-status" aria-live="polite" aria-atomic="true">{frame.status[language]}</p>
-    <Accordion className="digest-audit">
-      <AccordionItem value="history">
-        <AccordionTrigger><Text en="Full log · seven checks" zh="完整记录 · 七次采集" /></AccordionTrigger>
-        <AccordionPanel>{children}</AccordionPanel>
-      </AccordionItem>
-    </Accordion>
+    <div className="digest-foot">
+      <Accordion className="digest-audit">
+        <AccordionItem value="history"><AccordionTrigger><Text en="Seven-check log" zh="七次采集记录" /></AccordionTrigger>
+          <AccordionPanel>{children}</AccordionPanel></AccordionItem>
+      </Accordion>
+      {!reduced && <Replay onClick={() => replay(n => n+1)} />}
+    </div>
   </div>;
 }
 
-const schedules = [
-  { id: 'serial', limit: 1, median: '160.7', label: { en: 'One at a time', zh: '逐个读取' } },
-  { id: 'parallel', limit: 3, median: '54.0', label: { en: 'Up to three', zh: '三路并发' } },
-] as const;
+const feeds = ['A','B','C','D','E','F'];
 
 export function AgentCollectionSchedule() {
-  const { language } = useLanguage();
+  const [pass,replay] = useState(0);
   const reduced = useReducedMotion();
-  const [id, setId] = useState<string>('serial');
-  const schedule = schedules.find(item => item.id === id)!;
-  return <Diagram id="agent-collection-schedule"
-    title={{ en: 'Six requests on the same clock', zh: '同一时间轴上的六次请求' }}
-    caption={{ en: 'Bar positions illustrate dispatch with equal source delays. The reported times are measured medians from seven replays with a 25 ms delay injected per source. Results return in subscription order in both modes.', zh: '条形位置示意来源延迟相同时的请求调度。耗时为七轮回放的实测中位数，每个来源注入 25 毫秒延迟。两种方式都按订阅顺序整理结果。' }}>
-    <div className="collection-header">
-      <FilterTabs label={language === 'zh' ? '采集方式' : 'Collection mode'} value={id} onChange={setId}
-        options={schedules.map(item => ({value:item.id,label:item.label[language]}))} />
-      <span className="collection-median" aria-live="polite"><Text en="Median" zh="实测中位数" /> <strong>{schedule.median}</strong> ms</span>
+  return <Diagram id="agent-collection-schedule" title={{ en:'Six requests on the same clock', zh:'同一时间轴上的六次请求' }}
+    caption={{ en:'Bars show the idealized dispatch order with equal source delays. Times are measured medians from seven replays with a 25 ms delay per source. The returned records keep their subscription order.', zh:'条形示意来源延迟相同时的请求调度。耗时中位数来自七轮回放，每个来源注入 25 毫秒延迟。返回记录始终按订阅顺序排列。' }}>
+    <div className="collection-comparison">
+      <div className="collection-coltitle"><span><Text en="Sequential" zh="逐个读取" /></span><strong>160.7 <small>ms</small></strong></div>
+      <div className="collection-coltitle"><span><Text en="Three in parallel" zh="三路并发" /></span><strong>54.0 <small>ms</small></strong></div>
+      {feeds.map((feed,index) => <Fragment key={feed}>
+        <span className="collection-feed"><Text en="Feed" zh="来源" /> {feed}</span>
+        {[1,3].map(limit => {
+          const start = Math.floor(index / limit);
+          return <div className="collection-track" data-mode={limit} key={limit}>
+            <div style={{marginInlineStart: start / feeds.length * 100 + '%'}}>
+              <motion.i key={pass} initial={pass && !reduced ? {scaleX:0} : false} animate={{scaleX:1}}
+                transition={{delay:reduced ? 0 : start*.22,duration:reduced ? 0 : .22,ease:'linear'}} />
+            </div>
+          </div>;
+        })}
+      </Fragment>)}
     </div>
-    <ol className="collection-sources">
-      {['A','B','C','D','E','F'].map((source, index) =>
-        <li key={source}><span><Text en="Feed" zh="来源" /> {source}</span>
-          <div className="collection-track" aria-hidden="true">
-            <motion.i initial={false} animate={{ x: Math.floor(index / schedule.limit) * 100 + '%' }}
-              transition={{ duration: reduced ? 0 : .36, ease: [.22, 1, .36, 1] }} />
-          </div>
-        </li>)}
-    </ol>
-    <p className="collection-axis"><Text en="Dispatch order →" zh="请求发出顺序 →" /></p>
-    <span className="sr-only">{schedule.id === 'serial'
-      ? <Text en="Each feed waits for the previous feed to finish." zh="每个来源等待前一个来源完成后再开始。" />
-      : <Text en="A, B and C start together, then D, E and F." zh="A、B、C 同时开始，随后读取 D、E、F。" />}</span>
+    <div className="collection-foot"><Text en="Each bar represents one source request." zh="每根条形代表一次来源请求。" />{!reduced && <Replay onClick={() => replay(n=>n+1)} />}</div>
+    <span className="sr-only"><Text en="Sequential collection waits for each feed in turn. Parallel collection starts A, B and C together, followed by D, E and F." zh="顺序采集逐个等待六个来源。并发采集同时发出前三个请求，随后读取后三个来源。" /></span>
   </Diagram>;
 }

@@ -33,7 +33,7 @@ export default async function Project({params}:{params:Promise<{slug:string}>}) 
  const {slug}=await params;
  const p=projects.find(p=>p.slug===slug);
  if(!p)notFound();
- return <article className="editorial-shell portfolio-editorial project-detail">
+ return <article className="editorial-shell portfolio-editorial project-detail" data-case={p.slug}>
   <Breadcrumb className="breadcrumb" aria-label="Project breadcrumb">
    <BreadcrumbList>
     <BreadcrumbItem><BreadcrumbLink render={<TransitionLink href="/projects/" />}><Localized en="Projects" zh="项目" /></BreadcrumbLink></BreadcrumbItem>
