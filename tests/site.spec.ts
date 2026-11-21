@@ -520,3 +520,15 @@ test('the open image picker uses the displayed photograph and page filters retur
  await page.goto('/research/');
  await expect(page.getByRole('group', { name: 'Filter research' })).toHaveClass(/inline-segments/);
 });
+
+test('increased contrast keeps the photo menu solid and the document unfiltered', async ({ page }) => {
+ await page.emulateMedia({ contrast: 'more' });
+ await page.goto('/research/tide/#image-comparison');
+ await page.getByRole('combobox', { name: /Watermark method/ }).click();
+ const menu = page.locator('.glass-menu[data-photo-glass]');
+ await expect(menu).toHaveCSS('backdrop-filter', 'none');
+ await expect(menu.locator('.lens-scene')).toBeHidden();
+ await page.keyboard.press('Escape');
+ await page.locator('#method h2').first().evaluate(el => window.scrollBy({top: el.getBoundingClientRect().top-12, behavior: 'instant'}));
+ await expect(page.locator('[data-optical-target]')).toHaveCount(0);
+});

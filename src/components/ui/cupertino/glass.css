@@ -175,7 +175,7 @@ button.reader-glass:active, a.reader-glass:active { scale: .975; }
   button.reader-glass:active, a.reader-glass:active { scale: 1; }
 }
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more), (forced-colors: active) {
-  .reader-glass, .glass-menu.reader-glass { background: var(--glass-solid); backdrop-filter: none; -webkit-backdrop-filter: none; outline: 1px solid currentColor; }
+  .reader-glass, .glass-menu.reader-glass { background: var(--glass-solid) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; outline: 1px solid currentColor; }
   .reader-glass[data-photo-glass], .glass-menu.reader-glass[data-photo-glass] { background: var(--glass-solid); }
   .reader-glass[data-photo-glass], .glass-menu[data-photo-glass] .glass-option { color: var(--foreground); text-shadow: none; }
   .glass-menu[data-photo-glass] .glass-option:is([aria-selected=true], [data-selected]) { color: var(--nju); }
