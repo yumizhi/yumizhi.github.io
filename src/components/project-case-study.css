@@ -4,14 +4,9 @@ html:has(.project-detail) { scroll-padding-top: 0; }
   position: sticky;
   inset-block-start: 52px;
   z-index: 12;
-  background: var(--background);
-  border-block-end: 1px solid var(--border);
-  margin-block-end: clamp(1.25rem, 3vw, 1.75rem);
-}
-.case-contents .article-section-nav {
-  max-inline-size: max-content;
-  margin: 0 auto;
-  padding-block: .375rem;
+  pointer-events: none;
+  padding-block: .45rem;
+  margin-block-end: 1rem;
 }
 .case-section { margin-block-start: clamp(2.75rem, 6vw, 5rem); }
 .case-section:focus, .project-workflow#preview:focus { outline: none; }
@@ -251,3 +246,18 @@ html:has(.project-detail) { scroll-padding-top: 0; }
   .case-flow .case-play { min-block-size: 2.75rem; }
 }
 .trace-origin[data-phase="generate"] img { object-position: 50% 63%; }
+
+@media screen and (max-width: 40rem) {
+  .case-contents {
+    position: fixed;
+    inset: auto auto max(.8rem, env(safe-area-inset-bottom)) 50%;
+    translate: -50% 0;
+    width: max-content;
+    max-width: calc(100% - 1.5rem);
+    margin: 0;
+    padding: 0;
+    z-index: 24;
+  }
+  .project-detail :is(.case-section, #preview, .case-chapter, .architecture-figure)[id] { scroll-margin-top: 72px; }
+  body:has(.case-contents) .site-footer { padding-bottom: 5rem; }
+}

@@ -23,8 +23,8 @@ function ReaderToolbar({ current, choices, fromHome, children }: ReaderLinks & {
   const pickerTitle = <Localized en="Papers" zh="论文" />;
   const pickerContent = <>{pickerTitle}<ChevronsUpDown size={13} aria-hidden="true" /></>;
   return (
-    <div className="paper-reader-toolbar" role="group" aria-label={language === 'zh' ? '论文导航' : 'Publication navigation'}>
-      <Button className="reader-back" variant="ghost" size="sm"
+    <div className="paper-reader-toolbar reader-glass" role="group" aria-label={language === 'zh' ? '论文导航' : 'Publication navigation'}>
+      <Button className="reader-back reader-glass" variant="ghost" size="sm"
         aria-label={fromHome ? (language === 'zh' ? '回到首页' : 'Back to home') : (language === 'zh' ? '全部论文' : 'All publications')}
         render={<Link href={fromHome ? '/#publications' : '/research/'} />}>
         <ArrowLeft aria-hidden="true" />

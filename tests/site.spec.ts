@@ -1,6 +1,21 @@
 import {test,expect} from './fixtures';
+import type { Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import fs from 'node:fs/promises';
+async function choosePreview(page: Page, name: string) {
+ const control = page.getByRole('combobox', { name: /^Choose preview,/ });
+ await control.click();
+ await page.getByRole('option', { name, exact: true }).click();
+ await expect(control).toHaveAccessibleName(`Choose preview, ${name}`);
+ await expect(page.getByRole('listbox')).toHaveCount(0);
+}
+
+async function jumpToSection(page: Page, name: string) {
+ await page.locator('.article-section-nav').getByRole('button').click();
+ await page.getByRole('menuitem', { name, exact: true }).click();
+ await expect(page.getByRole('menu')).toHaveCount(0);
+}
+
 const sizes=[{width:1440,height:900},{width:1280,height:800},{width:768,height:1024},{width:390,height:844},{width:375,height:812}];
 for(const viewport of sizes){test(`responsive pages ${viewport.width}x${viewport.height}`,async({page})=>{
  await page.setViewportSize(viewport);
@@ -66,12 +81,19 @@ test('touch research links and mobile navigation work directly',async({page})=>{
 test('the paper opens with its overview and keeps the original abstract and citation accessible',async({page,context})=>{
  await context.grantPermissions(['clipboard-read','clipboard-write']);await page.goto('/research/tide/');
  const sections=page.getByRole('navigation',{name:'Paper sections'});
- await expect(sections.getByRole('link',{name:'Overview',exact:true})).toHaveAttribute('aria-current','location');
+ await expect(sections.getByRole('button')).toHaveAccessibleName(/, Overview$/);
  const comparison=page.locator('#overview + .tide-comparison');
- await expect(comparison.getByRole('tab',{name:'Tree-Ring',exact:true})).toHaveAttribute('aria-selected','true');
- await comparison.getByRole('tab',{name:'TIDE',exact:true}).click();
+ const method = comparison.getByRole('combobox', { name: 'Watermark method, Tree-Ring' });
+ await method.click();
+ await page.getByRole('option', { name: 'TIDE', exact: true }).click();
+ const selected = comparison.getByRole('combobox', { name: 'Watermark method, TIDE' });
+ await expect(page.getByRole('listbox')).toHaveCount(0);
+ await expect(selected).toHaveCSS('outline-style', 'none');
+ await selected.focus(); await page.keyboard.press('ArrowDown');
+ await expect(page.getByRole('listbox')).toBeVisible();
+ await page.keyboard.press('Escape'); await expect(selected).toBeFocused();
  await expect(comparison.getByRole('img',{name:'TIDE · Sports car',exact:true})).toBeVisible();
- await sections.getByRole('link',{name:'Abstract',exact:true}).click();
+ await jumpToSection(page, 'Abstract');
  await expect(page).toHaveURL(/#abstract$/);
  await expect(page.locator('#abstract')).toContainText('Watermarking text-to-image diffusion models');
  await page.getByRole('button',{name:'Copy BibTeX'}).first().click();await expect(page.getByRole('button',{name:'Copied',exact:true}).first()).toBeVisible();
@@ -148,7 +170,7 @@ test('writing links to the published diffusion article', async ({ page }) => {
  await expect(article).toHaveAttribute('href', 'https://lappland-saluzzo.notion.site/understand-diffusion-model');
 });
 test('project detail changes the actual screenshot',async({page})=>{
- await page.goto('/projects/epub-toolkit/');await page.getByRole('tab',{name:'Inspect',exact:true}).click();await expect(page.locator('.stage-capture[aria-hidden=false] img')).toHaveAttribute('src',/epub-panel-inspect/);
+ await page.goto('/projects/epub-toolkit/');await choosePreview(page, 'Inspect');await expect(page.locator('.stage-capture[aria-hidden=false] img')).toHaveAttribute('src',/epub-panel-inspect/);
 });
 test('reduced motion steps through TIDE without playing the sequence', async ({ page }) => {
  await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -212,11 +234,11 @@ test('mobile project showcases keep private repository links out of the page', a
   await expect(detail).toContainText('Source code is private.');
   await expect(detail.locator('a[href*="github.com"]:not([href^="https://github.com/earendil-works/pi/"])')).toHaveCount(0);
   if (project.slug === 'personal-agent') {
-   await expect(detail.getByRole('tab', { name: 'Chat', exact: true })).toHaveAttribute('aria-selected', 'true');
-   await detail.getByRole('tab', { name: 'Assistants', exact: true }).click();
+   await expect(detail.getByRole('combobox', { name: 'Choose preview, Chat' })).toBeVisible();
+   await choosePreview(page, 'Assistants');
    await expect(detail.locator('.stage-capture[aria-hidden="false"] img')).toHaveAttribute('src', /personal-agent-assistants/);
   }
-  await detail.getByRole('tablist', { name: `${project.title} screenshots` }).getByRole('tab', { name: project.tab, exact: true }).click();
+  await choosePreview(page, project.tab);
   await expect(detail.locator('.stage-capture[aria-hidden="false"] img')).toHaveAttribute('src', new RegExp(project.asset));
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   await page.goto('/projects/');
@@ -228,12 +250,12 @@ test('case studies expose anchored design and implementation with keyboard-opera
  await page.setViewportSize({ width: 390, height: 844 });
  await page.goto('/projects/personal-agent/');
  const sections = page.getByRole('navigation', { name: 'Project sections' });
- await sections.getByRole('link', { name: 'Design' }).click();
+ await jumpToSection(page, 'Design');
  await expect(page).toHaveURL(/#design$/);
  await expect(page.locator('#design').getByRole('heading', { level: 2 })).toBeInViewport();
- await sections.getByRole('link', { name: 'Implementation' }).click();
+ await jumpToSection(page, 'Implementation');
  await expect(page).toHaveURL(/#implementation$/);
- await expect(sections.getByRole('link', { name: 'Implementation' })).toHaveAttribute('aria-current', 'location');
+ await expect(sections.getByRole('button')).toHaveAccessibleName(/, Implementation$/);
  const flow = page.getByRole('tablist', { name: 'Runtime steps' });
  const context = flow.getByRole('tab', { name: 'Context', exact: true });
  await expect(context).toHaveAttribute('aria-selected', 'true');
@@ -243,9 +265,9 @@ test('case studies expose anchored design and implementation with keyboard-opera
  await expect(tool).toBeFocused();
  await page.keyboard.press('Enter');
  await expect(page.getByRole('tabpanel', { name: 'Tool call', exact: true })).toContainText('validated result');
- await sections.getByRole('link', { name: 'Validation' }).click();
+ await jumpToSection(page, 'Validation');
  await expect(page.locator('#verification')).toContainText('web-inbox receipt');
- await expect(sections.getByRole('link', { name: 'Validation' })).toHaveAttribute('aria-current', 'location');
+ await expect(sections.getByRole('button')).toHaveAccessibleName(/, Validation$/);
  await page.getByRole('navigation', { name: 'Other projects' }).getByRole('link', { name: 'OriginMark' }).click();
  await expect(page.locator('#implementation').getByRole('link', { name: /TIDE/ })).toHaveAttribute('href', '/research/tide/');
  await page.goto('/projects/epub-toolkit/#implementation');
@@ -262,7 +284,7 @@ test('project architecture figures preserve their evidence on desktop and mobile
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto(`/projects/${slug}/#architecture`);
   const nav = page.getByRole('navigation', { name: 'Project sections' });
-  await expect(nav.getByRole('link', { name: 'Architecture', exact: true })).toHaveAttribute('aria-current', 'location');
+  await expect(nav.getByRole('button')).toHaveAccessibleName(/, Architecture$/);
   const figure = page.locator(`#${slug}-overview`);
   await expect(figure.getByText(evidence, { exact: true })).toBeVisible();
   await expect(figure.locator('figcaption')).not.toBeEmpty();
@@ -274,7 +296,7 @@ test('project architecture figures preserve their evidence on desktop and mobile
    await expect(detail.locator('figcaption')).not.toBeEmpty();
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
-  await nav.getByRole('link', { name: 'Trade-offs' }).click();
+  await jumpToSection(page, 'Trade-offs');
   await expect(page.locator('#decisions').getByRole('heading', { level: 2 })).toBeInViewport();
  }
 });
@@ -315,8 +337,8 @@ test('technical walkthroughs reveal paths, evidence, and run stages', async ({ p
 
 test('project detail switches real screens and expands the selected view',async({page})=>{
  await page.goto('/projects/epub-toolkit/');
- await page.getByRole('tab',{name:'Inspect',exact:true}).click();await expect(page.locator('.stage-capture[aria-hidden=false] img')).toHaveAttribute('src',/epub-panel-inspect/);await page.getByRole('button',{name:'Expand EPUB Toolkit inspect screenshot'}).click();await expect(page.getByRole('dialog')).toBeVisible();await expect(page.getByRole('dialog').getByRole('img')).toHaveAttribute('src',/epub-panel-inspect/);await page.keyboard.press('Escape');
- await page.getByRole('tab',{name:'Output',exact:true}).click();await expect(page.locator('.stage-capture[aria-hidden=false] img')).toHaveAttribute('src',/epub-panel-output/);
+ await choosePreview(page, 'Inspect');await expect(page.locator('.stage-capture[aria-hidden=false] img')).toHaveAttribute('src',/epub-panel-inspect/);await page.getByRole('button',{name:'Expand EPUB Toolkit inspect screenshot'}).click();await expect(page.getByRole('dialog')).toBeVisible();await expect(page.getByRole('dialog').getByRole('img')).toHaveAttribute('src',/epub-panel-inspect/);await page.keyboard.press('Escape');
+ await choosePreview(page, 'Output');await expect(page.locator('.stage-capture[aria-hidden=false] img')).toHaveAttribute('src',/epub-panel-output/);
 });
 
 
@@ -348,7 +370,7 @@ test('the reader switches papers from a deep section and returns to its entry li
  await page.goto('/');
  await page.getByTestId('research-card-tide').getByRole('link', { name: 'Read the study' }).click();
  await expect(page.getByRole('link', { name: 'Back to home' })).toHaveAttribute('href', '/#publications');
- await page.getByRole('link', { name: 'Discussion', exact: true }).click();
+ await jumpToSection(page, 'Discussion');
  const picker = page.getByRole('button', { name: /switch publication/i });
  await expect(picker).toBeInViewport();
  await picker.focus();
@@ -437,20 +459,21 @@ test('navigation responds during loading and remains interruptible',async({page}
 });
 
 
-test('project window and tab indicator move continuously and accept rapid changes',async({page})=>{
+test('project window resizes continuously as the glass picker changes views',async({page})=>{
  await page.setViewportSize(sizes[0]);await page.goto('/projects/epub-toolkit/');await page.locator('.project-demo').scrollIntoViewIfNeeded();await page.evaluate(()=>document.fonts.ready);await page.waitForTimeout(300);
- const preview=page.getByRole('tablist',{name:'EPUB Toolkit screenshots'});
+ const preview=page.getByRole('combobox',{name:/^Choose preview,/});
+ await preview.click();
  const window=page.locator('.stage-window');const before=await window.boundingBox();
  await page.evaluate(()=>{const samples:number[]=[];(globalThis as unknown as {windowWidths:number[]}).windowWidths=samples;const end=performance.now()+800;function sample(){samples.push(document.querySelector('.stage-window')!.getBoundingClientRect().width);if(performance.now()<end)requestAnimationFrame(sample);}requestAnimationFrame(sample);});
- await preview.getByRole('tab',{name:'Output',exact:true}).click();await page.waitForTimeout(650);const after=await window.boundingBox();const widths=await page.evaluate(()=>(globalThis as unknown as {windowWidths:number[]}).windowWidths);
- expect(before!.width-after!.width).toBeGreaterThan(100);expect(widths.some(w=>w<before!.width-5&&w>after!.width+5)).toBeTruthy();await expect(page.locator('.preview-tab-highlight')).toHaveCount(1);
- for(const name of ['Split','Inspect','Merge']){await preview.getByRole('tab',{name,exact:true}).click();await page.waitForTimeout(60);}
- await expect(preview.getByRole('tab',{name:'Merge',exact:true})).toHaveAttribute('aria-selected','true');await expect(page.locator('.stage-capture[aria-hidden=false] img')).toHaveAttribute('src',/epub-panel-merge/);await expect(page.locator('.stage-window')).toHaveCount(1);
+ await page.getByRole('option',{name:'Output',exact:true}).click();await page.waitForTimeout(650);const after=await window.boundingBox();const widths=await page.evaluate(()=>(globalThis as unknown as {windowWidths:number[]}).windowWidths);
+ expect(before!.width-after!.width).toBeGreaterThan(100);expect(widths.some(w=>w<before!.width-5&&w>after!.width+5)).toBeTruthy();await expect(page.getByRole('listbox')).toHaveCount(0);
+ for(const name of ['Split','Inspect','Merge']){await choosePreview(page,name);await page.waitForTimeout(60);}
+ await expect(preview).toHaveAccessibleName('Choose preview, Merge');await expect(page.locator('.stage-capture[aria-hidden=false] img')).toHaveAttribute('src',/epub-panel-merge/);await expect(page.locator('.stage-window')).toHaveCount(1);
 });
 test('continuous viewport resize preserves all preview states and inner margins',async({page})=>{
- await page.setViewportSize(sizes[0]);await page.goto('/projects/epub-toolkit/');await page.getByRole('tab',{name:'Output',exact:true}).click();await page.waitForTimeout(600);
+ await page.setViewportSize(sizes[0]);await page.goto('/projects/epub-toolkit/');await choosePreview(page, 'Output');await page.waitForTimeout(600);
  for(const width of [1100,820,801,800,700,621,620,600,480,390,375,620,800,1280]){
-  await page.setViewportSize({width,height:900});await page.waitForTimeout(45);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();await expect(page.getByRole('tab',{name:'Output',exact:true})).toHaveAttribute('aria-selected','true');
+  await page.setViewportSize({width,height:900});await page.waitForTimeout(45);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();await expect(page.getByRole('combobox',{name:'Choose preview, Output'})).toBeVisible();
   const room=await page.locator('.stage-window').evaluate(frame=>{const box=frame.getBoundingClientRect();const picture=frame.querySelector('[aria-hidden=false]')!.getBoundingClientRect();return{left:picture.left-box.left,right:box.right-picture.right,top:picture.top-box.top,bottom:box.bottom-picture.bottom};});for(const gap of Object.values(room))expect(gap).toBeGreaterThanOrEqual(17);
  }
 });

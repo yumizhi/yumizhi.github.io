@@ -1,53 +1,129 @@
-/* CupertinoUI's glass capsule material, tuned for the site's neutral surfaces. */
+/* Neutral, transmitting material. The narrow optical rim samples the page
+   separately from the frosted centre, so the edge stays crisp over photographs. */
 .reader-glass {
-  --glass-fill: rgb(255 255 255 / .82);
-  --glass-edge: rgb(255 255 255 / .95);
-  --glass-rim: rgb(25 16 34 / .12);
-  --glass-shadow: rgb(25 16 34 / .08);
-  background-color: var(--glass-solid, var(--background));
+  --glass-solid: var(--background);
+  --glass-wash: rgb(255 255 255 / .52);
+  --glass-light: rgb(255 255 255 / .96);
+  --glass-low: rgb(98 74 105 / .20);
+  --glass-depth: rgb(46 27 48 / .095);
+  position: relative;
+  isolation: isolate;
+  border: 0;
   border-radius: 999px;
-  box-shadow: inset 0 1px 0 var(--glass-edge),
-    inset 0 0 0 1px var(--glass-rim),
-    0 2px 7px var(--glass-shadow);
+  background: var(--glass-solid);
+  color: var(--foreground);
+  box-shadow: inset 0 0 0 .7px var(--glass-low), 0 2px 5px -2px var(--glass-depth), 0 5px 16px -6px var(--glass-depth);
 }
 .dark .reader-glass {
-  --glass-fill: rgb(55 51 61 / .86);
-  --glass-edge: rgb(255 255 255 / .16);
-  --glass-rim: rgb(255 255 255 / .11);
-  --glass-shadow: rgb(0 0 0 / .25);
+  --glass-wash: rgb(32 29 36 / .63);
+  --glass-light: rgb(255 255 255 / .28);
+  --glass-low: rgb(228 212 235 / .22);
+  --glass-depth: rgb(0 0 0 / .4);
+}
+.reader-glass::before, .reader-glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.reader-glass::before { z-index: -2; }
+.reader-glass::after {
+  z-index: -1;
+  padding: var(--rim-size, 1.3px);
+  background: linear-gradient(152deg, color-mix(in srgb, var(--glass-light) 72%, transparent), transparent 25%, transparent 58%, var(--glass-low) 76%, color-mix(in srgb, var(--glass-light) 64%, transparent));
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
 }
 @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .reader-glass {
-    background-color: var(--glass-fill);
-    -webkit-backdrop-filter: blur(12px) saturate(135%);
-    backdrop-filter: blur(12px) saturate(135%);
+    background: var(--glass-wash);
+    -webkit-backdrop-filter: saturate(145%) blur(var(--frost, 5px));
+    backdrop-filter: saturate(145%) blur(var(--frost, 5px));
+  }
+  .reader-glass:has(> svg[width="0"]) { --rim-size: 3px; }
+  .reader-glass::after {
+    -webkit-backdrop-filter: saturate(150%) contrast(112%);
+    backdrop-filter: saturate(150%) contrast(112%) var(--rim-filter, saturate(100%));
   }
 }
-.reader-glass:is(:hover, [aria-expanded="true"]) {
-  background-color: color-mix(in srgb, var(--glass-fill) 83%, var(--editorial-soft));
+button.reader-glass, a.reader-glass { -webkit-tap-highlight-color: transparent; }
+button.reader-glass:active, a.reader-glass:active { scale: .965; }
+button.reader-glass:active::before { box-shadow: inset 0 1px 7px var(--glass-light); }
+.reader-glass:focus-visible { outline: 2px solid var(--nju); outline-offset: 2px; }
+.glass-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .48rem;
+  padding: .4rem .8rem;
+  min-height: 2.3rem;
+  width: max-content;
+  max-width: 100%;
+  font: 580 .8125rem/1.25 var(--font-display, sans-serif);
+  cursor: pointer;
+  white-space: nowrap;
 }
-.reader-glass:active { scale: .96; }
+.glass-trigger > svg:not([width="0"]) { color: var(--nju); }
+.glass-trigger[aria-expanded=true] svg:last-child { rotate: 180deg; }
+.glass-trigger:focus:not(:focus-visible) { outline: none; }
+.glass-trigger:focus-visible, .reader-glass a:focus-visible { outline: 2px solid var(--nju); outline-offset: 2px; }
+.glass-positioner { z-index: 54; }
+.glass-menu.reader-glass {
+  --glass-wash: color-mix(in srgb, var(--background) 84%, transparent);
+  min-width: max(10rem, var(--anchor-width));
+  max-width: calc(100vw - 1rem);
+  max-height: min(60dvh, var(--available-height));
+  overflow: auto;
+  border-radius: 1.25rem;
+  transform-origin: var(--transform-origin);
+  outline: none;
+}
+@supports (backdrop-filter: blur(1px)) {
+  .glass-menu.reader-glass {
+    background: var(--glass-wash);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(14px) saturate(140%);
+  }
+  .glass-menu.reader-glass::before { display: none; }
+}
+.glass-menu [role=listbox], .glass-menu > [role=presentation], .glass-menu > div { padding: .32rem; }
+.glass-option, .glass-menu a.glass-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 2.2rem;
+  padding: .35rem .72rem;
+  border-radius: .92rem;
+  font-size: .84rem;
+  font-weight: 510;
+  color: var(--foreground);
+  text-decoration: none;
+  outline: none;
+  cursor: pointer;
+}
+.glass-option:is([aria-selected=true], [aria-current], [data-selected]) { color: var(--nju); }
+.glass-option[data-highlighted] { background: color-mix(in srgb, var(--nju) 9%, transparent); }
 @media (prefers-reduced-motion: no-preference) {
-  .reader-glass { transition: scale 160ms cubic-bezier(.2,.7,.2,1), background-color 150ms ease-out; }
+  button.reader-glass, a.reader-glass { transition: scale 160ms cubic-bezier(.2,.8,.2,1); }
+  .glass-menu { transition: opacity .15s, transform .2s cubic-bezier(.22,1,.36,1); }
+  .glass-menu:is([data-starting-style], [data-ending-style]) { opacity: 0; transform: translateY(-3px) scale(.96); }
+  .glass-trigger svg { transition: rotate .18s ease-out; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .reader-glass:active { scale: 1; }
+  button.reader-glass:active, a.reader-glass:active { scale: 1; }
 }
-@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
-  .reader-glass, .reader-glass:is(:hover, [aria-expanded="true"]) {
-    background-color: var(--glass-solid, var(--background));
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more), (forced-colors: active) {
+  .reader-glass, .glass-menu.reader-glass { background: var(--glass-solid); backdrop-filter: none; -webkit-backdrop-filter: none; outline: 1px solid currentColor; }
+  .reader-glass::before, .reader-glass::after { display: none; }
 }
-
+@media (pointer: coarse) {
+  .glass-trigger, .glass-option, .glass-menu a.glass-option { min-height: 2.75rem; }
+}
 .stage-lightbox .stage-lightbox-close.reader-glass {
+  position: absolute;
   --glass-solid: #423f47;
-  --glass-fill: rgb(67 63 72 / .84);
-  --glass-edge: rgb(255 255 255 / .24);
-  --glass-rim: rgb(255 255 255 / .14);
-  --glass-shadow: rgb(0 0 0 / .22);
-}
-.stage-lightbox .stage-lightbox-close.reader-glass:hover {
-  background-color: #55515b;
+  --glass-wash: rgb(36 32 42 / .76);
+  color: white;
 }
