@@ -366,6 +366,27 @@ test('the reader switches papers from a deep section and returns to its entry li
  await expect(page.getByRole('group', { name: 'Publication navigation' }).getByRole('link', { name: 'All publications' })).toHaveAttribute('href', '/research/');
 });
 
+test('the mobile paper chooser opens from the bottom and keeps the entry route', async ({ page }) => {
+ await page.setViewportSize({ width: 390, height: 844 });
+ await page.goto('/research/tide/?from=home#discussion');
+ const picker = page.getByRole('button', { name: /switch publication/i });
+ await picker.click();
+ const sheet = page.getByRole('dialog', { name: 'Papers' });
+ await expect(sheet).toBeInViewport();
+ await expect(sheet.getByRole('link', { name: /TIDE/ })).toHaveAttribute('aria-current', 'page');
+ await expect.poll(async () => {
+   const bounds = (await sheet.boundingBox())!;
+   return Math.abs(844 - (bounds.y + bounds.height));
+ }).toBeLessThan(16);
+ await page.keyboard.press('Escape');
+ await expect(sheet).toBeHidden();
+ await expect(picker).toBeFocused();
+ await picker.click();
+ await sheet.getByRole('link', { name: /SASBO/ }).click();
+ await expect(page).toHaveURL(/research\/sasbo\/\?from=home$/);
+ await expect(page.getByRole('link', { name: 'Back to home' })).toHaveAttribute('href', '/#publications');
+});
+
 test('product poster stays composed and its interface has inner framing',async({page})=>{
  for(const width of [1440,820,768,620,504,390,320]){
   await page.setViewportSize({width,height:900});await page.goto('/projects/');await page.locator('.product-story').scrollIntoViewIfNeeded();await page.waitForTimeout(500);
