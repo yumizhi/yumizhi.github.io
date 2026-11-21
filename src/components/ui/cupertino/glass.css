@@ -123,6 +123,7 @@ button.reader-glass:active::before { box-shadow: inset 0 1px 7px var(--glass-lig
   .glass-trigger, .glass-option, .glass-menu a.glass-option { min-height: 2.75rem; }
 }
 .stage-lightbox .stage-lightbox-close.reader-glass {
+  position: absolute;
   --glass-solid: #423f47;
   --glass-wash: rgb(36 32 42 / .76);
   color: white;
