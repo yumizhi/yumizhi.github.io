@@ -13,10 +13,9 @@ export function SamTaskMath() {
       x_{i,j+1}&=x_{i,j}+\alpha\,\operatorname{sign}(G_{i,j})
     \end{aligned}`} />
     <p className="tide-prose"><Localized
-      en="Each support model supplies a gradient with respect to the same current image. At an entry where two models disagree, their weighted sum reduces the contribution of the conflicting directions. The sign is taken after that sum. When all the gradients at an entry share a sign, the weighted sum retains that sign. The calculation changes the image; the classifiers and their weights remain frozen."
+      en="Each support model supplies a gradient with respect to the same current image. At an entry where two models disagree, their weighted sum reduces the contribution of the conflicting directions. The sign is taken after that sum. When all the gradients at an entry share a sign, the weighted sum retains that sign. The calculation updates the image while keeping the classifiers fixed."
       zh="每个支持模型都对同一张当前图像求输入梯度。在某个位置上，如果两种模型的梯度方向相反，加权和会抵消一部分，再对这个和取符号。在方向一致的位置，更新就沿共同方向走。这一步始终在改图像，分类器及其训练得到的参数保持冻结。"
     /></p>
-    <h3 className="paper-subsection"><Localized en="Measuring feedback at the proposal" zh="在提案上计算查询梯度" /></h3>
     <p className="tide-prose"><Localized
       en="After K such updates, the query model supplies a gradient at the image proposed by the support models. SAM keeps the distinction between where this gradient is measured and where it is applied. Write vᵢ for the image before projection. In the outer update, the support proposal appears inside the gradient; the starting image for the new move is still xᵢ."
       zh="支持模型完成 K 次更新后，查询模型在它们提出的图像上求梯度。SAM 区分了梯度在哪里计算，以及计算出的改动加到哪里。把投影前的图记为 vᵢ，外层式子的梯度在支持组提出的图像上计算，新一轮更新却还是从原来的 xᵢ 出发。"
@@ -28,8 +27,8 @@ export function SamTaskMath() {
     \end{aligned}`} />
     <SamMethod />
     <p className="tide-prose"><Localized
-      en="For example, one support model may push on an edge that another model barely uses. If the blended support update changes that edge, the query model re-evaluates the perturbed image with its own loss. Its gradient can point somewhere else. Applying this signal to the saved state avoids directly accumulating every temporary support step. In the following task the model assignments can change, so the current direction is repeatedly subject to a different source of feedback. The held-out classifiers in the results are separate from these sampled query models."
-      zh="例如，某个支持模型可能主要依赖一条边缘，另一个模型却很少用它。支持组的合并更新动了这条边缘以后，查询模型会在改过的图上用自己的损失重新评估，得到的梯度可能指向别处。这时把查询信号加回保留的图像，就不会把支持组的每一步临时更新直接累积进去。下一轮可重新抽取模型分工，让当前方向不断面对不同来源的反馈。结果表中的独立目标分类器与任务中抽来做查询的模型相互分开。"
+      en="For example, one support model may push on an edge that another model barely uses. If the blended support update changes that edge, the query model re-evaluates the perturbed image with its own loss. Its gradient can point somewhere else. Applying this signal to the saved state avoids directly accumulating every temporary support step."
+      zh="例如，某个支持模型可能主要依赖一条边缘，另一个模型却很少用它。支持组的合并更新动了这条边缘以后，查询模型会在改过的图上用自己的损失重新评估，得到的梯度可能指向别处。SAM 把查询信号加回本轮的起始图像，支持组的临时更新只用来确定求梯度的位置。"
     /></p>
   </>;
 }
@@ -84,7 +83,7 @@ const projection = [
 
 export function SamProjectionMath() {
   return <>
-    <h3 className="paper-subsection"><Localized en="Keeping the pixels that save the most error" zh="把保留名额给减少误差最多的像素" /></h3>
+    <h3 className="paper-subsection"><Localized en="Projection onto the pixel budget" zh="按像素预算投影" /></h3>
     <p className="tide-prose"><Localized
       en="The outer step can propose changes throughout the image, including at pixels that were untouched in the previous task. To compress that proposal, compare two possible outcomes at each pixel. We can restore all three channels to the original values, or we can keep the proposed changes after clipping each channel to the allowed amplitude. The choice is made for the whole pixel because SAM counts a changed spatial position once, even if all three channels at that position change."
       zh="外层更新可以在整张图上提出改动，包括上一轮还未动过的位置。要把这次提案压回预算内，每个像素有两种去处。一种是把三个通道全部恢复到原值，另一种是把各通道的改动裁剪到允许的幅度再保留。这个决策以整个像素为单位，因为在 SAM 里，同一个位置即使改了三个通道，也只占一份像素预算。"

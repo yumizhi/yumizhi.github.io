@@ -21,27 +21,25 @@ export function ProjectCaseStudy({ project }: { project: Project }) {
     <>
       <section className="case-section" id="design" tabIndex={-1} aria-labelledby="case-design">
         <header className="project-story-heading">
-          <span className="case-section-label"><Localized en="Design" zh="产品设计" /></span>
           <h2 id="case-design"><Localized {...story.designTitle} /></h2>
-          <p><Localized {...story.example} /></p>
         </header>
         <div className="case-prose">
-          {story.design.map(block => (
-            <div key={block.title.en}>
-              <h3><Localized {...block.title} /></h3>
-              <p><Localized {...block.body} /></p>
-            </div>
-          ))}
+          <div>
+            {[story.example, ...story.design].map(paragraph => (
+              <p key={paragraph.en}><Localized {...paragraph} /></p>
+            ))}
+          </div>
         </div>
       </section>
 
       {chapters && (
         <section className="case-section" id="architecture" tabIndex={-1} aria-labelledby="case-architecture">
           <header className="project-story-heading">
-            <span className="case-section-label"><Localized en="Architecture" zh="系统架构" /></span>
             <h2 id="case-architecture"><Localized {...chapters.architectureTitle} /></h2>
-            <p><Localized {...chapters.architectureLead} /></p>
           </header>
+          <div className="case-prose">
+            <p><Localized {...chapters.architectureLead} /></p>
+          </div>
           <ProjectArchitecture slug={project.slug} />
           <ChapterProse chapters={chapters.architecture} />
         </section>
@@ -49,10 +47,13 @@ export function ProjectCaseStudy({ project }: { project: Project }) {
 
       <section className="case-section" id="implementation" tabIndex={-1} aria-labelledby="case-implementation">
         <header className="project-story-heading">
-          <span className="case-section-label"><Localized en="Implementation" zh="技术实现" /></span>
           <h2 id="case-implementation"><Localized {...story.implementationTitle} /></h2>
-          <p><Localized {...story.implementationLead} /></p>
         </header>
+        {story.implementationLead && (
+          <div className="case-prose">
+            <p><Localized {...story.implementationLead} /></p>
+          </div>
+        )}
 
         {story.steps && story.workflowTitle && <ProjectCaseFlow slug={project.slug} steps={story.steps} title={story.workflowTitle} />}
         {project.slug === 'epub-toolkit' && <EpubEngineStory />}
@@ -76,7 +77,6 @@ export function ProjectCaseStudy({ project }: { project: Project }) {
       {chapters && (
         <section className="case-section" id="decisions" tabIndex={-1} aria-labelledby="case-decisions">
           <header className="project-story-heading">
-            <span className="case-section-label"><Localized en="Trade-offs" zh="设计取舍" /></span>
             <h2 id="case-decisions"><Localized {...chapters.decisionsTitle} /></h2>
           </header>
           <ChapterProse chapters={chapters.decisions} />
@@ -86,7 +86,6 @@ export function ProjectCaseStudy({ project }: { project: Project }) {
       <section className="case-section case-verification" id="verification" tabIndex={-1} aria-labelledby="case-verification">
         <header className="project-story-heading">
           <h2 id="case-verification"><Localized en="Validation results" zh="验收结果" /></h2>
-          <p><Localized {...story.verification} /></p>
         </header>
         {chapters && <ChapterProse chapters={chapters.verification} />}
         <ProjectCaseEvidence checks={story.checks} />

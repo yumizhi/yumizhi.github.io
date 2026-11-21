@@ -11,12 +11,11 @@ export type ProjectStep = StoryBlock & {
 export type ProjectStory = {
   example: Bilingual;
   designTitle: Bilingual;
-  design: StoryBlock[];
+  design: Bilingual[];
   implementationTitle: Bilingual;
-  implementationLead: Bilingual;
+  implementationLead?: Bilingual;
   steps?: ProjectStep[];
   workflowTitle?: Bilingual;
-  verification: Bilingual;
   checks: StoryBlock[];
 };
 
@@ -63,34 +62,20 @@ export const projectStories: Record<string, ProjectStory> = {
     designTitle: { en: 'Let readers check the book before exporting', zh: '先确认阅读顺序，再导出' },
     design: [
       {
-        title: { en: 'Table of contents preview', zh: '合并前的目录预览' },
-        body: {
-          en: 'After files are selected, the workspace displays the volume list, book details and a table of contents. Reordering the volumes or switching between grouped and continuous navigation updates that table immediately. A reader can catch an unexpected volume order before exporting.',
-          zh: '选书后，分卷列表、书籍信息和目录预览会一起出现。调整卷序，或在分组目录与连续目录之间切换，预览会即时更新。卷序不对时，导出之前就能发现。',
-        },
+        en: 'After files are selected, the workspace displays the volume list, book details and a table of contents. Reordering the volumes or switching between grouped and continuous navigation updates that table immediately. A reader can catch an unexpected volume order before exporting.',
+        zh: '选书后，分卷列表、书籍信息和目录预览会一起出现。调整卷序，或在分组目录与连续目录之间切换，预览会即时更新。卷序不对时，导出之前就能发现。',
       },
       {
-        title: { en: 'Carry the result into the next operation', zh: '让合并结果直接进入下一步' },
-        body: {
-          en: 'A finished collection can go straight into Inspect or Split. Each tool keeps its own working files until the reader clears them. Changing the merge settings invalidates the previous output, while visiting another tool preserves the current work.',
-          zh: '合并完成后，可以把合集直接交给「检查」或「拆分」。各工具分别保留当前会话中的文件和结果。修改合并设置会使旧下载失效，切去查看另一个工具则会保留手头的进度。',
-        },
+        en: 'A finished collection can go straight into Inspect or Split. Each tool keeps its own working files until the reader clears them. Changing the merge settings invalidates the previous output, while visiting another tool preserves the current work.',
+        zh: '合并完成后，可以把合集直接交给「检查」或「拆分」。各工具分别保留当前会话中的文件和结果。修改合并设置会使旧下载失效，切去查看另一个工具则会保留手头的进度。',
       },
     ],
     implementationTitle: { en: 'Two chapters and one shared font', zh: '两份同名章节与一份共用字体' },
-    implementationLead: {
-      en: 'In this example, both volumes contain chapters/01.xhtml and byte-identical copies of one font. The merger preserves both chapters and stores the font once. Splitting copies it back into each volume and restores its local links.',
-      zh: '这个例子里，两卷书都有 chapters/01.xhtml，也各自带了一份相同的字体。合并时保留两个章节，字体只存一份。重新拆卷时，再把字体放回各卷，恢复原有的引用。',
-    },
-    verification: {
-      en: 'Interoperability tests cover merging with one CLI and splitting with the other. Resource tests exercise duplicate assets and nested relative references. Recovery requires a merge record written by the Toolkit and targets reflowable EPUBs.',
-      zh: '互操作测试覆盖了一个命令行实现合并、另一个实现拆分的场景，资源测试覆盖重复资源和多层相对引用。恢复原卷需要 Toolkit 写入的合并记录，支持范围以可重排 EPUB 为主。',
-    },
   },
   originmark: {
     example: {
-      en: 'A generated image in the library can be sent for verification or submitted for signing. Signing produces a new file. The worker recovers the watermark and checks its credential before it registers that exact file as published. This keeps the final-byte checks independent of model execution and gives a verifier evidence to inspect on the file they received.',
-      zh: '一张生成图进入素材库后，可以直接送检，也可以继续走签发。签发拿到的是一份新文件，Worker 要重新读回水印、核验凭证，才能把那份确切的文件登记为已发布。这个边界把模型计算与最终文件的核验拆开，也让接收方能从实际收到的字节回查证据。',
+      en: 'In the demo, a generated image goes from the comparison canvas to the library and then into a separate protection run. The library links each new file to the run that produced it. That link matters when a reviewer returns to the image days later, because the generated PNG and the signed release have different records.',
+      zh: '演示中的茶壶图从对照画布进入素材库，随后作为另一次保护操作的输入。素材库把每份文件与产出它的运行关联起来。几天后回到这张图，仍然可以沿着记录分别查到生成的 PNG 和最终签发的文件。',
     },
     checks: [
       {
@@ -105,18 +90,12 @@ export const projectStories: Record<string, ProjectStory> = {
     designTitle: { en: 'Keep the image at the center of the workflow', zh: '以同一张图贯穿生成、保护和验证' },
     design: [
       {
-        title: { en: 'One output becomes the next input', zh: '上一步产物可以直接成为下一步输入' },
-        body: {
-          en: 'A generated image can move straight from the Studio into Protect or Verify. The canvas follows the same image, with controls for the current operation beside it. The Library links original and derived files, and Activity leads back to the run that produced each result.',
-          zh: '在工作台生成一张图后，可以直接拿它继续保护或验证。画布保留同一张图，旁边的操作随当前步骤变化。素材库把原图和派生文件关联起来，运行记录则能回到产出这张图的具体操作。',
-        },
+        en: 'Studio can open the current image directly in Protect or Verify. The canvas keeps the image in view and changes the controls beside it. Activity then brings the reader back to the run, including the file and the operation that produced it.',
+        zh: '工作台可以将画布中的图直接送到保护或验证。画布继续展示当前图片，旁边换成相应操作。需要回看时，可以从运行记录找到对应文件及产出它的操作。',
       },
       {
-        title: { en: 'Evidence in the verification panel', zh: '验证页的证据展示' },
-        body: {
-          en: 'Verify has separate entries for the watermark, signature integrity and issuer trust. When a detector is still running or lacks a matching calibration, the interface retains the other results and shows the unresolved check on its own.',
-          zh: '验证页为水印检测、签名完整性和签发者信任分别保留一项结果。某个检测器还在运行或缺少匹配的校准时，页面保留其他已获得的证据，并单独显示尚未确定的项目。',
-        },
+        en: 'Verify has separate entries for the watermark, signature integrity and issuer trust. When a detector is still running or lacks a matching calibration, the interface retains the other results and shows the unresolved check on its own.',
+        zh: '验证页为水印检测、签名完整性和签发者信任分别保留一项结果。某个检测器还在运行或缺少匹配的校准时，页面保留其他已获得的证据，并单独显示尚未确定的项目。',
       },
     ],
     implementationTitle: { en: 'The teapot through generation and verification', zh: '茶壶图像的生成、保护与核验' },
@@ -157,15 +136,11 @@ export const projectStories: Record<string, ProjectStory> = {
         output: { en: 'Evidence and verification report', zh: '独立证据与验证报告' },
       },
     ],
-    verification: {
-      en: 'On the demo environment, the recorded browser walkthrough generated and verified a TIDE image, reused an artifact for TrustMark protection, and exported the verification report. The interface distinguishes a detected signal from a claim about authorship or ownership.',
-      zh: '演示环境中的浏览器验收走通了 TIDE 生成与验证、复用产物进行 TrustMark 保护，以及导出验证报告。界面将是否检出信号与作者身份或所有权的主张分别呈现。',
-    },
   },
   'personal-agent': {
     example: {
-      en: 'A member schedules a P-17 inspection brief and closes the browser. The scheduler still has a fixed application version to run. After a restart it needs to find the same child run, and a finished report still needs its own delivery receipt. Personal Agent records those decisions in a persistent execution layer around the model and tool loop.',
-      zh: '成员约好在明早收到 P-17 巡检简报，关掉浏览器就可以离开。后台仍有一份固定版本的计划要执行。如果它跑到一半停了，调度器得认出同一个应用运行；如果报告已经写好但还没发出，收件箱也应该能区分这两个状态。Personal Agent 把这些决定留在持久化的运行层里，模型循环只承担其中的推理与工具调用。',
+      en: 'A member schedules a P-17 inspection brief and closes the browser. The task stays visible in the workspace, and the finished report appears in the inbox. From the report, the member can reopen the run to see which equipment records and manual passages it used.',
+      zh: '成员安排好明早的 P-17 巡检简报，就可以关掉浏览器。排期仍会留在工作台，完成后的报告会送到收件箱。读到一项结论时，还可以从报告回到这次运行，查它用了哪条设备记录、哪一段维护手册。',
     },
     checks: [
       {
@@ -180,28 +155,18 @@ export const projectStories: Record<string, ProjectStory> = {
     designTitle: { en: 'Keep a task findable after the conversation ends', zh: '对话结束后，任务还能被找回来' },
     design: [
       {
-        title: { en: 'Two modes for different kinds of work', zh: '聊天与 Agent 对应两种工作方式' },
-        body: {
-          en: 'The Chat view keeps the composer, model selection and recent conversations close together. Agent groups assistants, planned work and received results. A shared search can return the relevant task, assistant, conversation or report. The switch preserves the member’s context as they move between the two.',
-          zh: '聊天模式把输入、模型选择和最近会话放在一处。Agent 模式集中展示可用助手、已安排的工作和交付结果。共用搜索可以找回相关任务、助手、会话或报告，用户在两种模式之间切换时仍能接着之前的工作。',
-        },
+        en: 'The Chat view keeps the composer, model selection and recent conversations close together. Agent groups assistants, planned work and received results. A shared search can return the relevant task, assistant, conversation or report. The switch preserves the member’s context as they move between the two.',
+        zh: '聊天模式把输入、模型选择和最近会话放在一处。Agent 模式集中展示可用助手、已安排的工作和交付结果。共用搜索可以找回相关任务、助手、会话或报告，用户在两种模式之间切换时仍能接着之前的工作。',
       },
       {
-        title: { en: 'Reports and their evidence', zh: '报告与执行依据' },
-        body: {
-          en: 'A result opens as a readable report. Its citations point to the source lines retrieved by that run, and the run panel shows completed steps, pending approvals and delivery. Progress comes from recorded events, with a compact view for the reader and step details available on demand.',
-          zh: '交付先以可阅读的报告呈现。正文引用可以打开本次运行检索到的来源行，执行面板再按需展开已完成步骤、待审批操作和投递状态。进度来自真实记录，读者可以先看结果，需要时再查过程。',
-        },
+        en: 'A result opens as a readable report. Its citations point to the source lines retrieved by that run, and the run panel shows completed steps, pending approvals and delivery. Progress comes from recorded events, with a compact view for the reader and step details available on demand.',
+        zh: '交付先以可阅读的报告呈现。正文引用可以打开本次运行检索到的来源行，执行面板再按需展开已完成步骤、待审批操作和投递状态。进度来自真实记录，读者可以先看结果，需要时再查过程。',
       },
     ],
     implementationTitle: { en: 'The P-17 inspection brief', zh: 'P-17 巡检简报的执行过程' },
     implementationLead: {
       en: 'The inspection assistant uses the equipment register and maintenance manual from the demo project. The member confirms the app, equipment and recipient before scheduling the brief. Each later execution produces a report tied to the actual records it used.',
       zh: '巡检助手读取演示项目的设备台账和维护手册。成员核对应用、设备和接收人后再安排排期。每次执行都会生成一份报告，并随报告保存此次查阅的资料。',
-    },
-    verification: {
-      en: 'The scheduled workflow was exercised against the real clock using synthetic inspection data. The demo records a scheduled instance, an associated application run, report citations and a web-inbox receipt. That receipt establishes delivery to the demo inbox.',
-      zh: '定时流程使用合成巡检数据，在真实时钟下验收。演示记录包含排期实例、关联的应用执行、报告引用和网页收件箱回执。该回执对应演示中的网页收件箱投递。',
     },
   },
 };

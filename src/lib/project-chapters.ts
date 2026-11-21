@@ -23,8 +23,8 @@ export const projectChapters: Record<string, TechnicalArticle> = {
       zh: '合并与拆分共用的文件格式',
     },
     architectureLead: {
-      en: 'Two EPUBs can contain different chapters at the same path. The merger gives each volume its own directory, rebuilds the navigation and stores the source mapping in the new archive. The browser and Node share the TypeScript engine. The Python CLI implements the same file format independently.',
-      zh: '两个 EPUB 可以用同一个路径保存不同的章节。合并时，引擎为各卷分配独立目录，重建阅读目录，并把原卷与新路径的对应关系写入合集。浏览器和 Node 共用 TypeScript 引擎，Python 命令行独立实现同一文件格式。',
+      en: 'The browser and Node share a TypeScript engine for inspecting, merging and splitting books. A separate Python implementation reads and writes the same merge record. The record travels inside the book, which allows an archive created in the browser to be split later from the command line.',
+      zh: '浏览器和 Node 共用一套 TypeScript 引擎处理检查、合并和拆分。独立的 Python 实现读写同一种合并记录。记录随书保存，所以在浏览器中合出的 EPUB，日后也能在命令行里拆回分卷。',
     },
     architecture: [
       {
@@ -311,8 +311,8 @@ export const projectChapters: Record<string, TechnicalArticle> = {
         title: { en: 'Independent watermark and credential results', zh: '独立的水印与凭证结果' },
         paragraphs: [
           {
-            en: 'A generated file can return a TIDE watermark finding with no C2PA credential present. TIDE needs a matching calibration profile to report a detection or non-detection. Payload-based engines can also recover a token and look up the corresponding release. C2PA records signature integrity and issuer trust independently. The report preserves the status of each check, including missing or inconclusive evidence.',
-            zh: '生成图可能检出 TIDE 水印，但没有附带 C2PA 凭证。TIDE 只有在匹配校准配置时才给出检出或未检出的结论。载荷型引擎还能读回令牌并查找关联的发布记录。C2PA 则独立核对签名完整性和签发者信任。报告逐项保留结果，包括缺少证据和无法判断的情况。',
+            en: 'A generated file can return a TIDE watermark finding with no C2PA credential present. TIDE needs a matching calibration profile to report a detection or non-detection. Payload-based engines can also recover a token and look up the corresponding release. C2PA records signature integrity and issuer trust independently. The report preserves the status of each check, including missing or inconclusive evidence. A detected signal supports a watermark finding. Claims about authorship or ownership depend on separate evidence.',
+            zh: '生成图可能检出 TIDE 水印，但没有附带 C2PA 凭证。TIDE 只有在匹配校准配置时才给出检出或未检出的结论。载荷型引擎还能读回令牌并查找关联的发布记录。C2PA 则独立核对签名完整性和签发者信任。报告逐项保留结果，包括缺少证据和无法判断的情况。检出的信号支持水印结论，作者身份或所有权需要各自的证据。',
           },
           {
             en: 'A verification step is stored per case and detector. On completion, a worker updates its own step and recomputes the case state while holding the parent record lock. A CPU detector and a GPU detector can therefore finish in either order without losing the earlier result. If the credential check succeeds and one detector times out, the case exposes its available evidence as a partial result. Retrying reopens the affected detector step.',

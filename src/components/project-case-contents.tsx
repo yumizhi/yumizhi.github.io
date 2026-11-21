@@ -1,7 +1,4 @@
-'use client';
-
-import { useEffect, useRef, useState } from 'react';
-import { Localized, useLanguage } from './language';
+import { ArticleSectionNav } from './article-section-nav';
 
 const sections = [
   { id: 'preview', en: 'Preview', zh: '界面预览' },
@@ -13,43 +10,9 @@ const sections = [
 ];
 
 export function ProjectCaseContents() {
-  const { language } = useLanguage();
-  const nav = useRef<HTMLElement>(null);
-  const [active, setActive] = useState(sections[0].id);
-
-  useEffect(() => {
-    const targets = sections.map(section => document.getElementById(section.id));
-    let frame = 0;
-
-    function readPosition() {
-      const cutoff = (nav.current?.getBoundingClientRect().bottom ?? 96) + 26;
-      const current = targets.findLast(target => target && target.getBoundingClientRect().top <= cutoff);
-      const atEnd = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
-      setActive(atEnd ? sections[sections.length - 1].id : current?.id ?? sections[0].id);
-      frame = 0;
-    }
-
-    function schedule() {
-      if (frame === 0) frame = requestAnimationFrame(readPosition);
-    }
-
-    readPosition();
-    window.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', schedule);
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener('scroll', schedule);
-      window.removeEventListener('resize', schedule);
-    };
-  }, []);
-
   return (
-    <nav ref={nav} className="case-contents" aria-label={language === 'zh' ? '项目目录' : 'Project sections'}>
-      <ul>
-        {sections.map(({ id, ...label }) => (
-          <li key={id}><a href={`#${id}`} aria-current={active === id ? 'location' : undefined}><Localized {...label} /></a></li>
-        ))}
-      </ul>
-    </nav>
+    <div className="case-contents">
+      <ArticleSectionNav sections={sections} label={{ en: 'Project sections', zh: '项目目录' }} />
+    </div>
   );
 }

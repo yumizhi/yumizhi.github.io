@@ -1,54 +1,21 @@
+html:has(.project-detail) { scroll-padding-top: 0; }
+
 .case-contents {
   position: sticky;
   inset-block-start: 52px;
   z-index: 12;
   background: var(--background);
   border-block-end: 1px solid var(--border);
-  margin-block-end: clamp(1.25rem, 3vw, 2rem);
+  margin-block-end: clamp(1.25rem, 3vw, 1.75rem);
 }
-.case-contents ul {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(.625rem, 3vw, 1.875rem);
+.case-contents .article-section-nav {
+  max-inline-size: max-content;
   margin: 0 auto;
-  list-style: none;
+  padding-block: .375rem;
 }
-.case-contents a {
-  display: inline-flex;
-  align-items: center;
-  min-block-size: 2.75rem;
-  padding-inline: .125rem;
-  color: var(--foreground);
-  font-size: clamp(.75rem, .66rem + .2vw, .875rem);
-  font-weight: 575;
-  text-decoration: none;
-}
-.case-contents a:is(:hover, :focus-visible) { text-decoration: underline; text-underline-offset: .25rem; }
-.case-contents a[aria-current] { color: var(--portfolio-link); text-decoration: underline; text-underline-offset: .25rem; }
 .case-section { margin-block-start: clamp(2.75rem, 6vw, 5rem); }
 .case-section:focus, .project-workflow#preview:focus { outline: none; }
-@media (max-width: 35rem) {
-  .case-contents ul {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0 .35rem;
-    text-align: center;
-  }
-  .case-contents a {
-    justify-content: center;
-    inline-size: 100%;
-    min-block-size: 2.5rem;
-  }
-  .project-detail :is(.case-section, #preview) { scroll-margin-top: 2rem; }
-}
-.case-section-label {
-  display: block;
-  color: var(--portfolio-link);
-  font-size: .8125rem;
-  font-weight: 630;
-  margin: 0 0 .6rem;
-}
+.project-detail :is(.case-section, #preview, .case-chapter, .architecture-figure)[id] { scroll-margin-top: 124px; }
 .case-prose, .case-chapters {
   margin: clamp(1.25rem, 3vw, 2rem) auto 0;
   display: grid;
@@ -62,11 +29,9 @@
   width: 100%;
   margin-block: 0;
 }
-.case-chapter[id] { scroll-margin-top: 2rem; }
 .case-chapters > .architecture-figure {
   width: min(100%, 53rem);
   margin-block: .15rem .4rem;
-  scroll-margin-top: 2rem;
 }
 .case-prose h3, .case-flow h3 {
   color: var(--portfolio-ink);
@@ -83,6 +48,8 @@
   line-height: 1.67;
   text-wrap: pretty;
 }
+.case-prose p { text-align: justify; text-align-last: start; }
+.case-prose p > [lang="en"] { hyphens: auto; }
 .case-prose p + p { margin-block-start: .9rem; }
 .case-flow {
   max-inline-size: var(--editorial-copy-width);

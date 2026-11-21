@@ -1,50 +1,42 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Check, ChevronsUpDown } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, ChevronsUpDown, X } from 'lucide-react';
 import { Button } from './ui/coss/button';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from './ui/coss/breadcrumb';
 import { Menu, MenuLinkItem, MenuPopup, MenuTrigger } from './ui/coss/menu';
+import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from './ui/sheet';
 import { Localized, useLanguage } from './language';
+import './ui/cupertino/glass.css';
 import type { Paper } from '@/lib/content';
 
 type PaperLink = Pick<Paper, 'slug' | 'shortTitle' | 'venue' | 'year'>;
-type ReaderLinks = { current: PaperLink; choices: PaperLink[] };
+type ReaderLinks = { current: PaperLink; choices: PaperLink[]; children: ReactNode };
 
 const detailUrl = (slug: string, fromHome: boolean) =>
   `/research/${slug}/${fromHome ? '?from=home' : ''}`;
 
-export function PaperBreadcrumb({ current }: { current: PaperLink }) {
+function ReaderToolbar({ current, choices, fromHome, children }: ReaderLinks & { fromHome: boolean }) {
   const { language } = useLanguage();
-  return (
-    <Breadcrumb className="paper-crumbs" aria-label={language === 'zh' ? '当前位置' : 'Publication breadcrumb'}>
-      <BreadcrumbList>
-        <BreadcrumbItem><BreadcrumbLink render={<Link href="/" />}><Localized en="Home" zh="首页" /></BreadcrumbLink></BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem><BreadcrumbLink render={<Link href="/research/" />}><Localized en="Research" zh="研究成果" /></BreadcrumbLink></BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbLink href="#main-content" aria-current="page">{current.shortTitle}</BreadcrumbLink>
-        </BreadcrumbItem>
-      </BreadcrumbList>
-    </Breadcrumb>
-  );
-}
-
-function ReaderToolbar({ current, choices, fromHome }: ReaderLinks & { fromHome: boolean }) {
-  const { language } = useLanguage();
+  const pickerLabel = language === 'zh' ? `论文，当前为 ${current.shortTitle}` : `Papers, switch publication, current: ${current.shortTitle}`;
+  const pickerTitle = <Localized en="Papers" zh="论文" />;
+  const pickerContent = <>{pickerTitle}<ChevronsUpDown size={13} aria-hidden="true" /></>;
   return (
     <div className="paper-reader-toolbar" role="group" aria-label={language === 'zh' ? '论文导航' : 'Publication navigation'}>
-      <Button className="reader-back" variant="ghost" size="sm" render={<Link href={fromHome ? '/#publications' : '/research/'} />}>
+      <Button className="reader-back" variant="ghost" size="sm"
+        aria-label={fromHome ? (language === 'zh' ? '回到首页' : 'Back to home') : (language === 'zh' ? '全部论文' : 'All publications')}
+        render={<Link href={fromHome ? '/#publications' : '/research/'} />}>
         <ArrowLeft aria-hidden="true" />
-        {fromHome ? <Localized en="Back to home" zh="回到首页" /> : <Localized en="All publications" zh="全部论文" />}
+        <span className="reader-back-label" aria-hidden="true">
+          {fromHome ? <Localized en="Back to home" zh="回到首页" /> : <Localized en="All publications" zh="全部论文" />}
+        </span>
       </Button>
+      {children}
       <Menu>
-        <MenuTrigger render={<Button variant="secondary" size="sm" className="reader-switch" />}
-          aria-label={language === 'zh' ? `论文，当前为 ${current.shortTitle}` : `Papers, switch publication, current: ${current.shortTitle}`}>
-          <span><Localized en="Papers" zh="论文" /></span><ChevronsUpDown aria-hidden="true" />
+        <MenuTrigger render={<Button variant="secondary" size="sm" className="reader-switch reader-switch-menu reader-glass" />}
+          aria-label={pickerLabel}>
+          {pickerContent}
         </MenuTrigger>
         <MenuPopup align="end" sideOffset={6} className="reader-menu">
           {choices.map((paper) => (
@@ -56,6 +48,33 @@ function ReaderToolbar({ current, choices, fromHome }: ReaderLinks & { fromHome:
           ))}
         </MenuPopup>
       </Menu>
+      <Sheet>
+        <SheetTrigger asChild>
+          <button type="button" className="reader-switch reader-switch-sheet reader-glass" aria-label={pickerLabel}>
+            {pickerContent}
+          </button>
+        </SheetTrigger>
+        <SheetContent side="bottom" showCloseButton={false} aria-describedby={undefined} className="reader-paper-sheet">
+          <div className="reader-sheet-heading">
+            <SheetTitle>{pickerTitle}</SheetTitle>
+            <SheetClose className="reader-sheet-close reader-glass" aria-label={language === 'zh' ? '关闭' : 'Close'}>
+              <X size={17} aria-hidden="true" />
+            </SheetClose>
+          </div>
+          <ul className="reader-sheet-list">
+            {choices.map(paper => (
+              <li key={paper.slug}>
+                <SheetClose asChild>
+                  <Link href={detailUrl(paper.slug, fromHome)} aria-current={current.slug === paper.slug ? 'page' : undefined}>
+                    <span className="reader-menu-description"><strong>{paper.shortTitle}</strong><small>{paper.venue} {paper.year}</small></span>
+                    {current.slug === paper.slug && <Check size={17} aria-hidden="true" />}
+                  </Link>
+                </SheetClose>
+              </li>
+            ))}
+          </ul>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

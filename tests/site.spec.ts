@@ -366,6 +366,27 @@ test('the reader switches papers from a deep section and returns to its entry li
  await expect(page.getByRole('group', { name: 'Publication navigation' }).getByRole('link', { name: 'All publications' })).toHaveAttribute('href', '/research/');
 });
 
+test('the mobile paper chooser opens from the bottom and keeps the entry route', async ({ page }) => {
+ await page.setViewportSize({ width: 390, height: 844 });
+ await page.goto('/research/tide/?from=home#discussion');
+ const picker = page.getByRole('button', { name: /switch publication/i });
+ await picker.click();
+ const sheet = page.getByRole('dialog', { name: 'Papers' });
+ await expect(sheet).toBeInViewport();
+ await expect(sheet.getByRole('link', { name: /TIDE/ })).toHaveAttribute('aria-current', 'page');
+ await expect.poll(async () => {
+   const bounds = (await sheet.boundingBox())!;
+   return Math.abs(844 - (bounds.y + bounds.height));
+ }).toBeLessThan(16);
+ await page.keyboard.press('Escape');
+ await expect(sheet).toBeHidden();
+ await expect(picker).toBeFocused();
+ await picker.click();
+ await sheet.getByRole('link', { name: /SASBO/ }).click();
+ await expect(page).toHaveURL(/research\/sasbo\/\?from=home$/);
+ await expect(page.getByRole('link', { name: 'Back to home' })).toHaveAttribute('href', '/#publications');
+});
+
 test('product poster stays composed and its interface has inner framing',async({page})=>{
  for(const width of [1440,820,768,620,504,390,320]){
   await page.setViewportSize({width,height:900});await page.goto('/projects/');await page.locator('.product-story').scrollIntoViewIfNeeded();await page.waitForTimeout(500);
@@ -424,12 +445,12 @@ test('project window and tab indicator move continuously and accept rapid change
  await preview.getByRole('tab',{name:'Output',exact:true}).click();await page.waitForTimeout(650);const after=await window.boundingBox();const widths=await page.evaluate(()=>(globalThis as unknown as {windowWidths:number[]}).windowWidths);
  expect(before!.width-after!.width).toBeGreaterThan(100);expect(widths.some(w=>w<before!.width-5&&w>after!.width+5)).toBeTruthy();await expect(page.locator('.preview-tab-highlight')).toHaveCount(1);
  for(const name of ['Split','Inspect','Merge']){await preview.getByRole('tab',{name,exact:true}).click();await page.waitForTimeout(60);}
- await expect(preview.getByRole('tab',{name:'Merge',exact:true})).toHaveAttribute('data-state','active');await expect(page.locator('.stage-capture[aria-hidden=false] img')).toHaveAttribute('src',/epub-panel-merge/);await expect(page.locator('.stage-window')).toHaveCount(1);
+ await expect(preview.getByRole('tab',{name:'Merge',exact:true})).toHaveAttribute('aria-selected','true');await expect(page.locator('.stage-capture[aria-hidden=false] img')).toHaveAttribute('src',/epub-panel-merge/);await expect(page.locator('.stage-window')).toHaveCount(1);
 });
 test('continuous viewport resize preserves all preview states and inner margins',async({page})=>{
  await page.setViewportSize(sizes[0]);await page.goto('/projects/epub-toolkit/');await page.getByRole('tab',{name:'Output',exact:true}).click();await page.waitForTimeout(600);
  for(const width of [1100,820,801,800,700,621,620,600,480,390,375,620,800,1280]){
-  await page.setViewportSize({width,height:900});await page.waitForTimeout(45);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();await expect(page.getByRole('tab',{name:'Output',exact:true})).toHaveAttribute('data-state','active');
+  await page.setViewportSize({width,height:900});await page.waitForTimeout(45);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();await expect(page.getByRole('tab',{name:'Output',exact:true})).toHaveAttribute('aria-selected','true');
   const room=await page.locator('.stage-window').evaluate(frame=>{const box=frame.getBoundingClientRect();const picture=frame.querySelector('[aria-hidden=false]')!.getBoundingClientRect();return{left:picture.left-box.left,right:box.right-picture.right,top:picture.top-box.top,bottom:box.bottom-picture.bottom};});for(const gap of Object.values(room))expect(gap).toBeGreaterThanOrEqual(17);
  }
 });
