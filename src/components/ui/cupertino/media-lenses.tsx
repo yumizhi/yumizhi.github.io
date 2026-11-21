@@ -1,14 +1,12 @@
 'use client';
 
 import { useEffect, useId, useRef } from 'react';
-import { usePathname } from 'next/navigation';
 import { makeLensMap } from './lens-map';
 
-// Filter the existing painted paragraph, formula, or illustration. Applying the
-// filter to its source also works in WebKit, which cannot use SVG backdrop filters.
-// Only blocks in the viewport and currently overlapping a control receive filters.
-const content = 'h1,h2,h3,h4,p,figcaption,.paper-equation,main img,figure > svg,.ph-tide-map,td,th';
-const lensSelector = '[data-page-lens], .site-rail > [data-slot="segmented-control-indicator"]:not([hidden])';
+// Bend only the illustration or screenshot sharing a frame with its controls.
+// Source and lens move together as the document scrolls.
+const content = '[data-lens-source]';
+const lensSelector = '[data-media-lens]';
 const ns = 'http://www.w3.org/2000/svg';
 function svgTag(name: string, attributes: Record<string, string>) {
   const el = document.createElementNS(ns, name);
@@ -16,14 +14,13 @@ function svgTag(name: string, attributes: Record<string, string>) {
   return el;
 }
 
-export function PageLenses() {
+export function MediaLenses() {
   const defs = useRef<SVGDefsElement>(null);
-  const prefix = 'page-lens-' + useId().replace(/[^a-zA-Z0-9_-]/g, '');
-  const route = usePathname();
+  const prefix = 'media-lens-' + useId().replace(/[^a-zA-Z0-9_-]/g, '');
 
   useEffect(() => {
-    const root = document.querySelector('main');
     const bank = defs.current;
+    const root = bank?.parentElement?.parentElement;
     if (!root || !bank) return;
     const access = matchMedia('(prefers-reduced-transparency: reduce), (prefers-contrast: more), (forced-colors: active)');
     const visible = new Set<HTMLElement | SVGElement>();
@@ -33,12 +30,7 @@ export function PageLenses() {
     // dimensions. Blink uses the width for both.
     const webkit = CSS.supports('background-image', '-webkit-named-image(i)');
     const gecko = CSS.supports('-moz-appearance', 'none');
-    let live = true, next = 0, raf = 0, movingUntil = 0;
-    function followSelection(event: TransitionEvent) {
-      if (!(event.target instanceof Element) || !event.target.closest('.site-rail') ||
-          !['left', 'right'].includes(event.propertyName)) return;
-      movingUntil = performance.now() + 380; schedule();
-    }
+    let live = true, next = 0, raf = 0;
     function schedule() { if (live && !raf) raf = requestAnimationFrame(paint); }
 
     const observer = new IntersectionObserver(entries => {
@@ -49,20 +41,6 @@ export function PageLenses() {
       schedule();
     }, { rootMargin: '32px' });
 
-    function track(node: Element, adding: boolean) {
-      const blocks = [...node.querySelectorAll(content)];
-      if (node.matches(content)) blocks.push(node);
-      for (const block of blocks) {
-        if (!(block instanceof HTMLElement || block instanceof SVGElement)) continue;
-        if (adding) {
-          if (block.parentElement?.closest(content) || block.closest('.reader-glass')) continue;
-          observer.observe(block);
-        } else {
-          observer.unobserve(block); visible.delete(block);
-        }
-      }
-    }
-
     function clear(el: HTMLElement | SVGElement) {
       el.style.removeProperty('--page-optics');
       el.removeAttribute('data-optical-target');
@@ -71,10 +49,11 @@ export function PageLenses() {
 
     function paint() {
       raf = 0;
-      const lenses = [...document.querySelectorAll<HTMLElement>(lensSelector)].map(el => {
+      if (!visible.size && !active.size) return;
+      const lenses = [...root!.querySelectorAll<HTMLElement>(lensSelector)].map(el => {
         const box = el.getBoundingClientRect();
         const w = Math.round(box.width / 4) * 4, h = Math.round(box.height);
-        if (!w || !h || box.bottom < 0 || box.top >= innerHeight || access.matches) return null;
+        if (!w || !h || access.matches) return null;
         let map = maps.get(el);
         if (!map || map.width !== w || map.height !== h) {
           const fresh = { width: w, height: h, url: makeLensMap(w, h, h / 2, Math.min(13, h * .29)), decoded: false };
@@ -82,7 +61,6 @@ export function PageLenses() {
           const bitmap = new Image();
           bitmap.src = fresh.url;
           bitmap.decode().then(() => { fresh.decoded = true; schedule(); }).catch(() => {});
-
         }
         return map.decoded ? { box, map } : null;
       }).filter(lens => lens !== null);
@@ -144,34 +122,24 @@ export function PageLenses() {
         }
       }
       for (const el of active.keys()) if (!kept.has(el)) clear(el);
-      if (performance.now() < movingUntil) schedule();
     }
 
-    track(root, true);
-    const updates = new MutationObserver(records => {
-      for (const record of records) {
-        for (const node of record.removedNodes) if (node instanceof Element) track(node, false);
-        for (const node of record.addedNodes) if (node instanceof Element) track(node, true);
-      }
-      schedule();
-    });
-    updates.observe(root, { childList: true, subtree: true });
     const resize = new ResizeObserver(schedule);
+    const updates = new MutationObserver(schedule);
     resize.observe(root);
-    document.querySelectorAll('[data-page-lens]').forEach(el => resize.observe(el));
-    document.addEventListener('transitionrun', followSelection);
+    root.querySelectorAll(content).forEach(source => {
+      observer.observe(source);
+      resize.observe(source);
+      updates.observe(source, { attributes: true, attributeFilter: ['aria-hidden'] });
+    });
+    root.querySelectorAll(lensSelector).forEach(lens => resize.observe(lens));
     access.addEventListener('change', schedule);
-    window.addEventListener('scroll', schedule, { passive: true, capture: true });
-    window.addEventListener('resize', schedule);
     return () => {
       live = false; cancelAnimationFrame(raf); observer.disconnect(); updates.disconnect(); resize.disconnect();
-      document.removeEventListener('transitionrun', followSelection);
       access.removeEventListener('change', schedule);
-      window.removeEventListener('scroll', schedule, true);
-      window.removeEventListener('resize', schedule);
       for (const el of active.keys()) clear(el);
     };
-  }, [prefix, route]);
+  }, [prefix]);
 
   return <svg width="0" height="0" className="lens-defs" aria-hidden="true" focusable="false"><defs ref={defs} /></svg>;
 }

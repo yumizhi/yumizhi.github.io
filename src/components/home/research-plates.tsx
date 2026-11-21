@@ -40,7 +40,7 @@ export function SasboPlate() {
               pointerEvents: 'auto',
             }}
             aria-label={language === 'zh' ? '拖动对比样本与像素扰动图' : 'Drag to compare the image and pixel map'}>
-            <span className="ph-compare-handle" aria-hidden="true"><ArrowLeftRight size={16} /></span>
+            <span className="ph-compare-handle reader-glass" aria-hidden="true"><ArrowLeftRight size={16} /></span>
           </HandleRoot>
         </Root>
       </Provider>

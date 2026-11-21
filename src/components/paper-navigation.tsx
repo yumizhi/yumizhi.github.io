@@ -3,7 +3,7 @@
 import { Suspense, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Check, ChevronsUpDown, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronsUpDown, X } from 'lucide-react';
 import { Button } from './ui/coss/button';
 import { Menu, MenuLinkItem, MenuPopup, MenuTrigger } from './ui/coss/menu';
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from './ui/sheet';
@@ -21,22 +21,23 @@ function ReaderToolbar({ current, choices, fromHome, children }: ReaderLinks & {
   const { language } = useLanguage();
   const pickerLabel = language === 'zh' ? `论文，当前为 ${current.shortTitle}` : `Papers, switch publication, current: ${current.shortTitle}`;
   const pickerTitle = <Localized en="Papers" zh="论文" />;
-  const pickerContent = <>{pickerTitle}<ChevronsUpDown size={13} aria-hidden="true" /></>;
+  const pickerContent = <><BookOpen className="reader-paper-icon" size={16} aria-hidden="true" /><span>{pickerTitle}</span><ChevronsUpDown className="reader-disclosure-icon" size={13} aria-hidden="true" /></>;
   return (
     <div className="paper-reader-toolbar" role="group" aria-label={language === 'zh' ? '论文导航' : 'Publication navigation'}>
-      <div className="reader-dock reader-glass" data-page-lens="">
+      <div className="reader-dock reader-glass">
         <Button className="reader-back" variant="ghost" size="sm"
+          title={fromHome ? (language === 'zh' ? '回到首页' : 'Back to home') : (language === 'zh' ? '全部论文' : 'All publications')}
           aria-label={fromHome ? (language === 'zh' ? '回到首页' : 'Back to home') : (language === 'zh' ? '全部论文' : 'All publications')}
           render={<Link href={fromHome ? '/#publications' : '/research/'} />}>
           <ArrowLeft aria-hidden="true" />
           <span className="reader-back-label" aria-hidden="true">
-            {fromHome ? <Localized en="Back to home" zh="回到首页" /> : <Localized en="All publications" zh="全部论文" />}
+            {fromHome ? <Localized en="Back to home" zh="回到首页" /> : <Localized en="All papers" zh="全部论文" />}
           </span>
         </Button>
         {children}
         <Menu>
           <MenuTrigger render={<Button variant="secondary" size="sm" className="reader-switch reader-switch-menu" />}
-            aria-label={pickerLabel}>
+            aria-label={pickerLabel} title={pickerLabel}>
             {pickerContent}
           </MenuTrigger>
           <MenuPopup align="end" sideOffset={6} className="reader-menu reader-glass glass-menu">
@@ -51,7 +52,7 @@ function ReaderToolbar({ current, choices, fromHome, children }: ReaderLinks & {
         </Menu>
         <Sheet>
           <SheetTrigger asChild>
-            <button type="button" className="reader-switch reader-switch-sheet" aria-label={pickerLabel}>
+            <button type="button" className="reader-switch reader-switch-sheet" aria-label={pickerLabel} title={pickerLabel}>
               {pickerContent}
             </button>
           </SheetTrigger>

@@ -5,6 +5,7 @@
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import * as React from "react";
+import { motion, useMotionValue, useSpring, useTransform, useVelocity } from "motion/react";
 import { cn } from "@/lib/utils";
 
 export type SegmentedControlSize = "default" | "lg" | "sm";
@@ -169,84 +170,171 @@ function measureItem(item: HTMLElement, root: HTMLElement): ActiveItemRect {
   };
 }
 
+// Centre and footprint settle independently. A second tap updates the same
+// springs, carrying their current position and velocity into the next move.
+const travel = { stiffness: 580, damping: 36, mass: .82 };
+const settle = { stiffness: 480, damping: 26, mass: .8 };
+const itemSelector = ':scope > a, :scope > button';
+
 function SegmentedControlIndicator(): React.ReactElement {
   const ref = React.useRef<HTMLSpanElement>(null);
-  const [rect, setRect] = React.useState<ActiveItemRect | null>(null);
+  const cx = useSpring(0, travel);
+  const cy = useSpring(0, travel);
+  const width = useSpring(1, settle);
+  const height = useSpring(1, settle);
+  const lift = useSpring(0, settle);
+  const baseW = useMotionValue(1);
+  const baseH = useMotionValue(1);
+  const elastic = useMotionValue(0);
+  const vx = useVelocity(cx);
+  const vy = useVelocity(cy);
+  const x = useTransform(() => cx.get() - baseW.get() / 2);
+  const y = useTransform(() => cy.get() - baseH.get() / 2);
+  const scaleX = useTransform(() => width.get() / baseW.get() *
+    (1 + elastic.get() * (.145 * Math.tanh(Math.abs(vx.get()) / 680) + .045 * lift.get())));
+  const scaleY = useTransform(() => height.get() / baseH.get() *
+    (1 + elastic.get() * (.145 * Math.tanh(Math.abs(vy.get()) / 680) + .07 * lift.get())));
 
   React.useLayoutEffect(() => {
-    const root = ref.current?.parentElement;
-    if (!root) {
-      return;
+    const thumb = ref.current;
+    const root = thumb?.parentElement;
+    if (!root || !thumb) return;
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    const glass = root.hasAttribute('data-glass-selection');
+    const scrub = root.hasAttribute('data-glass-scrub');
+    let last: ActiveItemRect | null = null;
+    let current: HTMLElement | null = null;
+    let press: { id: number; x: number; y: number; dragging: boolean; candidate: HTMLElement } | null = null;
+    let stops: { item: HTMLElement; center: number; right: number }[] = [];
+    let trackLeft = 0;
+    let releaseTimer = 0, followFrame = 0, swallowClick = false;
+    const children = () => Array.from(root.querySelectorAll<HTMLElement>(itemSelector));
+    function target(item: HTMLElement | null, snap = false) {
+      if (!item || !item.offsetWidth) { thumb!.hidden = true; last = null; return; }
+      const rect = measureItem(item, root!);
+      if (!snap && isSameRect(rect, last)) return;
+      const jump = snap || !last || reduced.matches;
+      const method = jump ? 'jump' : 'set';
+      baseW.set(rect.width); baseH.set(rect.height);
+      cx[method](rect.left + rect.width / 2); cy[method](rect.top + rect.height / 2);
+      width[method](rect.width); height[method](rect.height);
+      last = rect; thumb!.hidden = false;
     }
-
-    let previousLeft: number | undefined;
-    const update = (): void => {
-      const item = root.querySelector<HTMLElement>(':scope > [data-selected="true"]') ?? root.querySelector<HTMLElement>(activeItemSelector);
-      const next = item?.offsetWidth ? measureItem(item, root) : null;
-      if (ref.current && next) {
-        if (previousLeft !== undefined && previousLeft !== next.left) {
-          ref.current.dataset.direction = next.left > previousLeft ? 'right' : 'left';
-        }
-        previousLeft = next.left;
-      }
-      setRect((previous) => (isSameRect(previous, next) ? previous : next));
-    };
-
-    update();
-
-    const resizeObserver = new ResizeObserver(update);
-    const mutationObserver = new MutationObserver((records) => {
-      if (records.some((record) => record.type === "childList")) {
-        observeItems();
-      }
-      update();
-    });
-    const observeItems = (): void => {
-      resizeObserver.disconnect();
-      resizeObserver.observe(root);
-      for (const child of root.children) {
-        resizeObserver.observe(child);
-        mutationObserver.observe(child, {
-          attributeFilter: observedAttributes,
-          attributes: true,
+    function raise() {
+      if (!glass || reduced.matches) return;
+      clearTimeout(releaseTimer);
+      thumb!.dataset.lifted = '';
+      lift.set(1);
+    }
+    function settleLift() {
+      clearTimeout(releaseTimer);
+      releaseTimer = window.setTimeout(() => {
+        delete thumb!.dataset.lifted; lift.set(0);
+      }, reduced.matches ? 0 : 125);
+    }
+    function sync(snap = false) {
+      const item = root!.querySelector<HTMLElement>(':scope > [data-selected="true"]') ??
+        root!.querySelector<HTMLElement>(activeItemSelector);
+      const changed = item !== current;
+      if (current && changed && !press && !snap) { raise(); settleLift(); }
+      current = item;
+      if (!press) target(item, snap);
+    }
+    function preference() {
+      elastic.set(glass && !reduced.matches ? 1 : 0);
+      if (reduced.matches) { lift.jump(0); delete thumb!.dataset.lifted; }
+      sync(true);
+    }
+    function down(e: PointerEvent) {
+      if (!glass || !e.isPrimary || e.button || e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+      const item = (e.target as Element).closest<HTMLElement>('button,a');
+      if (!item || item.parentElement !== root) return;
+      press = { id:e.pointerId, x:e.clientX, y:e.clientY, dragging:false, candidate:item };
+      swallowClick = false;
+      raise(); target(item);
+    }
+    function move(e: PointerEvent) {
+      if (!scrub || !press || e.pointerId !== press.id) return;
+      const dx = e.clientX - press.x, dy = e.clientY - press.y;
+      if (!press.dragging) {
+        if (Math.abs(dx) < 6 || Math.abs(dx) <= Math.abs(dy)) return;
+        trackLeft = root!.getBoundingClientRect().left;
+        stops = children().map(item => {
+          const bounds = item.getBoundingClientRect();
+          return { item, center: bounds.left + bounds.width / 2 - trackLeft, right: bounds.right };
         });
+        if (!stops.length) return;
+        root!.setPointerCapture(e.pointerId);
+        press.dragging = true;
       }
-    };
-    mutationObserver.observe(root, { childList: true });
+      const nearest = stops.find(stop => e.clientX <= stop.right) ?? stops[stops.length - 1];
+      if (nearest.item !== press.candidate) { press.candidate = nearest.item; target(nearest.item); }
+      // Between detents the glass follows the finger; selection commits on lift.
+      const position = Math.max(stops[0].center, Math.min(stops[stops.length - 1].center, e.clientX - trackLeft));
+      cx[reduced.matches ? 'jump' : 'set'](position);
+    }
+    function finish(e?: PointerEvent) {
+      if (!press || (e && e.pointerId !== press.id)) return;
+      const { dragging, candidate, id } = press;
+      press = null;
+      if (root!.hasPointerCapture(id)) root!.releasePointerCapture(id);
+      if (dragging && last) {
+        cx[reduced.matches ? 'jump' : 'set'](last.left + last.width / 2);
+        if (e?.type === 'pointerup') {
+          swallowClick = true;
+          const bounds = root!.getBoundingClientRect();
+          if (e.clientY >= bounds.top && e.clientY <= bounds.bottom) {
+            candidate.click();
+            candidate.focus({ preventScroll: true });
+          }
+        }
+      }
+      settleLift();
+      cancelAnimationFrame(followFrame);
+      followFrame = requestAnimationFrame(() => sync());
+    }
+    function click(e: MouseEvent) {
+      if (swallowClick && e.detail > 0) {
+        e.preventDefault(); e.stopImmediatePropagation(); swallowClick = false;
+      }
+    }
+    preference();
+    const resize = new ResizeObserver(() => {
+      if (!press && current && !isSameRect(measureItem(current, root), last)) sync(true);
+    });
+    resize.observe(root);
+    const mutations = new MutationObserver(records => {
+      if (records.some(record => record.type === 'childList')) observeItems();
+      sync();
+    });
+    function observeItems() {
+      for (const child of children()) {
+        resize.observe(child);
+        mutations.observe(child, { attributes: true, attributeFilter: observedAttributes });
+      }
+    }
     observeItems();
-
+    mutations.observe(root, { childList: true });
+    const blur = () => finish();
+    reduced.addEventListener('change', preference);
+    root.addEventListener('pointerdown', down);
+    root.addEventListener('pointermove', move);
+    root.addEventListener('click', click, true);
+    window.addEventListener('pointerup', finish);
+    window.addEventListener('pointercancel', finish);
+    window.addEventListener('blur', blur);
     return () => {
-      resizeObserver.disconnect();
-      mutationObserver.disconnect();
+      resize.disconnect(); mutations.disconnect();
+      clearTimeout(releaseTimer); cancelAnimationFrame(followFrame);
+      reduced.removeEventListener('change', preference);
+      root.removeEventListener('pointerdown', down); root.removeEventListener('pointermove', move);
+      root.removeEventListener('click', click, true);
+      window.removeEventListener('pointerup', finish); window.removeEventListener('pointercancel', finish);
+      window.removeEventListener('blur', blur);
     };
-  }, []);
+  }, [cx, cy, width, height, lift, baseW, baseH, elastic]);
 
-  return (
-    <span
-      aria-hidden="true"
-      className={cn(
-        "pointer-events-none absolute top-0 left-0 -z-1 h-(--active-item-height) w-(--active-item-width) translate-x-(--active-item-left) translate-y-(--active-item-top) transition-[width,height,translate] duration-200 ease-in-out motion-reduce:transition-none",
-        segmentedControlIndicatorSurfaceClassName,
-      )}
-      data-slot="segmented-control-indicator"
-      onTransitionRun={event => {
-        if (event.propertyName === 'left' || event.propertyName === 'right') event.currentTarget.dataset.moving = '';
-      }}
-      onTransitionEnd={event => {
-        const thumb = event.currentTarget;
-        if (event.propertyName === (thumb.dataset.direction === 'right' ? 'left' : 'right')) delete thumb.dataset.moving;
-      }}
-      onTransitionCancel={event => { delete event.currentTarget.dataset.moving; }}
-      hidden={!rect}
-      ref={ref}
-      style={
-        {
-          "--active-item-height": `${rect?.height ?? 0}px`,
-          "--active-item-left": `${rect?.left ?? 0}px`,
-          "--active-item-top": `${rect?.top ?? 0}px`,
-          "--active-item-width": `${rect?.width ?? 0}px`,
-        } as React.CSSProperties
-      }
-    />
-  );
+  return <motion.span ref={ref} hidden aria-hidden="true" data-slot="segmented-control-indicator"
+    className="pointer-events-none absolute -z-1 rounded-full"
+    style={{ x, y, width: baseW, height: baseH, scaleX, scaleY }} />;
 }

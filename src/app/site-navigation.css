@@ -45,23 +45,12 @@ header.site-header { background: transparent; backdrop-filter: none; pointer-eve
 .site-rail .destination:is(:hover,[data-selected]), .site-segments [data-slot="segmented-control-item"][data-pressed] { color: var(--nju); }
 :is(.site-rail, .site-segments) > [data-slot="segmented-control-indicator"] {
   position: absolute;
-  top: var(--active-item-top);
-  left: var(--active-item-left);
-  right: calc(100% - var(--active-item-left) - var(--active-item-width));
+  inset: 0 auto auto 0;
   z-index: -1;
-  height: var(--active-item-height);
-  width: auto;
-  translate: none;
   border-radius: 999px;
   background: linear-gradient(140deg, color-mix(in srgb,var(--background) 58%,transparent),
     color-mix(in srgb,var(--nju) 8%,transparent) 54%, color-mix(in srgb,var(--background) 28%,transparent));
   box-shadow: inset 1px 1px 1.5px var(--light-arc), inset -1px -1px 2px var(--shade-arc), 0 1px 3px #18121c16;
-  /* The leading edge arrives just before the trailing edge. Both retarget
-     from their current positions when another destination is tapped. */
-  transition: left .29s cubic-bezier(.24,.83,.23,1), right .34s cubic-bezier(.24,.83,.23,1);
-}
-:is(.site-rail, .site-segments) > [data-slot="segmented-control-indicator"][data-direction="right"] {
-  transition-duration: .34s, .29s;
 }
 /* A brief reflection travels with the selection. Tint alone marks it at rest. */
 @media (prefers-reduced-motion: no-preference) and (prefers-contrast: no-preference) {
@@ -70,11 +59,12 @@ header.site-header { background: transparent; backdrop-filter: none; pointer-eve
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background: linear-gradient(125deg, rgb(255 255 255 / .34), transparent 40%, transparent 82%, rgb(255 255 255 / .18));
+    background: linear-gradient(125deg, rgb(255 255 255 / .63), transparent 38%, transparent 70%, rgb(255 255 255 / .35));
+    box-shadow: inset 1px 1px 1.6px var(--light-arc), inset -1px -1px 2px var(--shade-arc), 0 2px 4px #38164226;
     opacity: 0;
-    transition: opacity 120ms ease-out;
+    transition: opacity 150ms ease-out;
   }
-  :is(.site-rail, .site-segments) > [data-slot="segmented-control-indicator"][data-moving]::after { opacity: 1; }
+  :is(.site-rail, .site-segments) > [data-slot="segmented-control-indicator"][data-lifted]::after { opacity: 1; }
 }
 .inline-segments[data-slot="segmented-control"] { background: transparent; }
 .inline-segments[data-slot="segmented-control"] > [data-slot="segmented-control-indicator"] {
@@ -154,3 +144,56 @@ header.site-header { background: transparent; backdrop-filter: none; pointer-eve
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
   .site-drawer[data-slot="sheet-content"] { background: var(--background); backdrop-filter: none; }
 }
+
+/* A rail occupies its own paper margin. Small windows keep the masthead in flow. */
+header.site-header { position: relative; }
+.site-rail .destination:first-of-type span { display: none; }
+.site-header .reader-glass, .paper-reader-toolbar .reader-glass {
+  --glass-wash: color-mix(in srgb, var(--background) 37%, transparent);
+  background-image:
+    radial-gradient(ellipse at 0% 0%, color-mix(in srgb, var(--nju) 8%, transparent), transparent 54%),
+    linear-gradient(130deg, rgb(255 255 255 / .18), transparent 42%, color-mix(in srgb, var(--editorial-link) 8%, transparent));
+  box-shadow: inset 1px 1px 1px var(--light-arc), inset -1px -1px 2px var(--shade-arc),
+    0 2px 3px -2px var(--glass-depth), 0 9px 20px -11px var(--glass-depth);
+}
+@media screen and (min-width: 51rem) and (min-height: 32rem) {
+  :root {
+    --editorial-shell-width: min(51rem, calc(100vw - 12rem));
+    --margin-rail-width: 3.125rem;
+    --margin-gap: clamp(1rem, 2.2vw, 2.25rem);
+    --margin-offset: max(1rem, calc((100% - var(--editorial-shell-width)) / 2 - var(--margin-gap) - var(--margin-rail-width)));
+    --margin-top: clamp(1.5rem, 4vh, 3rem);
+  }
+  header.site-header { position: sticky; top: 0; height: 0; overflow: visible; }
+  .site-header .header-inner {
+    position: absolute; inset: var(--margin-top) auto auto var(--margin-offset);
+    margin: 0; width: var(--margin-rail-width); height: auto;
+    flex-direction: column; gap: .8rem;
+  }
+  .site-header .site-rail, .site-header .header-actions {
+    width: 100%; flex-direction: column; align-items: stretch; padding: 4px; border-radius: 1.48rem;
+  }
+  .site-header .site-rail .destination, .site-header .header-actions button {
+    width: 100%; min-width: 0; min-height: 2.55rem; padding: 0; border-radius: 1.15rem;
+  }
+  .site-rail .destination span { display: none; }
+  .site-header .site-rail .destination svg { display: block; }
+  .site-rail[data-slot="segmented-control"] > [data-slot="segmented-control-indicator"] {
+    border-radius: 1.15rem;
+  }
+}
+@media screen and (min-width: 73rem) and (min-height: 32rem) {
+  :root { --margin-rail-width: 7.5rem; }
+  .site-header .header-inner { align-items: start; }
+  .site-header .site-rail .destination {
+    justify-content: start; gap: .65rem; padding-inline: .75rem;
+  }
+  .site-header .site-rail .destination span { display: inline; }
+  .site-header .header-actions { flex-direction: row; justify-content: space-around; }
+  .site-header .header-actions button { width: 33.333%; min-height: 2.1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-rail[data-slot="segmented-control"] > [data-slot="segmented-control-indicator"] { transition: none; }
+}
+
+[data-glass-scrub] { touch-action: pan-y; user-select: none; -webkit-user-select: none; }

@@ -2,7 +2,8 @@ html:has(.project-detail) { scroll-padding-top: 0; }
 
 .case-contents {
   position: sticky;
-  inset-block-start: 52px;
+  inset-block-start: 0;
+  background: var(--background);
   z-index: 12;
   pointer-events: none;
   padding-block: .45rem;
@@ -247,17 +248,18 @@ html:has(.project-detail) { scroll-padding-top: 0; }
 }
 .trace-origin[data-phase="generate"] img { object-position: 50% 63%; }
 
-@media screen and (max-width: 40rem) {
+.project-detail :is(.case-section, #preview, .case-chapter, .architecture-figure)[id] { scroll-margin-top: 4.25rem; }
+@media screen and (min-width: 51rem) and (min-height: 32rem) {
   .case-contents {
-    position: fixed;
-    inset: auto auto max(.8rem, env(safe-area-inset-bottom)) 50%;
-    translate: -50% 0;
-    width: max-content;
-    max-width: calc(100% - 1.5rem);
-    margin: 0;
-    padding: 0;
-    z-index: 24;
+    top: var(--margin-top); height: 0; padding: 0; margin: 0; background: transparent;
   }
-  .project-detail :is(.case-section, #preview, .case-chapter, .architecture-figure)[id] { scroll-margin-top: 72px; }
-  body:has(.case-contents) .site-footer { padding-bottom: 5rem; }
+  .case-contents .article-section-nav {
+    position: absolute; left: calc(100% + var(--margin-gap)); width: var(--margin-rail-width);
+  }
+  .case-contents .glass-trigger { width: 100%; min-height: 2.75rem; }
+  .case-contents .glass-trigger > svg:last-child { display: none; }
+  .project-detail :is(.case-section, #preview, .case-chapter, .architecture-figure)[id] { scroll-margin-top: var(--margin-top); }
+}
+@media screen and (51rem <= width < 73rem) and (min-height: 32rem) {
+  .case-contents .glass-trigger > span { display: none; }
 }
