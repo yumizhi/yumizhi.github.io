@@ -220,20 +220,23 @@ function AgentMessageTransport() {
         en: 'For a published app invoked from a bound private chat, the message key identifies the invocation. A later lookup can continue following the same run.',
         zh: '从绑定私聊调用已发布应用时，消息键也用作调用键。之后查询可以继续跟踪同一次运行。',
       }}>
-      <div className="article-path-map agent-channel-map">
-        <div className="article-channel-input">
+      <div className="transport-map">
+        <div className="transport-sources">
           <div><strong>QQ</strong><code>WebSocket</code></div>
           <div><strong><Text en="WeChat" zh="微信" /></strong><code><Text en="Long poll · cursor" zh="长轮询 · 查询游标" /></code></div>
         </div>
-        <FlowArrow />
-        <div className="article-thread">
-          <div className="article-thread-title"><MessageSquare size={18} aria-hidden="true" /><strong><Text en="Channel gateway" zh="渠道网关" /></strong></div>
+        <svg className="transport-fork" viewBox="0 0 88 100" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M2 25H18C45 25 39 50 62 50H87" />
+          <path d="M2 75H18C45 75 39 50 62 50" />
+        </svg>
+        <div className="transport-stop">
+          <Inbox size={24} aria-hidden="true" /><strong><Text en="Channel gateway" zh="渠道网关" /></strong>
           <p><Text en="Normalize, deduplicate and order per peer" zh="归一化、去重、保持会话内顺序" /></p>
           <code>inbox · receipts</code>
         </div>
         <FlowArrow />
-        <div className="article-thread">
-          <div className="article-thread-title"><Cpu size={18} aria-hidden="true" /><strong><Text en="Published app" zh="已发布应用" /></strong></div>
+        <div className="transport-stop">
+          <Cpu size={24} aria-hidden="true" /><strong><Text en="Published app" zh="已发布应用" /></strong>
           <p><Text en="Open the existing run or submit a new invocation" zh="查找已有运行，或提交一次新调用" /></p>
           <code>key → run ID</code>
         </div>

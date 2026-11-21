@@ -5,6 +5,7 @@ import './globals.css';
 import './site-motion.css';
 import './editorial-system.css';
 import './site-navigation.css';
+import '@/components/ui/cupertino/glass.css';
 import './home-composition.css';
 import { Providers } from '@/components/providers';
 import { Header,Footer } from '@/components/header';

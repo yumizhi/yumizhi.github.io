@@ -1,61 +1,51 @@
 'use client';
 
 import { useState } from 'react';
-import * as Tabs from '@radix-ui/react-tabs';
-import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import { ArrowUpRight } from 'lucide-react';
 import { asset } from '@/lib/paths';
 import type { Paper } from '@/lib/content';
-import { Localized } from '../language';
+import { Localized, useLanguage } from '../language';
+import { GlassChoice } from '../ui/cupertino/choice';
 
-const methods = [{id:'tree',name:'Tree-Ring'}, {id:'robin',name:'ROBIN'}, {id:'tide',name:'TIDE'}];
+const methods = [{ value: 'tree', label: 'Tree-Ring' }, { value: 'robin', label: 'ROBIN' }, { value: 'tide', label: 'TIDE' }];
 const scenes = [
-  {id:'car',en:'Sports car',zh:'跑车'}, {id:'interior',en:'Interior',zh:'室内'},
-  {id:'guitar',en:'Guitarist',zh:'吉他手'}, {id:'street',en:'Street',zh:'街景'},
-  {id:'robot',en:'Robot',zh:'机器人'},
+  { id: 'car', en: 'Sports car', zh: '跑车' }, { id: 'interior', en: 'Interior', zh: '室内' },
+  { id: 'guitar', en: 'Guitarist', zh: '吉他手' }, { id: 'street', en: 'Street', zh: '街景' }, { id: 'robot', en: 'Robot', zh: '机器人' },
 ];
-function sample(method:string,scene:string){return asset('/images/tide-paper/'+method+'-'+scene+'.webp');}
+const sample = (method: string, scene: string) => asset(`/images/tide-paper/${method}-${scene}.webp`);
 
-export function TideComparison({original,caption}:{original:string;caption:Paper['imageCaption']}){
-  const [scene,setScene] = useState(scenes[0]);
-  const [method,setMethod] = useState('tree');
+export function TideComparison({ original, caption }: { original: string; caption: Paper['imageCaption'] }) {
+  const [scene, setScene] = useState(scenes[0]);
+  const [method, setMethod] = useState('tree');
   const reduced = useReducedMotion();
-  return <LayoutGroup><figure className="tide-comparison">
-    <Tabs.Root className="tide-method-tabs" value={method} onValueChange={setMethod}>
-      <div className="tide-compare-tools">
-        <span className="tide-figure-label"><Localized en="Image comparison" zh="图像对照"/></span>
-        <Tabs.List aria-label="Watermark method" className="tide-variant-list">
-          {methods.map(m=><Tabs.Trigger value={m.id} key={m.id}>
-            {method===m.id&&<motion.i layoutId="watermark-method" transition={{duration:reduced?0:.24}}/>}
-            <span>{m.name}</span>
-          </Tabs.Trigger>)}
-        </Tabs.List>
-      </div>
+  const { language } = useLanguage();
+  return (
+    <figure className="tide-comparison" aria-label={language === 'zh' ? '图像对照' : 'Image comparison'}>
       <div className="tide-pair">
         <div className="tide-sample">
-          <img width={226} height={226} src={sample('clean',scene.id)} alt={'Unwatermarked · '+scene.en}/>
-          <b><Localized en="Unwatermarked" zh="无水印"/></b>
+          <img width={226} height={226} src={sample('clean', scene.id)} alt={`Unwatermarked · ${scene.en}`} />
+          <span className="tide-reference"><Localized en="Unwatermarked" zh="无水印" /></span>
         </div>
         <div className="tide-sample tide-versions">
-          {methods.map(m=><Tabs.Content key={m.id} value={m.id} forceMount
-            aria-hidden={m.id!==method} tabIndex={m.id===method?0:-1} className="tide-version">
-            <motion.div initial={false} animate={{opacity:m.id===method?1:0}} transition={{duration:reduced?0:.25}}>
-              <img width={226} height={226} src={sample(m.id,scene.id)} alt={m.name+' · '+scene.en}/>
-              <b>{m.name}</b>
-            </motion.div>
-          </Tabs.Content>)}
+          {methods.map(item => (
+            <motion.img key={item.value} className="tide-version" width={226} height={226} src={sample(item.value, scene.id)}
+              initial={false} animate={{ opacity: item.value === method ? 1 : 0 }} transition={{ duration: reduced ? 0 : .22 }}
+              aria-hidden={item.value !== method} alt={item.value === method ? `${item.label} · ${scene.en}` : ''} />
+          ))}
+          <div className="tide-lens"><GlassChoice label={language === 'zh' ? '水印方法' : 'Watermark method'} items={methods} value={method} onChange={setMethod} /></div>
         </div>
       </div>
-    </Tabs.Root>
-    <div className="tide-scene-picker" role="group" aria-label="Image prompt">
-      {scenes.map(s=><button key={s.id} type="button" aria-pressed={s.id===scene.id} onClick={()=>setScene(s)}>
-        <img src={sample('clean',s.id)} alt="" width={32} height={32}/>
-        <span><Localized en={s.en} zh={s.zh}/></span>
-      </button>)}
-    </div>
-    <figcaption className="tide-figure-note">
-      <span><strong><Localized en="Figure 2." zh="图 2。"/></strong>{' '}<Localized {...caption}/></span>
-      <a href={asset(original)} target="_blank" rel="noreferrer"><Localized en="Full figure" zh="完整原图"/><ArrowUpRight size={14}/></a>
-    </figcaption>
-  </figure></LayoutGroup>;
+      <div className="tide-scene-picker" role="group" aria-label={language === 'zh' ? '选择场景' : 'Image prompt'}>
+        {scenes.map(item => <button key={item.id} type="button" aria-pressed={item.id === scene.id}
+          aria-label={item[language]} title={item[language]} onClick={() => setScene(item)}>
+          <img src={sample('clean', item.id)} alt="" width={32} height={32} />
+        </button>)}
+      </div>
+      <figcaption className="tide-figure-note">
+        <span><strong><Localized en="Figure 2." zh="图 2。" /></strong>{' '}<Localized {...caption} /></span>
+        <a href={asset(original)} target="_blank" rel="noreferrer"><Localized en="Full figure" zh="完整原图" /><ArrowUpRight size={14} /></a>
+      </figcaption>
+    </figure>
+  );
 }
