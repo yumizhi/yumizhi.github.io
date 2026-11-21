@@ -5,6 +5,7 @@ import { asset } from '@/lib/paths';
 import type { ArticleFigure } from '@/lib/project-chapters';
 import { Localized as Text } from './language';
 import { Diagram, FlowArrow } from './project-architecture';
+import { AgentHandoff } from './agent-handoff';
 import { AgentRuntimeTrace } from './agent-runtime-trace';
 import { AgentCollectionSchedule, AgentDigestReplay } from './agent-source-replays';
 import './project-article-figures.css';
@@ -301,6 +302,13 @@ export function ProjectArticleFigure({ figure }: { figure: ArticleFigure }) {
     case 'epub-path-roundtrip': return <EpubRoundTrip />;
     case 'originmark-teapot-report': return <TeapotReport />;
     case 'originmark-lease-recovery': return <LeaseRecovery />;
+    case 'agent-handoff-comparison': return (
+      <Diagram id="agent-handoff-comparison"
+          title={{ en: 'Two readings of the same handoff', zh: '同一笔交接的两次核算' }}
+          caption={{ en: 'Both runs start at 08:10 UTC. Correcting the acknowledgement moves the finish to the other side of the same 45-minute allowance.', zh: '两次运行的起点都是 08:10 UTC。确认时间更正后，终点落到了同一条 45 分钟时限的另一侧。' }}>
+          <AgentHandoff />
+        </Diagram>
+    );
     case 'agent-collection-schedule': return <AgentCollectionSchedule />;
     case 'agent-context-selection': return <AgentContextSelection />;
     case 'agent-browser-measurements': return <AgentBrowserMeasurements />;

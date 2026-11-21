@@ -234,7 +234,7 @@ test('mobile project showcases keep private repository links out of the page', a
   await expect(detail).toContainText('Source code is private.');
   await expect(detail.locator('a[href*="github.com"]:not([href^="https://github.com/earendil-works/pi/"])')).toHaveCount(0);
   if (project.slug === 'personal-agent') {
-   await expect(detail.getByRole('combobox', { name: 'Choose preview, Workflow studio' })).toBeVisible();
+   await expect(detail.getByRole('combobox', { name: 'Choose preview, Member workspace' })).toBeVisible();
    await choosePreview(page, 'Source watch');
    await expect(detail.locator('.stage-capture[aria-hidden="false"] img')).toHaveAttribute('src', /agent-watch/);
   }

@@ -2,7 +2,7 @@ export type Bilingual = { en: string; zh: string };
 
 export type ArticleFigure = 'epub-worker-handoff' | 'epub-path-roundtrip' | 'originmark-teapot-report' |
   'originmark-lease-recovery' | 'agent-run-link' | 'agent-report-evidence' | 'agent-runtime-trace' |
-  'agent-workflow-data' | 'agent-message-transport' | 'agent-watch-replay' | 'agent-browser-measurements' | 'agent-context-selection' | 'agent-collection-schedule';
+  'agent-workflow-data' | 'agent-message-transport' | 'agent-watch-replay' | 'agent-browser-measurements' | 'agent-context-selection' | 'agent-collection-schedule' | 'agent-handoff-comparison';
 
 export type Chapter = { title: Bilingual; paragraphs: Bilingual[]; id?: string; figure?: ArticleFigure };
 
@@ -28,15 +28,16 @@ export const projectChapters: Record<string, TechnicalArticle> = {
     },
     architecture: [
       {
-        title: { en: 'Package inspection in the browser', zh: '浏览器中的预检与处理' },
+        title: { en: 'Package metadata and document bytes have different lifetimes', zh: '包信息与文件内容分开读取' },
+        figure: 'epub-worker-handoff',
         paragraphs: [
           {
-            en: 'Merge, Split and Inspect each keep a session containing the selected files, parsed summaries, results and errors. One worker processes requests for all three. It inspects each book by reading the ZIP directory and inflating only the container, package and navigation documents. React uses the returned report to preview the table of contents in the selected order. It can render a useful preview before any images or fonts are inflated.',
-            zh: '「合并」「拆分」「检查」各自保留已选文件、分析摘要、结果与错误，三者共用一个 Worker。预检时，Worker 先读取 ZIP 目录，只解压容器、包文档和导航文件。React 根据返回的分析报告和当前卷序生成目录预览，图片和字体都还没解压，用户已经可以检查章节顺序。',
+            en: 'The same file appears in three places during a browser session. The selected File is the input. Its analysis result holds the package metadata, reading order and resolved navigation used by the preview. The output Blob exists only once the archive writer finishes. Keeping those objects separate lets the preview refresh without writing a book, and lets Inspect or Split reuse a finished output by wrapping the Blob as a File. No file chooser or extra ZIP serialization is needed for that handoff.',
+            zh: '在一次浏览器会话里，同一本书先后有三种形态。用户选择的 File 是源文件，预检结果保存包元数据、阅读顺序和解析后的目录，用于工作台预览，归档写完后才得到可下载的 Blob。调整卷序只需要重排已经解析好的目录，无需另写一本书。导出完成后，「检查」或「拆分」可以把同一个 Blob 包成新的 File 继续处理，中间省去重新打包、下载和选文件。',
           },
           {
-            en: 'The offline cache keeps the workspace and worker code available. The books live in the current browser session, so closing or reloading the page clears the working state. A download URL is tied to the result that created it. When the result is replaced, the workspace can revoke that URL without deleting a file that another tool still holds as input.',
-            zh: '离线缓存保留界面和 Worker 代码。书籍文件留在当前浏览器会话，关闭或刷新页面会清除手头的工作。下载链接跟它对应的结果一起管理：如果结果被替换，就可以撤销旧链接，同时保留已经作为另一个工具输入的文件。',
+            en: 'Each mode has its own files, results and errors. An in-flight job keeps the identity of the mode that started it. Changing a merge setting clears that mode’s downloadable result because it belongs to the previous inputs. Switching modes keeps the result. Cancel terminates the worker and invalidates the pending request. The next operation uses a fresh worker, and a late message from the cancelled job cannot repopulate the old result.',
+            zh: '三个工具分别保存自己的文件、结果和错误。运行中的请求始终带着发起它的工具标识。调整合并设置会清掉当前下载，因为那是按旧设置生成的文件；单纯切到别的工具则保留结果。取消处理会结束 Worker，并作废等待中的请求，下一次操作启动新的 Worker。这样就算旧任务的消息迟到，也不会把过时的结果重新显示出来。',
           },
         ],
       },
@@ -53,61 +54,8 @@ export const projectChapters: Record<string, TechnicalArticle> = {
           },
         ],
       },
-      {
-        title: { en: 'Resource mapping before archive assembly', zh: '先确定资源路径，再组装归档' },
-        paragraphs: [
-          {
-            en: 'The merge implementation processes deduplicable binaries first. Two candidates share a destination only if both media type and content hash agree. Chapters, stylesheets and SVGs keep their own paths because the same bytes can resolve their relative links differently in different source books. With destinations decided, the engine can validate a local reference and rewrite it if its target moved. Unchanged document bytes go directly to the ZIP writer.',
-            zh: '合并实现先处理可去重的二进制资源。只有媒体类型和内容哈希都相同时，两个资源才能共用一个目标。章节、样式表、SVG 各自保留路径，因为即使字节相同，同一条相对链接也可能在两本书里指向不同的内容。位置定下来后，引擎就能逐条验证本地引用，目标移动时才重写，未改动的文档字节直接进入 ZIP 写入器。',
-          },
-          {
-            en: 'The collection has its own EPUB 3 package and navigation. The package inherits the first volume’s language and page direction, while the generated spine follows the selected volume order. Grouped navigation adds a level for each volume. Continuous navigation keeps links at one level. The original navigation and spine attributes remain in the merge record, so the user can change the reading experience of the collection without erasing the structure needed for split.',
-            zh: '合集有自己的 EPUB 3 包文档和目录。包文档取第一卷的语言与翻页方向，重新生成的 spine 按用户选定的卷序排列。分组目录为每卷加一层，连续目录则把可跳转的章节摊平。原目录与 spine 属性留在合并记录里，因此用户能调整合集的读法，同时保留日后拆卷所需的结构。',
-          },
-        ],
-      },
-      {
-        title: { en: 'Package metadata and document bytes have different lifetimes', zh: '包信息与文件内容分开读取' },
-        figure: 'epub-worker-handoff',
-        paragraphs: [
-          {
-            en: 'The same file appears in three places during a browser session. The selected File is the input. Its analysis result holds the package metadata, reading order and resolved navigation used by the preview. The output Blob exists only once the archive writer finishes. Keeping those objects separate lets the preview refresh without writing a book, and lets Inspect or Split reuse a finished output by wrapping the Blob as a File. No file chooser or extra ZIP serialization is needed for that handoff.',
-            zh: '在一次浏览器会话里，同一本书先后有三种形态。用户选择的 File 是源文件，预检结果保存包元数据、阅读顺序和解析后的目录，用于工作台预览，归档写完后才得到可下载的 Blob。调整卷序只需要重排已经解析好的目录，无需另写一本书。导出完成后，「检查」或「拆分」可以把同一个 Blob 包成新的 File 继续处理，中间省去重新打包、下载和选文件。',
-          },
-          {
-            en: 'Each mode has its own files, results and errors. An in-flight job keeps the identity of the mode that started it. Changing a merge setting clears that mode’s downloadable result because it belongs to the previous inputs. Switching modes keeps the result. Cancel terminates the worker and invalidates the pending request. The next operation uses a fresh worker, and a late message from the cancelled job cannot repopulate the old result.',
-            zh: '三个工具分别保存自己的文件、结果和错误。运行中的请求始终带着发起它的工具标识。调整合并设置会清掉当前下载，因为那是按旧设置生成的文件；单纯切到别的工具则保留结果。取消处理会结束 Worker，并作废等待中的请求，下一次操作启动新的 Worker。这样就算旧任务的消息迟到，也不会把过时的结果重新显示出来。',
-          },
-        ],
-      },
-      {
-        title: { en: 'One volume order feeds both preview and export', zh: '预览和导出共用同一份卷序' },
-        paragraphs: [
-          {
-            en: 'Automatic order derives a key from the filename and can fall back to the book title or the first navigation label. The ordering rules recognize numeric volume labels and Chinese ordinals. Two books that resolve to the same key are reported as ambiguous. That matters for a series that has two files both labeled Volume 1. The user can put them in the intended order, inspect the resulting contents and merge using that explicit order.',
-            zh: '自动排序从文件名提取排序键，也可以回退到书名或目录第一项。规则能识别数字式卷号和一部分中文序数。两本书算出的键相同时会提示歧义，例如同一套书有两个文件都标作「第一卷」。此时可以手动排列，先在目录中检查章序，再按明确的顺序导出。',
-          },
-          {
-            en: 'Dragging, keyboard reordering and the automatic sort all update the same list. Leaving a drag with Escape keeps the previous order. Committing to a new order updates the preview and retires the earlier download. The change also determines which source gets v1/ and which book supplies the collection’s language and page direction, so the handoff from preview to export has to use the same order.',
-            zh: '拖动、键盘改序和自动排序最终更新同一个列表。按 Escape 退出拖动会保留原卷序，确认新的顺序后则更新目录预览，并作废此前的下载。卷序还决定哪一本进入 v1/，以及合集继承哪本书的语言与翻页方向。因此，预览上的顺序与归档引擎实际收到的顺序必须一致。',
-          },
-        ],
-      },
     ],
     implementation: [
-      {
-        title: { en: 'Reading the package before touching chapter files', zh: '先读包结构，再读取章节文件' },
-        paragraphs: [
-          {
-            en: 'An EPUB can put its OPF in any valid directory. The reader starts at META-INF/container.xml and resolves the declared package path. It builds the manifest’s mapping from item IDs to resource locations, then follows the spine’s item references in reading order. The navigation document is a separate input. It supplies labels and link targets for the table of contents and can omit spine items or group several under a heading. Preserving the spine and the navigation separately avoids confusing a navigation hierarchy with the order of the book.',
-            zh: '合法 EPUB 的 OPF 可以放在不同目录。读取器先打开 META-INF/container.xml，从中找到包文档，再把清单里的资源编号映射到实际位置。spine 按资源编号指明阅读顺序。导航文件则单独提供目录标题和跳转目标，其中可以略过某些 spine 条目，也可以用一个标题把多个章节归在一起。分别读取两份结构，才能在合并卷序的同时保住目录层级。',
-          },
-          {
-            en: 'The two-volume example uses the same chapter path in each source archive, so each lookup is relative to its own archive. In the collection, the first chapter is placed under v1/ and the second under v2/. Item IDs also receive a volume prefix. That second change matters even when the files have different names. Two source packages can both call their chapter item chap01, and the combined spine has to point to two distinct manifest items.',
-            zh: '示例的两卷书在各自归档里都有 chapters/01.xhtml，读取时必须到各自的 ZIP 中查找。合并后，第一卷的章节放在 v1/ 下，第二卷放在 v2/ 下。清单里的条目编号同样加卷前缀。这个步骤跟文件同名是两回事，即使两章的文件名不同，两个源包也可能都把章节编号写成 chap01。合集的 spine 必须能分别指向两个新条目。',
-          },
-        ],
-      },
       {
         title: { en: 'One shared asset, two local references', zh: '一份共享资源与两条本地引用' },
         figure: 'epub-path-roundtrip',
@@ -122,54 +70,15 @@ export const projectChapters: Record<string, TechnicalArticle> = {
           },
         ],
       },
-      {
-        title: { en: 'The merge record and the reconstructed volume', zh: '合并记录与原卷重建' },
-        paragraphs: [
-          {
-            en: 'The writer stores the reconstruction data at META-INF/epub-merge-tool.json. Each source entry has the volume’s filename, original OPF path and package metadata, the spine and table of contents, and a resource list. Each resource row records its local manifest ID, original href, media type and merged_href. Documents with changed links also have a per-document rewrite map. A single canonical font can therefore appear in several source entries while occupying one entry in the combined ZIP.',
-            zh: '拆分需要的信息保存在 META-INF/epub-merge-tool.json。记录按卷组织，每卷有文件名、原 OPF 路径和包元数据、spine、目录与资源清单。每条资源记录原条目编号、原 href、媒体类型和合集内的 merged_href。有引用发生改变的文档还有一张自己的改写表。于是同一字体可以在两卷的记录中各有一条映射，在合集 ZIP 里仍然只占一个成员。',
-          },
-          {
-            en: 'Split opens that record before creating any output. For each book it creates a new writer, restores the original package location and rebuilds the navigation using that volume’s entries. It reads each resource by its merged address and writes it back at the source address. The rewrite table is applied in reverse, so the second volume’s stylesheet again points to its own font. If a recorded resource is absent from the collection, the split stops with that missing path. A partially rebuilt archive is not offered as a completed volume.',
-            zh: '拆分先读合并记录，再为每卷分别建立写入器，恢复原 OPF 路径，用该卷的目录条目生成导航。资源从合集地址读取，写回原卷地址；文档则反向应用各自的改写表，把第二卷样式表里的字体链接恢复到本卷。如果记录指向的资源已从合集中丢失，拆分会报出缺失路径，不会把半本重建结果当作完整分卷交给用户。',
-          },
-        ],
-      },
     ],
     decisionsTitle: { en: 'Reconstruction limits and memory costs', zh: '分卷恢复的范围与内存开销' },
     decisions: [
-      {
-        title: { en: 'The embedded merge record', zh: '随书保存的合并记录' },
-        paragraphs: [
-          {
-            en: 'Consider a collection whose table of contents has been flattened. Once two volumes share a font and only the linked chapter entries remain, headings alone cannot recover which resources belonged to which source. The merge record saves each source’s resource mapping, navigation, spine and supported package metadata inside the EPUB. Split copies pooled resources into the reconstructed volumes and rebuilds the package and navigation around them.',
-            zh: '设想把目录展开成连续章节，同时让两卷共用字体。仅看合成后的目录，已经无法知道共用资源原先分别归属哪一卷。合并记录因此保存在书里，逐卷写明资源映射、目录、spine 和受支持的包元数据。拆分时，把共用资源复制到需要它的原卷，再重新生成各卷的包文档和目录。',
-          },
-          {
-            en: 'The v1 record also leaves room for optional package metadata. New readers can restore fields such as publisher and page progression direction, and earlier records still work. Split reconstructs readable books and restores recorded metadata. It writes a new ZIP and does not preserve package signatures or metadata extensions outside the format. Fixed-layout books, encrypted resources and media overlays are rejected before export because partial conversion could leave a book that opens but no longer behaves correctly.',
-            zh: 'v1 记录允许加入可选的包元数据。新版可以恢复出版者、翻页方向等字段，旧记录也仍可读取。拆分会重新生成可读的书与已记录的元数据。输出采用新的 ZIP 封装，原包签名和格式未收录的元数据扩展无法恢复。固定版式、加密资源和媒体叠加会在导出前被拒绝，避免生成一本能打开、却丢了原有行为的书。',
-          },
-        ],
-      },
       {
         title: { en: 'Memory use during local processing', zh: '本地处理的内存开销' },
         paragraphs: [
           {
             en: 'The browser loads sources one at a time and inflates individual members as needed. The writer retains output chunks. That reduces the decoded working set while still keeping the current compressed input and the eventual downloads in memory. Very large collections are subject to browser memory limits. The architecture notes describe a compressed-entry pass-through prototype that was slower on the tested image workload and would have required a second path for the synchronous API. The shipped browser and Node tools keep one ZIP engine and one reference planner.',
             zh: '浏览器逐卷加载，按需解压单个成员，写入器保留输出分块。这样减少了同时存在的解压内容，但当前卷的压缩数据和最终下载结果仍需要内存，超大合集仍受浏览器容量限制。仓库还记录过直接复用压缩条目的原型。它在所测图像负载上耗时更高，还要为原有同步 API 另维护一条处理路径，因此发布版继续让浏览器和 Node 共用一个 ZIP 引擎和一套引用规划。',
-          },
-        ],
-      },
-      {
-        title: { en: 'The same resource plan serves synchronous and file-based APIs', zh: '同步接口与逐卷读取共用一套资源计划' },
-        paragraphs: [
-          {
-            en: 'Calling mergeEpubs with byte arrays and calling mergeEpubFiles with Blobs use the same entry generator. When the generator requests the next source, the synchronous caller returns its existing bytes and the file-based caller reads that Blob on demand. Both emit entries through the same package and navigation code. There is one place to fix a path or output-order bug. Automatic order still has a metadata prepass, while an explicit input order lets the merge begin directly.',
-            zh: '接收字节数组的 mergeEpubs 与接收 Blob 的 mergeEpubFiles 共用一个归档条目生成器。当处理逻辑需要下一卷时，同步接口交出现成的字节，文件接口才去读取对应 Blob。两条路径共用后续的清单、目录和写入规则，因此路径修复和排序变更只需要在同一处落实。自动排序仍要先预检各卷元数据，用户明确指定卷序后就可以直接进入处理。',
-          },
-          {
-            en: 'The ZIP writer stores formats such as PNG, JPEG and WOFF2 that are already compressed and deflates ordinary text entries. It writes mimetype first, uncompressed, in the EPUB container. This avoids spending additional compression work on typical image-heavy books. The resulting storage profile depends on the input, and a peak memory estimate still has to account for the compressed source, the resource being processed and the accumulated output.',
-            zh: 'ZIP 写入器直接存储通常已压缩的 PNG、JPEG 和 WOFF2，普通文本则用 deflate 压缩。归档的首个成员是未压缩的 mimetype。这样的选择省掉了对常见图片做二次压缩的工作。具体收益受输入素材影响，估算峰值内存时仍要计入当前卷的压缩数据、正在解压处理的单个资源，以及已经积累的输出数据。',
           },
         ],
       },
@@ -211,19 +120,6 @@ export const projectChapters: Record<string, TechnicalArticle> = {
     },
     architecture: [
       {
-        title: { en: 'Runs, jobs and retry attempts', zh: '运行记录、计算任务与重试' },
-        paragraphs: [
-          {
-            en: 'A Run stores the requested operation and its input snapshot. A Job is a unit of work, such as one detector call. Each time a worker claims that job, it creates a new Attempt. One verification case can have independent detector jobs. A batch can retain successful releases while individual files fail. The Studio can reopen an operation and read its artifacts and timed stages without having kept the original HTTP request alive.',
-            zh: 'Run 保存用户提交的操作和输入快照。一次检测器调用可以独立成为一个 Job。同一个 Job 被重新领取时，会留下新的 Attempt。同一验证案例可以有多个独立的检测任务，一批文件中也可以保留成功发布的结果，并单独查看失败项。浏览器即使离开，也能回来打开同一次操作及其产物和阶段耗时。',
-          },
-          {
-            en: 'The HTTP service uses lightweight engine definitions for capabilities and input schemas. Model libraries load in their execution runtimes. That allows a CPU-only service to accept and record an operation even when it cannot execute the selected GPU model locally. Each compute queue can have its own worker pool without forcing all requests to share the same model process.',
-            zh: 'HTTP 服务通过轻量的引擎定义读取能力和输入格式，模型依赖留在各自的执行进程中。因此，服务即使没有 GPU，也能接收操作并将任务登记到合适的队列。CPU 和不同 GPU 队列可以分别配置处理进程，无需让所有请求共用一个模型进程。',
-          },
-        ],
-      },
-      {
         title: { en: 'Model adapters and runtime isolation', zh: '模型适配器与运行隔离' },
         paragraphs: [
           {
@@ -252,19 +148,6 @@ export const projectChapters: Record<string, TechnicalArticle> = {
       },
     ],
     implementation: [
-      {
-        title: { en: 'A run is saved before its message is sent', zh: '先保存操作，再投递任务' },
-        paragraphs: [
-          {
-            en: 'A protection request creates its release target, run snapshot, job, initial event and outbox entry in a database transaction. This gives Studio a run to open immediately. The dispatcher reads pending outbox entries, sends a persistent RabbitMQ message containing the job ID and records dispatch after confirmation. If the dispatcher stops before sending, there is still a pending entry. If RabbitMQ confirms the send and the database transaction then fails, a later dispatcher can send the message again.',
-            zh: '保护请求在一笔数据库事务里创建待发布记录、运行快照、计算任务、初始事件和待投递消息。事务完成后，工作台已有一条可以打开的运行记录。分发器从待投递表取出条目，向 RabbitMQ 发送携带任务编号的持久消息，收到确认后登记已投递。若分发器在发送前退出，待投递条目仍在；若 RabbitMQ 已确认但数据库事务随后失败，重启后这条消息可能再发一次。',
-          },
-          {
-            en: 'A worker therefore reads the job state before computing. It locks the row, claims queued work, increments the claim version and records a new attempt. Heartbeats extend the lease only while that exact claim is still valid. Duplicate messages can refer to a run that is already active or finished. The database claim, rather than the number of broker deliveries, determines which attempt may proceed. A browser reconnect can replay the saved sequence of run events independently of either message delivery or GPU progress.',
-            zh: 'Worker 收到消息后先读取任务状态，在行锁下领取仍处在排队状态的任务，递增领取版本，同时写下一条 Attempt。心跳只为当前仍有效的领取续租。重复消息可能指向正在跑或已结束的任务，能否开始计算由数据库里的领取状态决定。浏览器断线后则按已保存的事件序列补读进度，不依赖消息队列回放任务，也不必重新启动计算。',
-          },
-        ],
-      },
       {
         title: { en: 'The signed file is the one that must pass', zh: '真正接受核验的是签名后的文件' },
         paragraphs: [
@@ -295,19 +178,6 @@ export const projectChapters: Record<string, TechnicalArticle> = {
     decisionsTitle: { en: 'The file, the signature and the claim', zh: '文件发布、签名校验与水印结论' },
     decisions: [
       {
-        title: { en: 'The policy is part of the release record', zh: '发布记录保留当时的质量策略' },
-        paragraphs: [
-          {
-            en: 'The release is tied to a version of the project policy. A candidate can fail because the expected payload cannot be recovered, or because its image-quality score is below the configured floor. Those checks are recorded against the policy used for that run. If the project later changes the threshold or engine, an older release still points to the policy and evidence that governed it at publication.',
-            zh: '每次发布绑定该项目的一版策略。候选文件可能因为预期载荷无法读回而失败，也可能因为图像质量低于配置门槛而被拦下。核验结果随该次运行的策略保存。项目之后调整门槛或引擎，旧发布仍能找到当时的策略与证据。',
-          },
-          {
-            en: 'A worker holds a renewable lease and a claim version that changes on retry. A release can commit only while the job is still running and the lease and claim both match. A GPU request can finish after cancellation or lease expiry, but its old claim cannot publish. That protects the visible result even if a duplicate message arrives or a worker dies between producing bytes and committing the database transaction.',
-            zh: 'Worker 持有可续期的租约，重新领取任务会生成新的领取版本。提交发布时，任务必须仍在运行且租约、领取版本都匹配。取消或租约过期后，一个 GPU 请求仍可能算完，但旧领取版本无法发布。即便遇到重复投递，或处理进程在写完字节、提交事务之前退出，迟到的结果也无法覆盖当前记录。',
-          },
-        ],
-      },
-      {
         title: { en: 'Independent watermark and credential results', zh: '独立的水印与凭证结果' },
         paragraphs: [
           {
@@ -317,15 +187,6 @@ export const projectChapters: Record<string, TechnicalArticle> = {
           {
             en: 'A verification step is stored per case and detector. On completion, a worker updates its own step and recomputes the case state while holding the parent record lock. A CPU detector and a GPU detector can therefore finish in either order without losing the earlier result. If the credential check succeeds and one detector times out, the case exposes its available evidence as a partial result. Retrying reopens the affected detector step.',
             zh: '每个验证案例为每种检测器保留独立步骤。某一路结束时，Worker 在锁住父记录的事务里更新该步骤，并重新计算整案状态。CPU 与 GPU 检测器可以按任意顺序返回，先返回的结果也不会被后来的覆盖。如果凭证检查已完成而某个检测器超时，案例仍会展示已有的部分证据。重试只重新打开受影响的检测步骤。',
-          },
-        ],
-      },
-      {
-        title: { en: 'Experiments record transforms and extraction results', zh: '实验记录保留变换参数与回读结果' },
-        paragraphs: [
-          {
-            en: 'Experiment handles a different task from Protect. It records an input, the chosen model and transform settings, and saves both the embedded and transformed files. The worker measures image quality and reads the watermark again on the transformed output. Those results can be compared later through their recorded settings. A formal release has its own publication record and token registry, so a laboratory crop remains identifiable as an experiment.',
-            zh: '实验模式会记录输入、模型和变换设置，分别保存嵌入后与变换后的文件。Worker 测量图像质量，并从变换后的输出重新回读水印，后续可以按保存的参数比较结果。正式发布另有发布记录与令牌登记，因此一次裁剪或 JPEG 试验始终可以从记录中识别为实验。',
           },
         ],
       },
@@ -340,19 +201,6 @@ export const projectChapters: Record<string, TechnicalArticle> = {
           {
             en: 'Verify has a related but narrower recovery unit. A case stores separate detector steps. C2PA can finish first, followed later by a CPU or GPU result. If one detector fails, the report still shows the available findings and marks the unresolved check. Retrying that step leaves earlier credential results in place. A valid signature from an untrusted issuer also remains valid integrity evidence with a separate trust result.',
             zh: '验证的恢复粒度更细。每个案例分别保存各路检测步骤，C2PA 可能先完成，CPU 或 GPU 的检测随后返回。一路失败时，报告仍呈现已获得的结果，并标明未完成的检查。只需重试失败的步骤，不用丢掉前面已经取得的凭证结果。签名完整但签发者不在信任范围内时，也分别记录完整性成立和信任未通过。',
-          },
-        ],
-      },
-      {
-        title: { en: 'Quick and deep verification share a case', zh: '快速验证与深度检测共用同一个案例' },
-        paragraphs: [
-          {
-            en: 'Quick Verify checks the credential and uses the available provenance for that file within the current project to select detectors. An unknown input falls back to the CPU path. A user with permission can add a deep check using a supported PixelSeal or TIDE worker. The extra check attaches a new step to the same case. Earlier evidence and the original input snapshot remain available, so the report can account for findings produced at different times.',
-            zh: '快速验证核对内容凭证，再利用当前项目内已有的文件来源记录选择检测器。没有来源记录的输入默认走 CPU 路径。具备权限的用户可以继续增加 PixelSeal 或 TIDE 深度检测，系统在原案例下增加步骤。已有证据与最初的输入快照仍然可查，报告可以呈现先后得到的几路结果。',
-          },
-          {
-            en: 'A request for the same deep check can return its existing step. This saves a new model run when a user reopens the case and requests a check already in progress. A file with a valid credential can still have an unresolved watermark check, and a matched watermark token still points to a published record even if the supplied copy has lost its credential. The report keeps enough detail to tell both situations apart.',
-            zh: '同一种深度检测已存在时，重复请求可以直接返回那条步骤，避免用户重开案例时又启动一份同样的模型任务。凭证有效的文件可能仍有尚未完成的水印检查；收到的副本即使已经丢了凭证，读回的令牌也仍可能关联到发布记录。报告分别保留证据状态，才能区分这两种情况。',
           },
         ],
       },
@@ -372,7 +220,7 @@ export const projectChapters: Record<string, TechnicalArticle> = {
         ],
       },
       {
-        title: { en: 'Research parity and detection calibration', zh: '研究实现对齐与检测校准' },
+        title: { en: 'A matching research output still needs a calibrated detector', zh: '对齐研究输出之后，还要实测检测阈值' },
         paragraphs: [
           {
             en: 'The TIDE integration first checked parity on pinned research settings. The original script, wrapper and product runner were compared at the level of decoded outputs and, for the recorded fixtures, exact PNG hashes and raw scores. Matching values in those controlled comparisons show that the adapter preserved the tested computation end to end. A successful parity check only needs the reference run and the integration run. It cannot by itself characterize how often the detector finds a watermark on a new image.',
@@ -382,33 +230,37 @@ export const projectChapters: Record<string, TechnicalArticle> = {
             en: 'Calibration is recorded separately and bound to a matching computational profile. A raw score generated under a different profile remains available as evidence, with an inconclusive detection outcome until a matching calibration exists. This keeps the report from inheriting a threshold that was measured for a different sampler, inversion setup or watermark configuration. The publication tests and the calibration tests thus support different guarantees.',
             zh: '校准另行登记，并与匹配的计算配置绑定。换了计算配置后产生的原始分数仍可保留，但缺少对应校准时，检测结论记为未定。采样、反演或水印配置改变后，报告由此不会沿用另一组配置测出的阈值。签发验收关注最终文件能否按策略发布，校准验收关注特定配置和测试样本下的检测表现。',
           },
+          {
+            en: 'The isolated TIDE release evaluation used 5,000 negatives to set the threshold and then froze it. At that threshold, all 1,000 marked PNGs were detected. False positives varied by source: 12 of 2,500 generated JPEGs, 52 of 2,500 photographs and 24 of 1,000 additional PNG controls. The target was one percent. The differences between cohorts explain why the report binds a decision to its calibration profile and shows the observed error rates alongside it. This evaluation covered unedited files; further robustness claims require tests with the corresponding edits.',
+            zh: '独立演示环境先用 5,000 张负样本选定 TIDE 阈值，然后固定阈值做测试。1,000 张带水印 PNG 全部检出。误报在不同来源之间相差很大：2,500 张生成 JPEG 中有 12 张，2,500 张照片中有 52 张，另加的 1,000 张 PNG 对照中有 24 张。设定的目标是 1%。正因实测结果随样本构成而变，报告才把结论绑定到具体校准配置，同时展示实测误报率。这组验收使用未经编辑的文件，图像编辑后的鲁棒性需要对应的测试。',
+          },
         ],
       },
     ],
   },
   'personal-agent': {
     "architectureTitle": {
-      "en": "The records behind a run",
-      "zh": "一次运行留下的记录"
+      "en": "One account, two execution paths",
+      "zh": "同一个账号，两条执行路径"
     },
     "architectureLead": {
-      "en": "A workflow version defines the permitted steps. Each execution records the steps it completed, the evidence it read and the member who authorized the work. A review belongs to the resulting artifact. Keeping those three lifetimes separate lets a member challenge a report without losing the decision that caused a work order.",
-      "zh": "工作流版本定义允许执行的步骤，一次运行记下实际走过的步骤、使用的资料和获得的权限，复核意见则落在产出的那一份报告上。三者的生命周期不同。分开保存，成员才可以质疑报告里的推断，同时保住当初开工单的那份依据。"
+      "en": "Web, QQ and WeChat adapters identify the member and normalize incoming messages. Personal tasks enter through the member workspace. Published applications enter through Studio, the SDK or a trigger. Both use the account’s model grants and a SQLite store, but the project worker reads inputs and knowledge scoped to its project. Joining a project leaves the member’s private conversation history outside the application context.",
+      "zh": "网页、QQ 与微信的适配器识别成员，把各自的消息转换成平台可处理的输入。个人任务从工作台进入，项目应用则可由 Studio、SDK 或定时触发启动。两条路径复用账号、模型授权和 SQLite 存储。项目工作进程只读取当前项目允许使用的输入和知识；成员加入项目后，个人对话和私人记忆仍留在个人空间。"
     },
     "architecture": [
       {
         "title": {
-          "en": "The run owns the evidence",
-          "zh": "让一次运行拥有自己的证据"
+          "en": "The scheduler follows a particular run",
+          "zh": "让排期始终指向同一次执行"
         },
         "paragraphs": [
           {
-            "en": "The project studio publishes the workflow and its tool grants. When a member starts an inspection, the worker resolves that version and saves the input. Each finished node leaves a checkpoint in SQLite. A tool that looks up the equipment can finish while a later write remains pending for hours. Closing the browser only closes the view onto those records.",
-            "zh": "项目工作室先发布工作流并配置可用工具。成员提交巡检后，工作进程找到指定版本、保存输入，每完成一个节点就在 SQLite 留下检查点。查询设备可能很快结束，后面的工单却可能要等几小时才有人审批。成员此时关闭浏览器，下次打开仍能看到已经查到的设备和等待审批的工单。"
+            "en": "The studio saves a published definition as a snapshot. Each workflow run pins that version and the input supplied by the caller. A worker claims a ready step with a lease and commits its output to SQLite. A later worker can continue at the next eligible step, even if the browser and original worker have both gone away. Before writing to an external system, the platform freezes the proposed operation and its parameters for the approving member.",
+            "zh": "Studio 把发布的定义保存为快照。每次运行都锁定版本和调用者交来的输入。工作进程凭租约领取一个可执行节点，完成后把输出提交到 SQLite。即使浏览器关闭、原进程退出，后续进程也能从下一个满足条件的节点接续。涉及外部写入时，平台会先冻结这次操作及其参数，交给成员批准。"
           },
           {
-            "en": "A scheduled task has one more identity to track. The scheduler records the occurrence and its child application run together, so a restarted worker can follow work already in progress. The inspection correction uses a different link: the earlier and later runs refer to one another, and both retain their own inputs. A scheduler retry and a human correction have different meanings even when they use the same workflow version.",
-            "zh": "定时任务还多一层身份：调度器同时保存排期实例和它启动的应用运行，重启后据此找回正在进行的工作。报告更正用的是另一种关联。原运行与更正运行相互引用，各自保留输入。即使都指向同一工作流版本，调度重试和人工更正也代表两件不同的事。"
+            "en": "A recurring personal task can also invoke a published application. At each due time the scheduler stores the link between the occurrence and its child application run. After a restart, that link lets the parent wait for the existing child and route its result back to the member. Starting the application again would create two executions for one morning’s brief.",
+            "zh": "周期任务也可以调用已发布的应用。执行时间到达时，调度器记下本次排期与应用子运行之间的关联。服务重启后，父任务沿这条记录找到仍在进行的子运行，等它完成，再把成果送回成员。如果每次恢复都重新启动应用，同一份早报就可能执行两遍。"
           }
         ],
         "figure": "agent-run-link"
@@ -431,8 +283,35 @@ export const projectChapters: Record<string, TechnicalArticle> = {
     "implementation": [
       {
         "title": {
-          "en": "Find the clause before starting the clock",
-          "zh": "先定位条款，再计算时差"
+          "en": "A model turn has a small job",
+          "zh": "把模型回合放在合适的位置"
+        },
+        "paragraphs": [
+          {
+            "en": "The platform can run Pi for a model turn. It gives the model scoped context and read tools, validates tool calls and returns their results to the same turn. The workflow engine owns the checkpoints and authorization for a business write. For this inspection the template selects the deterministic local evidence runtime. The recorded arithmetic, mock work order and restart exercise therefore remain reproducible without depending on a particular model response.",
+            "zh": "工作台可以通过 Pi 执行模型回合：装配本次可见的上下文与只读工具，校验调用参数，再把工具结果送回同一回合。步骤持久化和业务写入审批由外层工作流管理。I-204 模板选择了确定性的本地证据运行时，因此核算、模拟工单和恢复演练可以重复执行，无需等待某个模型再次给出相同回答。"
+          }
+        ],
+        "id": "agent-pi-runtime",
+        "figure": "agent-runtime-trace"
+      },
+      {
+        "title": {
+          "en": "A corrected timestamp changes the finding",
+          "zh": "一处录入更正改变了巡检结论"
+        },
+        "paragraphs": [
+          {
+            "en": "The inspection template in the development preview uses a fictional handoff, I-204, to exercise the durable engine. The register shows a start at 08:10 UTC and an acknowledgement at 09:04. With 45 minutes allowed, the calculation records a nine-minute overrun. A reviewer later supplies 08:49 as the corrected acknowledgement. By then the first report has already led to an approved mock work order.",
+            "zh": "开发预览中的巡检模板用虚构的 I-204 交接走通这套引擎。登记表里的开始时间为 08:10 UTC，确认时间为 09:04；协议允许 45 分钟，因此初次核算超时 9 分钟。复核人后来拿出更正后的确认时间 08:49。此时第一份报告已经触发过一笔获批的模拟工单。"
+          }
+        ],
+        "figure": "agent-handoff-comparison"
+      },
+      {
+        "title": {
+          "en": "The agreement supplies the threshold",
+          "zh": "时限取自当时适用的条款"
         },
         "paragraphs": [
           {
@@ -449,20 +328,6 @@ export const projectChapters: Record<string, TechnicalArticle> = {
       },
       {
         "title": {
-          "en": "A model turn has a small job",
-          "zh": "把模型回合放在合适的位置"
-        },
-        "paragraphs": [
-          {
-            "en": "The platform can run Pi for a model turn. It gives the model scoped context and read tools, validates tool calls and returns their results to the same turn. The workflow engine owns the checkpoints and authorization for a business write. For this inspection the template selects the deterministic local evidence runtime. The recorded arithmetic, mock work order and restart exercise therefore remain reproducible without depending on a particular model response.",
-            "zh": "工作台可以通过 Pi 执行模型回合：装配本次可见的上下文与只读工具，校验调用参数，再把工具结果送回同一回合。步骤持久化和业务写入审批由外层工作流管理。I-204 模板选择了确定性的本地证据运行时，因此核算、模拟工单和恢复演练可以重复执行，无需等待某个模型再次给出相同回答。"
-          }
-        ],
-        "id": "agent-pi-runtime",
-        "figure": "agent-runtime-trace"
-      },
-      {
-        "title": {
           "en": "Review the original, run the correction",
           "zh": "在原稿上复核，另起一次更正运行"
         },
@@ -474,18 +339,14 @@ export const projectChapters: Record<string, TechnicalArticle> = {
           {
             "en": "Resubmission pins the original workflow version, takes the corrected input and reads the sources again. That last detail matters if an agreement has since changed. A fresh approval covers the new work-order parameters, and the receipt is filed with this run. A reader can now explain both actions: the first order followed the data then on file, the second followed a documented correction.",
             "zh": "提交更正时固定原工作流版本，带着新输入重新读取来源。协议可能已经换版，所以沿用流程也需要重新取证。新的工单参数再次进入审批，回执归入此次运行。这样，两次业务动作都解释得通：第一份工单依据当时的登记，第二份依据有记录的更正。"
-          },
-          {
-            "en": "Two actions that look alike in a browser take different paths in storage. A second click on the same review carries the same request identity and content fingerprint, so it returns the existing revision. Reusing that identity with a different reason conflicts. Resubmitting a correction derives its identity from the artifact, review revision and submission key. In one database transaction the engine creates the child run and records links in both directions. Returning to the original report after a connection loss still leads to the same correction.",
-            "zh": "浏览器里连续点两下，存储层要辨认这是一次重试还是另一次修改。相同的复核请求带来相同的请求标识和内容指纹，系统返回已保存的版本；保留标识却修改理由，会收到冲突。提交更正则由原稿、复核版本和提交键共同标识。引擎在同一数据库事务里建立子运行，并给原运行和子运行各写一条反向可查的记录。提交时断线，回到原稿后仍能找到同一次更正。"
           }
         ],
         "figure": "agent-report-evidence"
       }
     ],
     "decisionsTitle": {
-      "en": "Following a source over time",
-      "zh": "从一次订阅到长期关注"
+      "en": "Personal context across days",
+      "zh": "从当天的提醒到跨天的个人上下文"
     },
     "decisions": [
       {
@@ -496,8 +357,8 @@ export const projectChapters: Record<string, TechnicalArticle> = {
         "figure": "agent-watch-replay",
         "paragraphs": [
           {
-            "en": "In the member workspace a reader chooses subscriptions, topics, quiet hours and a digest time. Each hourly check takes a bounded snapshot, matches canonical URLs and fingerprints the title and excerpt. A repeat can end quietly. A relevant change can interrupt, and ordinary updates accumulate for a digest. The pending items and the report are saved together, so the next worker can pick up the outstanding deliveries after a restart.",
-            "zh": "在个人工作台，读者先选订阅、关注主题、免打扰时段和摘要时间。每小时采集一次有限快照，按规范网址比对条目，再看标题和正文摘要的指纹。重复条目可以安静结束，命中主题的变化可以优先送达，普通更新积累到摘要。待发条目和报告在同一事务里保存，服务重启后，下一轮仍可接着投递待发条目。"
+            "en": "PRs #14–17 extend the workbench in a development preview. In the member workspace a reader chooses subscriptions, topics, quiet hours and a digest time. Each hourly check takes a bounded snapshot, matches canonical URLs and fingerprints the title and excerpt. A repeat can end quietly. A relevant change can interrupt, and ordinary updates accumulate for a digest. The pending items and the report are saved together, so the next worker can pick up the outstanding deliveries after a restart.",
+            "zh": "PR #14–17 在开发预览中扩展了工作台。在个人工作台，读者先选订阅、关注主题、免打扰时段和摘要时间。每小时采集一次有限快照，按规范网址比对条目，再看标题和正文摘要的指纹。重复条目可以安静结束，命中主题的变化可以优先送达，普通更新积累到摘要。待发条目和报告在同一事务里保存，服务重启后，下一轮仍可接着投递待发条目。"
           },
           {
             "en": "The release replay begins with two changed items at 13:00. One matches the reader’s priority and reaches the inbox immediately. The second stays in the digest queue. After the reader marks the topic less relevant, another release arrives at 14:00. Its address is new and collection succeeds, yet the queue grows to two and the inbox stays quiet. At 18:00 the source has nothing new to offer. Both waiting items appear together in that evening’s digest.",
@@ -566,18 +427,6 @@ export const projectChapters: Record<string, TechnicalArticle> = {
     "verification": [
       {
         "title": {
-          "en": "Restore the work between the two approvals",
-          "zh": "在两次审批之间恢复数据库"
-        },
-        "paragraphs": [
-          {
-            "en": "The replay uses an isolated SQLite database, fictional inspection records and a mock service desk. After the corrected run is created, a backup is restored to a new file. The replay checks integrity, foreign keys, links to the original and the behavior of a duplicate submission before approving the second write. A final attempt substitutes a clause for the wrong category. Its calculation fails and no third receipt appears. The two successful runs and that failed one test different properties of the same workflow.",
-            "zh": "回放使用独立 SQLite 数据库、合成交接记录和模拟工单服务。更正运行建立后，将备份恢复到新文件，核对数据库完整性、外键、原稿关联和重复提交，再批准第二次写入。最后把条款换成不适用的类别，核算步骤失败，始终没有第三份回执。前两次运行完成了交付。第三次因条款不适用而停在审批之前，工单服务没有收到写入请求。"
-          }
-        ]
-      },
-      {
-        "title": {
           "en": "Measure the bytes as well as the wait",
           "zh": "把传输量和等待时间分开看"
         },
@@ -605,6 +454,34 @@ export const projectChapters: Record<string, TechnicalArticle> = {
           }
         ],
         "figure": "agent-collection-schedule"
+      },
+      {
+        "title": {
+          "en": "Restore the work between the two approvals",
+          "zh": "在两次审批之间恢复数据库"
+        },
+        "paragraphs": [
+          {
+            "en": "The replay uses an isolated SQLite database, fictional inspection records and a mock service desk. After the corrected run is created, a backup is restored to a new file. The replay checks integrity, foreign keys, links to the original and the behavior of a duplicate submission before approving the second write. A final attempt substitutes a clause for the wrong category. Its calculation fails and no third receipt appears. The two successful runs and that failed one test different properties of the same workflow.",
+            "zh": "回放使用独立 SQLite 数据库、合成交接记录和模拟工单服务。更正运行建立后，将备份恢复到新文件，核对数据库完整性、外键、原稿关联和重复提交，再批准第二次写入。最后把条款换成不适用的类别，核算步骤失败，始终没有第三份回执。前两次运行完成了交付。第三次因条款不适用而停在审批之前，工单服务没有收到写入请求。"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "The next step for longer-lived agents",
+          "zh": "长期运行之后的下一步"
+        },
+        "paragraphs": [
+          {
+            "en": "The merged workspace supports conversational task drafts, scheduled application runs, versioned workflows and results delivered through a member’s authorized channels. The source-watch, context-selection, adaptive-execution and inspection-review changes discussed here are implemented on four stacked review branches. Their replays use controlled sources and test accounts. Real business corpora, multi-host recovery and delivery to external QQ and WeChat accounts still need acceptance testing in their target environments.",
+            "zh": "已合并的工作台支持对话起草、定时调用应用、版本化工作流及授权渠道投递。本文介绍的长期关注、上下文选择、自适应执行和巡检复核已经在四个依次衔接的评审分支上实现。回放使用受控来源与测试账号；真实业务语料、多主机恢复以及外部 QQ 和微信收件账号仍需各自验收。"
+          },
+          {
+            "en": "The current watch follows a goal the member has explicitly approved. A broader proactive agent would also need to identify useful work before the member describes it, propose a plan with a visible cost and revise that plan as evidence changes. Those are directions for development. The source and delivery records already in the workspace provide a way to judge a future suggestion against the outcome it actually produced.",
+            "zh": "当前的长期关注围绕成员明确批准的目标运行。更主动的个人 Agent 还需要从新情况中发现值得处理的事情，提出带有成本说明的计划，并随证据变化调整计划。这部分属于后续方向。现有的来源记录和投递历史，已经为将来评价一次主动建议及其真实结果提供了依据。"
+          }
+        ]
       }
     ]
   },

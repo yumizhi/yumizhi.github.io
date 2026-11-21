@@ -135,50 +135,43 @@ function OriginMarkArchitecture() {
 function AgentArchitecture() {
   return (
     <Diagram id="personal-agent-overview" project="personal-agent"
-      title={{ en: 'An inspection from input to review', zh: '一次巡检从输入到复核' }}
-      caption={{
-        en: 'A version fixes the steps. A run binds inputs, evidence and receipts. A correction opens another run on the same version.',
-        zh: '版本固定步骤，运行关联输入、证据与回执。更正输入后，原工作流版本上会新增一次运行。',
-      }}>
+      title={{ en: 'From an authorized request to a delivered result', zh: '从获准的委托到送达的成果' }}
+      caption={{ en: 'Members and project builders share identity and model grants. A scheduled application links the member’s task to a versioned project run. Personal memory stays scoped to the member.', zh: '成员与项目开发者共用身份和模型授权。定时调用应用时，个人任务关联到锁定版本的项目运行。个人记忆始终受成员权限约束。' }}>
       <ol className="agent-map" role="list">
         <li className="agent-stage">
-          <div className="agent-stage-head"><CalendarClock size={21} strokeWidth={1.65} aria-hidden="true" /><strong><Text en="Workflow version" zh="固定流程" /></strong></div>
+          <div className="agent-stage-head"><CalendarClock size={21} aria-hidden="true" /><strong><Text en="Work & Build" zh="交办与构建" /></strong></div>
           <dl>
-            <dt><Text en="Project Studio" zh="项目 Studio" /></dt>
-            <dd><Text en="Publish an agent or workflow snapshot." zh="发布 Agent 或工作流的版本快照。" /></dd>
-            <dt><Text en="Inspection input" zh="交接输入" /></dt>
-            <dd><Text en="Identify the handoff and its acknowledgement time." zh="指定交接记录及确认时间。" /></dd>
+            <dt><Text en="Web, QQ & WeChat" zh="网页、QQ 与微信" /></dt>
+            <dd><Text en="A bound identity drafts and approves a task." zh="在已绑定的身份下起草、批准任务。" /></dd>
+            <dt><Text en="Studio" zh="开发者工作室" /></dt>
+            <dd><Text en="Test an agent or workflow and publish its snapshot." zh="调试 Agent 或工作流，发布版本快照。" /></dd>
           </dl>
         </li>
         <li className="agent-stage">
           <FlowArrow />
-          <div className="agent-stage-head"><Database size={21} strokeWidth={1.65} aria-hidden="true" /><strong><Text en="Execution" zh="后台执行" /></strong></div>
+          <div className="agent-stage-head"><Database size={21} aria-hidden="true" /><strong><Text en="Execution" zh="持久化执行" /></strong></div>
           <dl>
-            <dt><Text en="Read tools" zh="只读工具" /></dt>
-            <dd><Text en="Read the register, match the clause and calculate elapsed time." zh="读取登记、匹配条款、计算耗时。" /></dd>
-            <dt><Text en="Write approval" zh="写入审批" /></dt>
-            <dd><Text en="Wait for approval of this work order." zh="等待成员批准本次工单。" /></dd>
+            <dt><Text en="Scheduler & worker" zh="调度器与工作进程" /></dt>
+            <dd><Text en="Claim due work and commit each finished step to SQLite." zh="领取到期任务，把已完成的步骤写入 SQLite。" /></dd>
+            <dt><Text en="Runtime & tools" zh="运行时与工具" /></dt>
+            <dd><Text en="Resolve the model, retrieve scoped evidence and obtain approval for writes." zh="选择获准的模型，检索范围内的资料，为写入请求审批。" /></dd>
           </dl>
         </li>
         <li className="agent-stage">
           <FlowArrow />
-          <div className="agent-stage-head"><Inbox size={21} strokeWidth={1.65} aria-hidden="true" /><strong><Text en="Report and review" zh="报告与复核" /></strong></div>
+          <div className="agent-stage-head"><Inbox size={21} aria-hidden="true" /><strong><Text en="Results" zh="成果与回查" /></strong></div>
           <dl>
-            <dt><Text en="Report and artifact" zh="报告与附件" /></dt>
-            <dd><Text en="Store the citations from this run." zh="保留本次运行所用的原文引用。" /></dd>
-            <dt><Text en="Reviewer" zh="复核人" /></dt>
-            <dd><Text en="Attach a reason and request a corrected run." zh="在原稿附上理由，发起更正运行。" /></dd>
+            <dt><Text en="Inbox or bound channel" zh="收件箱或绑定渠道" /></dt>
+            <dd><Text en="Read the report and open its sources and attachments." zh="阅读报告，打开对应来源和附件。" /></dd>
+            <dt><Text en="Replay & evaluation" zh="执行回放与评测" /></dt>
+            <dd><Text en="Revisit the run and keep the original input for a future version." zh="重看当次执行，用原始输入检验后续版本。" /></dd>
           </dl>
         </li>
       </ol>
       <div className="agent-evidence">
-        <FileCheck2 size={18} strokeWidth={1.65} aria-hidden="true" />
-        <strong><Text en="Trace from the report" zh="从报告回溯" /></strong>
-        <ul role="list">
-          <li><Text en="Run record" zh="运行记录" /></li>
-          <li><Text en="Cited passage" zh="引用原文" /></li>
-          <li><Text en="Delivery receipt" zh="投递回执" /></li>
-        </ul>
+        <FileCheck2 size={18} aria-hidden="true" />
+        <strong><Text en="Saved evidence" zh="运行保留的证据" /></strong>
+        <ul role="list"><li><Text en="Workflow version" zh="工作流版本" /></li><li><Text en="Cited passage" zh="引用原文" /></li><li><Text en="Delivery receipt" zh="投递回执" /></li></ul>
       </div>
     </Diagram>
   );

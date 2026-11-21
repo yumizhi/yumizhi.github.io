@@ -25,7 +25,7 @@ function PaperFeature({ paper }: { paper: Paper }) {
       <header className="ph-study-header">
         <p className="ph-study-venue">
           <cite>{paper.venue}</cite> <time dateTime={String(paper.year)}>{paper.year}</time>
-          {!tide && <> <span aria-hidden="true">·</span> <Localized en="Oral" zh="口头报告" /></>}
+          <span aria-hidden="true"> · </span>{tide ? <Localized en="Accepted" zh="已接收" /> : <Localized en="Oral" zh="口头报告" />}
         </p>
         <h3 id={titleId} lang="en">
           <TransitionLink href={url}><PaperTitle>{paper.title}</PaperTitle></TransitionLink>
@@ -37,8 +37,8 @@ function PaperFeature({ paper }: { paper: Paper }) {
         </p>
         <p className="ph-paper-description">
           {tide
-            ? <Localized en="TIDE embeds a watermark during denoising and adjusts its guidance to preserve image content." zh="TIDE 在去噪过程中写入水印，并动态调整水印引导，以保留图像内容。" />
-            : <Localized en="SASBO learns which pixels to change and by how much, then prunes unnecessary perturbations." zh="SASBO 学习扰动哪些像素、改动多少，再移除多余的扰动。" />}
+            ? <Localized en="TIDE follows the denoising trajectory to keep a watermark detectable while preserving the scene of the original generation." zh="TIDE 沿去噪轨迹调整水印引导，让生成图保留可检测信号，也尽量保住原有构图。" />
+            : <Localized en="SASBO studies the fragility of image classifiers when only a few input coordinates change." zh="SASBO 研究图像分类器对局部变化的敏感性：改动集中在极少数位置时，模型的判断仍可能翻转。" />}
         </p>
         <PublicationActions paper={paper} fromHome />
       </header>

@@ -296,3 +296,23 @@
   .reader-dock :is(.reader-back-label, .reader-switch > span, .glass-trigger > span) { display: inline; }
   .reader-dock .reader-back-label { white-space: nowrap; }
 }
+
+.editorial-paper .study-lead { max-inline-size: 62ch; margin: .85rem 0 1.15rem; font-size: clamp(1rem, 1.3vw, 1.18rem); line-height: 1.62; color: var(--paper-ink); text-wrap: pretty; }
+.study-notes { margin-block: 1.35rem 1.8rem; }
+.study-notes > summary { color: var(--paper-link); cursor: pointer; width: fit-content; padding-block: .5rem; font-weight: 540; }
+.study-notes > summary:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.sam-transfer { margin: 2rem auto; font-variant-numeric: tabular-nums; }
+.sam-transfer table { width: 100%; border-collapse: collapse; font-size: clamp(.75rem, 2vw, .9rem); }
+.sam-transfer caption { text-align: start; font-size: 1.02rem; font-weight: 600; padding-bottom: .85rem; }
+.sam-transfer th, .sam-transfer td { padding: .42rem .25rem; }
+.sam-transfer thead th { text-align: end; color: var(--paper-caption); font-weight: 500; }
+.sam-transfer th:first-child { padding-inline-start: 0; text-align: start; }
+.sam-transfer td { text-align: end; }
+.sam-transfer .sam-range { width: 43%; }
+.sam-range span:first-child { float: left; }
+.sam-transfer-axis { position: relative; height: 1px; margin-inline: .25rem; background: color-mix(in srgb,currentColor 16%,transparent); }
+.sam-transfer-axis i { position: absolute; top: -1px; height: 2px; background: var(--paper-link); }
+.sam-transfer-axis i::before, .sam-transfer-axis i::after { content: ''; position: absolute; top: 50%; transform: translate(-50%, -50%); border: 1.5px solid var(--paper-link); width: .5rem; height: .5rem; border-radius: 50%; }
+.sam-transfer-axis i::before { left: 0; background: var(--background); }
+.sam-transfer-axis i::after { left: 100%; background: var(--paper-link); }
+.sam-transfer figcaption { color: var(--paper-caption); font-size: .83rem; margin-top: .9rem; line-height: 1.55; }

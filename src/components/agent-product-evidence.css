@@ -1,0 +1,24 @@
+.agent-product-evidence {
+  margin: 1.8rem auto 2.6rem;
+  max-inline-size: 54rem;
+}
+.agent-product-spread {
+  display: grid;
+  grid-template-columns: minmax(0, .82fr) minmax(0, 1.22fr);
+  gap: clamp(1rem, 3vw, 2rem);
+}
+.agent-product-spread strong {
+  display: block; margin-bottom: .6rem;
+  color: var(--portfolio-ink); font-size: .88rem;
+}
+.agent-product-spread img {
+  display: block; width: 100%; height: auto;
+  outline: 1px solid color-mix(in srgb, var(--portfolio-ink) 10%, transparent);
+}
+.agent-product-evidence figcaption {
+  max-inline-size: var(--editorial-copy-width); margin: .9rem auto 0;
+  font-size: .82rem; line-height: 1.6; color: var(--portfolio-secondary);
+}
+@media(max-width: 42rem) {
+  .agent-product-spread { grid-template-columns: minmax(0,1fr); }
+}

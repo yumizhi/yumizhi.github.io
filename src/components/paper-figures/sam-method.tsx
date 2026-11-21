@@ -25,7 +25,7 @@ export function SamTaskMath() {
       v_i &= x_i + \beta\,\operatorname{sign}(q_i) \\
       x_{i+1} &= \mathcal P(v_i)
     \end{aligned}`} />
-    <SamMethod />
+
     <p className="tide-prose"><Localized
       en="For example, one support model may push on an edge that another model barely uses. If the blended support update changes that edge, the query model re-evaluates the perturbed image with its own loss. Its gradient can point somewhere else. Applying this signal to the saved state avoids directly accumulating every temporary support step."
       zh="例如，某个支持模型可能主要依赖一条边缘，另一个模型却很少用它。支持组的合并更新动了这条边缘以后，查询模型会在改过的图上用自己的损失重新评估，得到的梯度可能指向别处。SAM 把查询信号加回本轮的起始图像，支持组的临时更新只用来确定求梯度的位置。"
@@ -33,7 +33,7 @@ export function SamTaskMath() {
   </>;
 }
 
-function SamMethod() {
+export function SamMethod() {
   return (
     <figure id="handoff-figure" className="paper-evidence-figure worked-figure sam-handoff">
       <div className="worked-panel sam-board">

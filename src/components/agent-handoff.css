@@ -1,34 +1,3 @@
-.handoff-chart {
-  container-type: inline-size;
-  display: flex; flex-direction: column; justify-content: center;
-  color: var(--foreground);
-  background: color-mix(in srgb, var(--nju) 5%, var(--background));
-  padding: clamp(1rem, 4%, 1.8rem);
-  border-radius: .8rem;
-  font-variant-numeric: tabular-nums;
-}
-.handoff-chart-heading, .handoff-ticks, .handoff-row > div:first-child { display: flex; align-items: baseline; }
-.handoff-chart-heading { align-items: center; justify-content: space-between; margin-bottom: 1.25em; gap: .5em; }
-.handoff-chart-heading > span:first-child { display: inline-flex; align-items: center; gap: .45em; font: 650 1.08em/1.1 var(--font-display,sans-serif); }
-.handoff-chart-heading > span:last-child, .handoff-ticks { font-size: .8em; color: var(--muted-foreground); }
-.handoff-scale { position: relative; }
-.handoff-scale::before { content: ''; position: absolute; left: 75%; top: 1.3em; bottom: .1em; border-left: 1px dashed color-mix(in srgb, var(--nju) 45%, transparent); }
-.handoff-ticks { margin-bottom: .75em; }
-.handoff-ticks span:last-child { position: absolute; left: 75%; transform: translateX(-50%); white-space: nowrap; }
-.handoff-row { margin-top: .8em; }
-.handoff-row > div:first-child { gap: .65em; font-size: .85em; font-weight: 550; }
-.handoff-row time { color: var(--muted-foreground); font-weight: 400; }
-.handoff-axis { position: relative; display: flex; align-items: center; height: 1em; margin-top: .3em; }
-.handoff-axis i { position: relative; height: .33em; border-radius: 1em; background: var(--nju); }
-.handoff-axis i::after { content: ''; position: absolute; right: -.19em; top: 50%; transform: translateY(-50%); width: .65em; height: .65em; background: inherit; border-radius: 50%; }
-.handoff-row:last-child i { background: color-mix(in srgb,var(--nju) 47%, var(--muted-foreground)); }
-.handoff-axis b { position: absolute; right: 0; bottom: 1.2em; font-size: .9em; font-weight: 600; }
-.handoff-axis b { white-space: nowrap; }
-.handoff-axis b > span { font-size: .78em; font-weight: 450; }
-.handoff-chart.compact { width: 100%; height: 100%; padding: 6.5% 7%; border-radius: inherit; font-size: clamp(.62rem, 1.5vw, .86rem); }
-.compact .handoff-chart-heading { margin-bottom: .5em; }
-@media (max-width: 620px) { .handoff-chart.compact { font-size: .86rem; } }
-
 .handoff-print { font-variant-numeric: tabular-nums; }
 .handoff-compare-axis { position: relative; color: var(--figure-muted); font-size: .8rem; }
 .handoff-compare-axis > span:last-child { position: absolute; left: 75%; transform: translateX(-50%); white-space: nowrap; }

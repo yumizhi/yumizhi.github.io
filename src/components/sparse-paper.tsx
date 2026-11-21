@@ -2,8 +2,10 @@ import type { Paper } from '@/lib/content';
 import { asset } from '@/lib/paths';
 import { Localized } from './language';
 import { PaperArticle } from './paper-article';
+import { SamTransfer } from './paper-figures/sam-transfer';
+import { SasboArm } from './paper-figures/sasbo-arm';
 import { SparseResults } from './sparse-results';
-import { SamProjectionMath, SamTaskMath } from './paper-figures/sam-method';
+import { SamMethod, SamProjectionMath, SamTaskMath } from './paper-figures/sam-method';
 import { SasboEvidence } from './paper-figures/sasbo-evidence';
 import { SasboAmplitudeMath, SasboArmMath, SasboMaskMath } from './paper-figures/sasbo-math';
 import { EssayProse } from './paper-figures/essay-prose';
@@ -58,22 +60,24 @@ export function SparsePaper({paper}:{paper:Paper}){
         <h2><Localized {...study.method}/></h2></header>
       {id==='sasbo' ? <>
         <p className="tide-prose"><Localized {...studies.sasbo.problem}/></p>
-        <SasboMaskMath/>
-        <EssayProse chapters={sasboChapters.slice(0, 1)}/>
-        <SasboArmMath/>
-        <EssayProse chapters={sasboChapters.slice(1)}/>
-        <SasboAmplitudeMath/>
+        <p className="tide-prose"><Localized en="The two decisions have different lifetimes. A location can look promising in an early estimate and become redundant once other coordinates change. SASBO alternates the location and magnitude estimates, then tests smaller subsets of the resulting support. The count reported in the results belongs to that final subset." zh="两种决定会互相影响。某处坐标在早期看来重要，等其他位置也发生改变，它可能已经多余。SASBO 交替估计位置与幅度，再检查较小的坐标子集。实验最后报告的计数来自仍能维持改判的子集。" /></p>
+        <SasboArm/>
+        <details className="study-notes"><summary><Localized en="Binary masks, paired evaluations and pruning" zh="深入阅读 · 二元掩码、配对估计与冗余坐标" /></summary>
+          <SasboMaskMath/><EssayProse chapters={sasboChapters.slice(0, 1)}/><SasboArmMath/><EssayProse chapters={sasboChapters.slice(1)}/><SasboAmplitudeMath/>
+        </details>
       </> : <>
-        <EssayProse chapters={samChapters.slice(0, 1)}/>
-        <SamTaskMath/>
-        <SamProjectionMath/>
-        <EssayProse chapters={samChapters.slice(1)}/>
+        <p className="tide-prose"><Localized en="The experiment gives the same sparse image two audiences. Accessible models take turns in support and query roles while the perturbation is being learned. After that process ends, six separate classifiers evaluate the resulting images. Their errors provide the transfer evidence." zh="论文把模型分成两个层次。优化期间，可访问的模型轮流进入支持组和查询组，帮助选择能够跨模型保留作用的改动。优化结束后，另外六个分类器只负责测试，论文以它们的错误分类衡量迁移能力。" /></p>
+        <SamMethod/>
+        <details className="study-notes"><summary><Localized en="Support and query objectives and the pixel budget" zh="深入阅读 · 支持与查询目标及像素预算" /></summary>
+          <EssayProse chapters={samChapters.slice(0, 1)}/><SamTaskMath/><SamProjectionMath/><EssayProse chapters={samChapters.slice(1)}/>
+        </details>
       </>}
     </div></section>
     <section id="examples" className="tide-results tide-bound">
       <header className="tide-chapter-head">
         <h2><Localized {...study.result}/></h2></header>
       <p className="tide-prose"><Localized {...study.interpretation}/></p>
+      {id === 'sasbo' ? <p className="tide-prose"><Localized en="The paper evaluates a Network in Network classifier on 5,000 CIFAR-10 test images and VGG19 on 2,000 ImageNet validation images. Targeted comparisons use the same randomly chosen destination label for all methods on each image." zh="实验在 5,000 张 CIFAR-10 测试图上评估 Network in Network 分类器，在 2,000 张 ImageNet 验证图上评估 VGG19。定向实验对每张图随机指定一个目标类别，所有比较方法沿用同一目标。" /></p> : <SamTransfer/>}
       {id==='sasbo' ? <SparseResults/> : <p className="tide-prose">
         <Localized en="At the 50-pixel budget, average success on the six held-out classifiers rises from 68.4% with SA to 85.5% with SAM." zh="在 50 像素预算下，六个独立分类器的平均成功率从单模型 SA 的 68.4% 升到 SAM 的 85.5%。"/>{' '}
         <a href={asset(paper.paper)} target="_blank" rel="noreferrer"><Localized en="Table VI in the paper" zh="论文表 VI"/></a>

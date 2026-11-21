@@ -28,11 +28,11 @@ export function ProjectStage({ project }: { project: Project }) {
   return (
     <LayoutGroup id={group}>
       <Dialog.Root open={open} onOpenChange={setOpen}>
-        <div className="project-demo">
+        <div className="project-demo" data-stage-project={project.slug}>
           <div className="project-stage">
             <motion.div layout layoutId={`image-${view}`} className="stage-window" transition={{ layout: timing }}
               style={{ '--capture-ratio': selected.width / selected.height, '--mobile-capture-ratio':
-                (selected.mobileWidth ?? selected.width) / (selected.mobileHeight ?? selected.height), borderRadius: 16 } as CSSProperties}>
+                (selected.mobileWidth ?? selected.width) / (selected.mobileHeight ?? selected.height), borderRadius: project.slug === 'personal-agent' ? 4 : 16 } as CSSProperties}>
               {views.map(item => (
                 <motion.picture layout="position" key={item.id} className="stage-capture" initial={false}
                   animate={{ opacity: view === item.id ? 1 : 0 }} transition={{ duration: reduced ? 0 : .24 }} aria-hidden={view !== item.id}>
