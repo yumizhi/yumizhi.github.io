@@ -140,9 +140,9 @@ export const projects:Project[] = [{
   technologyZh: '源码暂未公开。',
 }, {
   slug: 'personal-agent', title: 'Personal Agent', category: 'Agent workspace', categoryZh: '智能体工作台', year: 2026,
-  cardSummary: { en: 'An agent that watches sources over time and keeps the evidence behind a report, even after someone corrects it.', zh: '持续关注订阅变化，也能复核一份巡检报告。从更正后的结论，仍能找回原始依据与工单。' },
-  summary: 'A self-hosted workspace for recurring research and reviewable work. Follow a release feed, or trace a corrected inspection report back to the clause, calculation and approval behind it.',
-  summaryZh: '一个自托管的智能体工作台。个人可以持续跟进订阅来源，项目成员可以复核巡检报告，沿着一次更正找回适用条款、计算过程和写入审批。',
+  cardSummary: { en: 'Release digests that learn from reader feedback, and inspection reports you can trace back to the evidence and the person who approved the work.', zh: '按阅读反馈调整发布摘要，也为巡检报告保留从原始条款到工单审批的完整记录。' },
+  summary: 'A self-hosted agent workspace. A release watch uses reader feedback to reserve routine updates for the evening digest. In the project studio, correcting a timestamp opens a new inspection and preserves the evidence behind the first work order.',
+  summaryZh: '一个自托管的智能体工作台。读者可以把打扰自己的发布提醒留到晚报，也可以把合意的订阅方法用在下个任务上。项目工作室则保留巡检的另一段历史：即使登记时间被更正，当初开工单的依据仍然可查。',
   description: 'The member workspace handles subscriptions, priorities and delivery. The studio runs versioned workflows with evidence, approvals and linked corrections.',
   descriptionZh: '个人工作台管理订阅、优先级和投递，开发者工作室将条款检索、工单审批和报告复核编入可回放的版本化工作流。',
   image: '/images/projects/agent-review.webp',
@@ -166,8 +166,8 @@ export const projects:Project[] = [{
       alt: 'Member workspace showing a SQLite update, its original source link and controls to adjust priority or save the method.',
       caption: 'A reader can change the priority of similar updates and save the reading method for another task.', captionZh: '读者可以调整相似更新的优先级，也能把这次阅读方法留给下一个任务。' },
   ],
-  technology: 'Development preview · PR #17. Source code is private.',
-  technologyZh: '开发预览 · PR #17。源码暂未公开。',
+  technology: 'Development preview · PRs #14–17. Source code is private.',
+  technologyZh: '开发预览 · PR #14–17。源码暂未公开。',
 }];
 export type Resource = { id: string; title: string; type: 'Paper'|'CV'|'Slides'|'Poster'; year: number; file: string; preview: string; size: string; description: string };
 export const resources: Resource[] = [

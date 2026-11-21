@@ -2,7 +2,7 @@ export type Bilingual = { en: string; zh: string };
 
 export type ArticleFigure = 'epub-worker-handoff' | 'epub-path-roundtrip' | 'originmark-teapot-report' |
   'originmark-lease-recovery' | 'agent-run-link' | 'agent-report-evidence' | 'agent-runtime-trace' |
-  'agent-workflow-data' | 'agent-message-transport' | 'agent-watch-replay';
+  'agent-workflow-data' | 'agent-message-transport' | 'agent-watch-replay' | 'agent-browser-measurements' | 'agent-context-selection' | 'agent-collection-schedule';
 
 export type Chapter = { title: Bilingual; paragraphs: Bilingual[]; id?: string; figure?: ArticleFigure };
 
@@ -388,11 +388,11 @@ export const projectChapters: Record<string, TechnicalArticle> = {
   },
   'personal-agent': {
     "architectureTitle": {
-      "en": "What survives between runs",
-      "zh": "两次运行之间留下什么"
+      "en": "The records behind a run",
+      "zh": "一次运行留下的记录"
     },
     "architectureLead": {
-      "en": "A workflow version describes which steps may run. An execution records which steps did run, with whose permission and on which evidence. A review belongs to the resulting artifact. Keeping those three lifetimes separate lets a member challenge a report without losing the decision that caused a work order.",
+      "en": "A workflow version defines the permitted steps. Each execution records the steps it completed, the evidence it read and the member who authorized the work. A review belongs to the resulting artifact. Keeping those three lifetimes separate lets a member challenge a report without losing the decision that caused a work order.",
       "zh": "工作流版本定义允许执行的步骤，一次运行记下实际走过的步骤、使用的资料和获得的权限，复核意见则落在产出的那一份报告上。三者的生命周期不同。分开保存，成员才可以质疑报告里的推断，同时保住当初开工单的那份依据。"
     },
     "architecture": [
@@ -404,7 +404,7 @@ export const projectChapters: Record<string, TechnicalArticle> = {
         "paragraphs": [
           {
             "en": "The project studio publishes the workflow and its tool grants. When a member starts an inspection, the worker resolves that version and saves the input. Each finished node leaves a checkpoint in SQLite. A tool that looks up the equipment can finish while a later write remains pending for hours. Closing the browser only closes the view onto those records.",
-            "zh": "项目工作室先发布工作流并配置可用工具。成员提交巡检后，工作进程找到指定版本、保存输入，每完成一个节点就在 SQLite 留下检查点。查询设备可能很快结束，后面的工单却可能要等几小时才有人审批。成员此时关闭浏览器，下次打开仍然能看到任务停在哪里。"
+            "zh": "项目工作室先发布工作流并配置可用工具。成员提交巡检后，工作进程找到指定版本、保存输入，每完成一个节点就在 SQLite 留下检查点。查询设备可能很快结束，后面的工单却可能要等几小时才有人审批。成员此时关闭浏览器，下次打开仍能看到已经查到的设备和等待审批的工单。"
           },
           {
             "en": "A scheduled task has one more identity to track. The scheduler records the occurrence and its child application run together, so a restarted worker can follow work already in progress. The inspection correction uses a different link: the earlier and later runs refer to one another, and both retain their own inputs. A scheduler retry and a human correction have different meanings even when they use the same workflow version.",
@@ -468,20 +468,24 @@ export const projectChapters: Record<string, TechnicalArticle> = {
         },
         "paragraphs": [
           {
-            "en": "A reviewer records a decision and a reason against the original artifact digest and the last review version. Submitting the same request again returns the existing version. Two reviewers starting from the same revision cannot silently overwrite one another. The stored review explains why the old report was challenged even if the correction is never submitted.",
+            "en": "A reviewer records a decision and a reason against the original artifact digest and the last review version. Submitting the same request again returns the existing version. Two reviewers starting from the same revision cannot silently overwrite one another. The original report keeps the reviewer’s reason for requesting a correction, even if nobody resubmits the task.",
             "zh": "复核人把决定和理由提交到原稿摘要与上一复核版本上。同一请求重试时返回已保存的版本；两个人从同一旧版本编辑，后提交的人需要先处理版本冲突。即便后来没有人提交更正，原稿旁边也留着当时提出异议的理由。"
           },
           {
             "en": "Resubmission pins the original workflow version, takes the corrected input and reads the sources again. That last detail matters if an agreement has since changed. A fresh approval covers the new work-order parameters, and the receipt is filed with this run. A reader can now explain both actions: the first order followed the data then on file, the second followed a documented correction.",
             "zh": "提交更正时固定原工作流版本，带着新输入重新读取来源。协议可能已经换版，所以沿用流程也需要重新取证。新的工单参数再次进入审批，回执归入此次运行。这样，两次业务动作都解释得通：第一份工单依据当时的登记，第二份依据有记录的更正。"
+          },
+          {
+            "en": "Two actions that look alike in a browser take different paths in storage. A second click on the same review carries the same request identity and content fingerprint, so it returns the existing revision. Reusing that identity with a different reason conflicts. Resubmitting a correction derives its identity from the artifact, review revision and submission key. In one database transaction the engine creates the child run and records links in both directions. Returning to the original report after a connection loss still leads to the same correction.",
+            "zh": "浏览器里连续点两下，存储层要辨认这是一次重试还是另一次修改。相同的复核请求带来相同的请求标识和内容指纹，系统返回已保存的版本；保留标识却修改理由，会收到冲突。提交更正则由原稿、复核版本和提交键共同标识。引擎在同一数据库事务里建立子运行，并给原运行和子运行各写一条反向可查的记录。提交时断线，回到原稿后仍能找到同一次更正。"
           }
         ],
         "figure": "agent-report-evidence"
       }
     ],
     "decisionsTitle": {
-      "en": "What a personal agent should remember",
-      "zh": "一项个人任务值得记住什么"
+      "en": "Following a source over time",
+      "zh": "从一次订阅到长期关注"
     },
     "decisions": [
       {
@@ -492,28 +496,69 @@ export const projectChapters: Record<string, TechnicalArticle> = {
         "figure": "agent-watch-replay",
         "paragraphs": [
           {
-            "en": "In the member workspace a reader chooses subscriptions, topics, quiet hours and a digest time. Each hourly check takes a bounded snapshot, matches canonical URLs and fingerprints the title and excerpt. A repeat can end quietly. A relevant change can interrupt, and ordinary updates accumulate for a digest. The pending items and the report are saved together, so restarting the service preserves what is still owed to the reader.",
-            "zh": "在个人工作台，读者先选订阅、关注主题、免打扰时段和摘要时间。每小时采集一次有限快照，按规范网址比对条目，再看标题和正文摘要的指纹。重复条目可以安静结束，命中主题的变化可以优先送达，普通更新积累到摘要。待发条目和报告在同一事务里保存，服务重启后仍知道哪些内容还欠读者一次交付。"
+            "en": "In the member workspace a reader chooses subscriptions, topics, quiet hours and a digest time. Each hourly check takes a bounded snapshot, matches canonical URLs and fingerprints the title and excerpt. A repeat can end quietly. A relevant change can interrupt, and ordinary updates accumulate for a digest. The pending items and the report are saved together, so the next worker can pick up the outstanding deliveries after a restart.",
+            "zh": "在个人工作台，读者先选订阅、关注主题、免打扰时段和摘要时间。每小时采集一次有限快照，按规范网址比对条目，再看标题和正文摘要的指纹。重复条目可以安静结束，命中主题的变化可以优先送达，普通更新积累到摘要。待发条目和报告在同一事务里保存，服务重启后，下一轮仍可接着投递待发条目。"
           },
           {
-            "en": "Marking an item irrelevant lowers the priority of similar updates. A reader can reverse the feedback or save a successful run as a method. That version carries the sources, ranking and digest steps. The next task asks for its own destination and approval. If a source changes address, the dependent task pauses. A saved method is useful precisely because the member can see which assumptions it still depends on.",
-            "zh": "把一条更新标为“不相关”，会降低相似更新的优先级，也可以撤销这次反馈。一次成功运行还能保存成方法版本，留下已用过的来源、分级和摘要步骤。下次采用这套方法时，重新指定接收人并审批；依赖的来源换址后，任务暂停。读者能够复用已有方法，也能看清它继续运行所依赖的条件。"
+            "en": "The release replay begins with two changed items at 13:00. One matches the reader’s priority and reaches the inbox immediately. The second stays in the digest queue. After the reader marks the topic less relevant, another release arrives at 14:00. Its address is new and collection succeeds, yet the queue grows to two and the inbox stays quiet. At 18:00 the source has nothing new to offer. Both waiting items appear together in that evening’s digest.",
+            "zh": "回放从下午一点开始。来源里有两条变化，其中一条命中读者关心的主题，立即进入收件箱，另一条留下等晚报。读者随后调低这个主题的优先级。两点又来了一个新发布，采集成功，待发条目增加到两条，收件箱仍然安静。到六点，来源没有新增，晚报里却有两条可读。晚报消费的是前面几个小时攒下的记录。"
+          },
+          {
+            "en": "At 23:00 another item arrives during quiet hours. It remains pending until the following morning. At 08:00 the source fails altogether. Both checks are silent at the moment they run, but their recovery paths differ. The first has a saved item ready to deliver. The second has an outstanding fetch to retry. Treating a failed fetch as an empty snapshot would turn an outage into a misleading “no change” entry in the history.",
+            "zh": "夜里十一点还有一条更新，免打扰时段把它留到次日早晨再送。次日八点，上游请求失败，那一轮同样没有通知。翻开记录，两次沉默有不同的后续：前者已经拿到内容，只欠投递；后者连快照都没拿到，还得重新采集。把请求失败记成空快照，会让来源故障在历史里看起来像一切正常。"
           }
         ]
       },
       {
         "title": {
-          "en": "Spend the context budget on the task",
-          "zh": "把上下文留给当前目标"
+          "en": "Saving a method from a delivered digest",
+          "zh": "从一份已送达的摘要保存方法"
         },
         "paragraphs": [
           {
-            "en": "A long chat can easily push an early decision out of the prompt. Personal Agent keeps the most recent two turns, ranks eligible older turns by terms in the current request and assembles the selection in chronological order. Confirmed memories and linked tasks compete for the same byte budget within the member’s permissions. Group chat excludes private memories. The selection record keeps references to the entries that made the cut, which is especially helpful when a user has withdrawn a preference.",
-            "zh": "长对话里，一项很早确认的偏好往往先被截掉。工作台优先保留最近两轮，再按当前请求的词项选择较早记录，最后按发生顺序送入模型。已确认的记忆、关联任务和历史轮次都受字节预算与成员权限约束，群聊不注入私人记忆。系统同时记下入选条目的引用，所以偏好撤回后，还能核查下一轮究竟读到了什么。"
+            "en": "A useful digest is a concrete starting point for a second watch. From its delivered run, the reader can inspect the source endpoints, keywords, digest rules and quiet hours, then save a version of that recipe. The version points back to the run that demonstrated it. A partial source failure disqualifies the run from extraction: a digest assembled from half its subscriptions gives little evidence that the whole recipe worked.",
+            "zh": "一份读起来合意的晚报，可以成为下一项订阅的起点。读者从已送达的那次运行里打开来源端点、关键词、摘要规则和免打扰时段，逐项看过再保存。保存的方法带有版本，能追溯到实际用过这套配置的运行。即使晚报已经送达，只要当轮有部分来源读取失败，就不能据此提取方法。一份少了半数来源的晚报，很难证明整套订阅都合适。"
           },
           {
-            "en": "The watch makes a separate spending decision. It can deliver a source excerpt directly, requesting model interpretation only when the topic or combination of sources warrants it and quota remains. A small local Qwen model once returned a numbered paraphrase of the goal instead of an observation about the release. The watch retained the reply for review and delivered the source summary. Attaching a reference number alone would have made a weak answer look authoritative.",
-            "zh": "长期关注还要判断这一轮值不值得推理。来源摘要本身就可以交付，只有主题或多来源归并值得进一步解读、并且额度充足时，才调用模型。在一次真实发布源测试中，本地 Qwen 给目标复述加上了引用编号，却没有说出这次发布有什么变化。系统留下原答供复核，交付来源摘要。单看编号齐不齐，会让这类空洞解读显得很有依据。"
+            "en": "Starting a watch from that version still requires a goal, a schedule, a destination and approval for this task. The old model choice and recipient stay with the earlier task. In the replay, the reused method produces a second digest. Changing its source endpoint then makes the same version inapplicable. The next attempt stops with a source-change record. The reader can now inspect the new address before authorizing a revised plan.",
+            "zh": "下次采用这个版本时，成员填写这次的目标、排期和收件渠道，再单独批准。上次选用的模型和收件人留在原任务里。验收先复用原方法，成功交付第二份摘要，随后替换来源地址，再用同一版本执行。这次运行停下，历史中留下地址变更的原因。重新确认端点后，读者才能为更新过的计划授权。"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Recovering an early decision in a long chat",
+          "zh": "在长对话中找回早先的决定"
+        },
+        "paragraphs": [
+          {
+            "en": "A different kind of reuse happens inside a model turn. In the fixed-budget replay, a conversation about SQLite has reached turn 24. Taking only the latest exchanges spends the available space on turns 22, 23 and 24. The older operating procedure lives in turn 3. The selector reserves the two recent turns, ranks eligible earlier turns by terms in the current request, and reads the member’s confirmed memory. It then restores chronological order for the selected conversation. Turn 3 and the current preference both fit in the same 4,000-byte allowance.",
+            "zh": "对话里的复用有另一层难处。在一次固定预算回放里，讨论 SQLite 的会话已经进行到第 24 轮。只从末尾往前截取，能装下第 22、23、24 轮，早先写下操作步骤的第 3 轮却进不了提示。新版先给最近两轮留位，再用当前请求里的词匹配较早的对话，同时读取成员确认过的记忆。入选的对话按发生顺序放回提示。在同样的 4,000 字节内，第 3 轮的步骤和当前偏好都得以保留。"
+          },
+          {
+            "en": "The replay also edits the saved preference to specify the weekly copy, then withdraws it. Each subsequent selection reads the current record. After withdrawal the private memory is absent even though the conversation still exists. The trace retains references to the entries actually selected. Those references make a missing preference diagnosable: it may have been withdrawn, excluded by the member boundary, or simply missed by lexical matching after the user paraphrased the request.",
+            "zh": "验收接着把已确认的备份偏好改成“使用每周副本”，随后撤回。每次准备下一轮输入时，系统都重读当前记录；撤回后，会话还在，私有记忆已退出选集。每轮留下实际入选的条目引用。排查一次遗漏时可以据此区分几种情况：用户撤回了偏好，当前会话无权读取，或者用户换了说法，词项匹配没有找回原句。群聊也不会因此读到成员的私人记忆。"
+          },
+          {
+            "en": "A separate CPU experiment used Pi and Qwen2.5-0.5B with a fixed seed. Sixteen unrelated turns separated a saved SQLite backup preference from the final request. Across three repetitions of that one task, the old context missed the time and used 1,125 tokens each time. The revised context recovered 23:15 UTC in 728 tokens. That result identifies a case where selection matters. Testing paraphrases and conflicting preferences would be needed to estimate reliability across tasks.",
+            "zh": "另一次测试在 CPU 上用 Pi 与 Qwen2.5-0.5B，以固定随机种子重复同一道题：在 SQLite 备份偏好与当前请求之间插入 16 轮无关对话。旧版三次都答错时间，每次消耗 1,125 tokens；新版三次都找回 23:15 UTC，每次 728 tokens。这说明选对上下文能挽回这一条偏好。对于同义改写或前后冲突的偏好，还需要独立样本才能判断可靠性。"
+          }
+        ],
+        "figure": "agent-context-selection"
+      },
+      {
+        "title": {
+          "en": "Source excerpts and optional interpretation",
+          "zh": "来源摘要与按需解读"
+        },
+        "paragraphs": [
+          {
+            "en": "A release already has a title, excerpt and address. For routine digests those fields are enough to give the reader something they can open and check. An early local-model trial returned a numbered paraphrase of the reader’s goal. Another failure shortened a source address. A convincing list of citations could therefore leave the reader no closer to the release. The collector now supplies the canonical links, and the original excerpts remain deliverable when interpretation fails.",
+            "zh": "一条发布记录已经带有标题、摘要和地址。日常晚报只靠这三项，读者就能挑出值得点开的原文。早期一次本地模型试验里，回答逐条编号，内容却只是换个说法复述用户目标；另一次输出还截短了来源地址。读者会看到一份颇像样的引用清单，却未必找得到那条发布。现在链接由程序根据采集记录附上，即使模型解读失败，原始摘要仍可交付。"
+          },
+          {
+            "en": "The automatic policy requests interpretation for a priority match or a report spanning multiple sources. Below 512 remaining daily tokens it delivers the excerpts directly. With fewer than 1,024 it favors the configured fast model. A recent failure temporarily removes that model from automatic selection for this member. An explicit model choice remains pinned. These are small, inspectable decisions around read-only evidence. Replaying an external write after failure would carry a different cost, so the multi-step runner leaves that action to its existing approval and recovery path.",
+            "zh": "自动模式只在命中优先主题或需要合并多个来源时考虑解读。当天剩余额度低于 512 tokens 时，直接交付来源摘要；低于 1,024 时，在允许解读的范围内优先使用已配置的快速模型。某个模型刚调用失败，该成员的自动选择会暂时避开它，手动指定的模型仍保持固定。这些规则都发生在只读证据之上。涉及外部写入的多步任务继续沿用审批与恢复流程，盲目重放一次工单可能会产生第二笔业务。"
           }
         ]
       }
@@ -527,7 +572,7 @@ export const projectChapters: Record<string, TechnicalArticle> = {
         "paragraphs": [
           {
             "en": "The replay uses an isolated SQLite database, fictional inspection records and a mock service desk. After the corrected run is created, a backup is restored to a new file. The replay checks integrity, foreign keys, links to the original and the behavior of a duplicate submission before approving the second write. A final attempt substitutes a clause for the wrong category. Its calculation fails and no third receipt appears. The two successful runs and that failed one test different properties of the same workflow.",
-            "zh": "回放使用独立 SQLite 数据库、合成交接记录和模拟工单服务。更正运行建立后，将备份恢复到新文件，核对数据库完整性、外键、原稿关联和重复提交，再批准第二次写入。最后把条款换成不适用的类别，核算步骤失败，始终没有第三份回执。前两次成功说明能完成交付，最后一次失败检验的是系统能否在缺乏依据时及时停下。"
+            "zh": "回放使用独立 SQLite 数据库、合成交接记录和模拟工单服务。更正运行建立后，将备份恢复到新文件，核对数据库完整性、外键、原稿关联和重复提交，再批准第二次写入。最后把条款换成不适用的类别，核算步骤失败，始终没有第三份回执。前两次运行完成了交付。第三次因条款不适用而停在审批之前，工单服务没有收到写入请求。"
           }
         ]
       },
@@ -542,10 +587,24 @@ export const projectChapters: Record<string, TechnicalArticle> = {
             "zh": "在五个冷启动浏览器环境中，使用同一份 20 轮合成对话和固定流式服务。早期版本每发一条消息，API 回传 31,645 字节；集成版只回传本轮记录，降到 1,977 字节。工作台按需加载后，首屏未压缩 JavaScript 从 730,841 降至 488,594 字节。两版首段文字可见的中位时间都在 19 毫秒左右，这组数据里最明显的收益在传输量。"
           },
           {
-            "en": "A separate CPU experiment used Pi and Qwen2.5-0.5B with a fixed seed. Sixteen unrelated turns separated a saved SQLite backup preference from the final request. Across three repetitions of that one task, the old context missed the time and used 1,125 tokens each time. The revised context recovered 23:15 UTC in 728 tokens. That result identifies a case where selection matters. Testing paraphrases and conflicting preferences would be needed to estimate reliability across tasks.",
-            "zh": "另一次测试在 CPU 上用 Pi 与 Qwen2.5-0.5B，以固定随机种子重复同一道题：在 SQLite 备份偏好与当前请求之间插入 16 轮无关对话。旧版三次都答错时间，每次消耗 1,125 tokens；新版三次都找回 23:15 UTC，每次 728 tokens。这说明选对上下文能挽回这一条偏好。对于同义改写或前后冲突的偏好，还需要独立样本才能判断可靠性。"
+            "en": "Sending one message used to trigger a second trip for the entire conversation. The completion event now carries the new turn and the browser appends it to the history it already holds. This removes a round trip that carried more data with every exchange. The model request has a separate budget, and the fixed provider controls when text starts to stream. Those are three distinct measurements. A shorter response from the API alone gives little reason to expect the first word to appear earlier.",
+            "zh": "过去发一条消息，完成后浏览器还要再取一次整段历史，对话越长，重复传回来的内容越多。现在完成事件直接带回本轮记录，页面把它接到已有历史后面。送进模型的请求体另有一份预算，首段文字开始出现的时刻又受流式服务影响。三项指标可以独立变化。仅凭 API 响应缩小，很难推断读者会更早看到第一个字。"
           }
-        ]
+        ],
+        "figure": "agent-browser-measurements"
+      },
+      {
+        "title": {
+          "en": "Overlapping the waits for six sources",
+          "zh": "把六个独立来源的等待时间重叠起来"
+        },
+        "paragraphs": [
+          {
+            "en": "For collection, waiting on independent sources was the measurable delay. The worker fetches up to three read-only sources at once and reassembles their results in subscription order. In seven replays with six sources and a fixed 25-millisecond delay per source, median collection fell from 160.7 to 54.0 milliseconds. Each run still made six requests and returned six items. The experiment isolates the benefit of overlapping waits. A live feed with its own rate limit may have a very different timing profile.",
+            "zh": "采集端的等待更容易定位。六个相互独立的来源逐个读取，就要逐个等网络返回。工作进程现在最多同时读取三个来源，最后按订阅顺序还原结果。给六个来源各注入 25 毫秒延迟，重复七轮，采集中位耗时由 160.7 降到 54.0 毫秒。两版每轮都发六个请求，得到六项结果；省下来的是重叠的等待时间。真实来源如果限流，这段受控回放里的耗时就不能直接照搬。"
+          }
+        ],
+        "figure": "agent-collection-schedule"
       }
     ]
   },

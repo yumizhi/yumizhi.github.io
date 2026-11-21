@@ -6,6 +6,7 @@ import type { ArticleFigure } from '@/lib/project-chapters';
 import { Localized as Text } from './language';
 import { Diagram, FlowArrow } from './project-architecture';
 import { AgentRuntimeTrace } from './agent-runtime-trace';
+import { AgentCollectionSchedule, AgentDigestReplay } from './agent-source-replays';
 import './project-article-figures.css';
 
 function EpubWorkerFigure() {
@@ -159,26 +160,76 @@ function AgentRunLink() {
 }
 
 function AgentReportEvidence() {
+  const records = [
+    { name: { en: 'Workflow', zh: '工作流' }, a: { en: 'Published inspection version', zh: '已发布的巡检版本' }, b: { en: 'Same version', zh: '沿用原版本' } },
+    { name: { en: 'Register entry', zh: '交接登记' }, a: { en: 'Logged 09:04', zh: '09:04 确认' }, b: { en: 'Logged 08:49', zh: '08:49 确认' } },
+    { name: { en: 'Clause', zh: '时限条款' }, a: { en: 'Retrieved and cited', zh: '检索并引用' }, b: { en: 'Retrieved again', zh: '重新检索' } },
+    { name: { en: 'Work order', zh: '工单写入' }, a: { en: 'First approval and receipt', zh: '首次审批与回执' }, b: { en: 'New approval and receipt', zh: '独立审批与回执' } },
+  ];
   return <Diagram id="agent-report-evidence"
-    title={{ en: 'What the corrected report inherits', zh: '更正报告沿用了什么' }}
-    caption={{ en: 'Both runs used the same workflow version. The second read the sources again and obtained a separate approval and receipt.', zh: '两次运行采用同一工作流版本。第二次重新读取来源，并取得独立的审批与回执。' }}>
-    <div className="article-agent-link">
-      <div className="article-agent-record"><FileText size={18} /><strong><Text en="Original report" zh="执行原稿" /></strong><code>09:04 · 54 min</code><span><Text en="Order approved · correction requested" zh="工单已批准 · 复核要求更正" /></span></div>
-      <div className="article-agent-join"><ArrowRight size={22} /><strong><Text en="Same workflow" zh="同一流程版本" /></strong></div>
-      <div className="article-agent-record"><FileText size={18} /><strong><Text en="Corrected report" zh="更正报告" /></strong><code>08:49 · 39 min</code><span><Text en="New approval · new receipt" zh="重新审批 · 新工单回执" /></span></div>
-    </div>
+    title={{ en: 'The audit trail after a correction', zh: '更正前后的两份记录' }}
+    caption={{ en: 'The review stays attached to the original report. Following its correction link opens the second run with its own sources and receipt.', zh: '复核意见保存在执行原稿上。沿更正记录进入第二次运行，可以找到这次读到的条款和写入回执。' }}>
+    <table className="agent-records">
+      <thead><tr><th scope="col"><Text en="Record" zh="记录项" /></th><th scope="col"><Text en="Original" zh="原运行" /></th><th scope="col"><Text en="Correction" zh="更正运行" /></th></tr></thead>
+      <tbody>{records.map(row => <tr key={row.name.en}><th scope="row"><Text {...row.name} /></th><td><Text {...row.a} /></td><td><Text {...row.b} /></td></tr>)}</tbody>
+    </table>
   </Diagram>;
 }
 
 function AgentWatchReplay() {
   const checks = [
-    ['13:00', 'Notify', '优先通知'], ['14:00', 'Defer', '留待摘要'], ['18:00', 'Deliver digest', '发送摘要'],
-    ['19:00', 'No change', '条目无变化'], ['23:00', 'Quiet hours', '免打扰'],
-    ['07:00', 'Deliver', '恢复投递'], ['08:00', 'Retry queued', '等待重试'],
+    { time: '13:00', changed: 2, pending: 1, delivered: 1, event: { en: 'Priority release', zh: '优先发布' } },
+    { time: '14:00', changed: 1, pending: 2, delivered: 0, event: { en: 'Lowered priority', zh: '降低优先级' } },
+    { time: '18:00', changed: 0, pending: 0, delivered: 2, event: { en: 'Evening digest', zh: '晚间摘要' } },
+    { time: '19:00', changed: 0, pending: 0, delivered: 0, event: { en: 'No change', zh: '无变化' } },
+    { time: '23:00', changed: 1, pending: 1, delivered: 0, event: { en: 'Quiet hours', zh: '免打扰' } },
+    { time: '07:00', changed: 0, pending: 0, delivered: 1, event: { en: 'Next morning', zh: '次日早晨' } },
+    { time: '08:00', changed: null, pending: null, delivered: 0, event: { en: 'Source failed', zh: '来源故障' } },
   ];
-  return <Diagram id="agent-watch-replay" title={{en:'Seven checks across two days', zh:'跨两天的七次采集'}}
-    caption={{en:'Purple marks a delivery. The final source request failed and was queued for retry. Times follow the replay clock.',zh:'紫色标记实际投递。最后一次来源请求失败，进入重试队列。时间取自回放时钟。'}}>
-    <ol className="watch-log">{checks.map(([time,en,zh],index) => <li key={time} data-delivered={[0,2,5].includes(index) || undefined}><time>{time}</time><span><Text en={en} zh={zh} /></span></li>)}</ol>
+  return <Diagram id="agent-watch-replay" title={{ en: 'One evening in the digest queue', zh: '一份晚报的入队与投递' }}
+    caption={{ en: 'Three afternoon checks from a seven-check replay, using synthetic releases and a working web inbox. In the full log, each dot is one item. A dash marks missing source data.', zh: '图中三个时刻取自七次采集回放，使用合成发布数据和实际网页收件箱。完整记录里每个点代表一条内容，短横表示缺少来源数据。' }}>
+    <AgentDigestReplay>
+    <table className="agent-watch-table"><thead><tr>
+      <th scope="col"><Text en="Check" zh="采集" /></th><th scope="col"><Text en="Updates" zh="有变化" /></th><th scope="col"><Text en="Queued" zh="待汇总" /></th><th scope="col"><Text en="Sent" zh="已送达" /></th>
+    </tr></thead><tbody>{checks.map(row => <tr key={row.time} data-morning={row.time === '07:00' || undefined}>
+      <th scope="row"><time>{row.time}</time><span className="agent-watch-event"><Text {...row.event} /></span></th>
+      {(['changed','pending','delivered'] as const).map(field => <td key={field} data-stage={field}>
+        <span className="sr-only">{row[field] === null ? <Text en="Unavailable" zh="暂无数据" /> : row[field]}</span>
+        <span className="agent-count" aria-hidden="true">{row[field] === null ? '—' : row[field] === 0 ? '0' : Array.from({length: row[field]}, (_,i) => <i key={i} />)}</span>
+      </td>)}</tr>)}</tbody></table>
+    </AgentDigestReplay>
+  </Diagram>;
+}
+
+function AgentContextSelection() {
+  const strips = [
+    { id: 'recent', title: { en: 'Recent turns only', zh: '只取最近对话' }, turns: [22, 23, 24] },
+    { id: 'selected', title: { en: 'Selected for the SQLite request', zh: '为本次 SQLite 请求选取' }, turns: [3, 23, 24] },
+  ];
+  return <Diagram id="agent-context-selection" title={{ en: 'An earlier procedure fits back into the prompt', zh: '让早先的操作步骤回到提示里' }}
+    caption={{ en: 'Each tick is one conversation turn, earliest on the left. Both selections had a 4,000-byte ceiling. The second also included the confirmed memory and used 3,894 bytes in total.', zh: '每一格代表一轮对话，按时间从左到右排列。两种选法的上限都是 4,000 字节。第二种还读入了已确认的记忆，共占 3,894 字节。' }}>
+    <div className="agent-context-strips">{strips.map(strip => <div key={strip.id}>
+      <div className="agent-strip-heading"><strong><Text {...strip.title} /></strong><span><Text en="Turns" zh="轮次" /> {strip.turns.join(' · ')}</span></div>
+      <div className="agent-turns" aria-hidden="true">{Array.from({length: 24}, (_,i) => <i key={i} data-kept={strip.turns.includes(i + 1) || undefined} data-early={i === 2 && strip.id === 'selected' || undefined} />)}</div>
+    </div>)}</div>
+    <div className="agent-memory-note"><span className="agent-key-dot" aria-hidden="true" /><Text en="Turn 3 contains the earlier SQLite procedure." zh="第 3 轮保存了早先讨论的 SQLite 操作步骤。" /></div>
+  </Diagram>;
+}
+
+function AgentBrowserMeasurements() {
+  const measures = [
+    { label: { en: 'API response per send', zh: '每次发送后的 API 回传' }, before: '31,645 B', after: '1,977 B', ratio: 1977 / 31645 },
+    { label: { en: 'Request body sent to the model', zh: '发往模型的请求体' }, before: '30,591 B', after: '12,011 B', ratio: 12011 / 30591 },
+    { label: { en: 'Send to first visible text', zh: '点击发送至首段可见' }, before: '19.2 ms', after: '19.0 ms', ratio: 19 / 19.2 },
+  ];
+  return <Diagram id="agent-browser-measurements" title={{ en: 'Response size fell. First-text latency held steady.', zh: '回传数据变少，首段等待时间几乎持平' }}
+    caption={{ en: 'Medians from five fresh browser contexts per build, with 20 synthetic turns and a fixed streaming provider. Each pair uses its own baseline as the full width. B denotes bytes.', zh: '每版各用五个冷启动浏览器环境，采用相同的 20 轮合成历史与固定流式服务，图中为中位数。每组以自身基线为满宽。B 为字节。' }}>
+    <div className="agent-measure-legend"><span><i aria-hidden="true" /><Text en="Baseline" zh="基线" /></span><span><i aria-hidden="true" /><Text en="Integrated build" zh="集成版" /></span></div>
+    <dl className="agent-measures">{measures.map(metric => <div key={metric.label.en}>
+      <dt><Text {...metric.label} /></dt>
+      <dd><span aria-hidden="true" className="agent-bar" /><span><span className="sr-only"><Text en="Baseline" zh="基线" /> </span>{metric.before}</span></dd>
+      <dd><span aria-hidden="true" className="agent-bar" style={{width: (metric.ratio * 100) + '%'}} /><span><span className="sr-only"><Text en="Integrated build" zh="集成版" /> </span>{metric.after}</span></dd>
+    </div>)}</dl>
   </Diagram>;
 }
 
@@ -250,6 +301,9 @@ export function ProjectArticleFigure({ figure }: { figure: ArticleFigure }) {
     case 'epub-path-roundtrip': return <EpubRoundTrip />;
     case 'originmark-teapot-report': return <TeapotReport />;
     case 'originmark-lease-recovery': return <LeaseRecovery />;
+    case 'agent-collection-schedule': return <AgentCollectionSchedule />;
+    case 'agent-context-selection': return <AgentContextSelection />;
+    case 'agent-browser-measurements': return <AgentBrowserMeasurements />;
     case 'agent-watch-replay': return <AgentWatchReplay />;
     case 'agent-run-link': return <AgentRunLink />;
     case 'agent-report-evidence': return <AgentReportEvidence />;

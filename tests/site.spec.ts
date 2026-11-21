@@ -279,7 +279,7 @@ test('project architecture figures preserve their evidence on desktop and mobile
  for (const { slug, evidence, details } of [
   { slug: 'epub-toolkit', evidence: 'Merge record', details: ['epub-worker-handoff', 'epub-path-roundtrip'] },
   { slug: 'originmark', evidence: 'Commit output under the current lease', details: ['originmark-teapot-report', 'originmark-lease-recovery'] },
-  { slug: 'personal-agent', evidence: 'Delivery receipt', details: ['agent-run-link', 'agent-report-evidence', 'agent-runtime-trace', 'agent-workflow-data', 'agent-message-transport', 'agent-watch-replay', 'agent-handoff-comparison'] },
+  { slug: 'personal-agent', evidence: 'Delivery receipt', details: ['agent-run-link', 'agent-report-evidence', 'agent-runtime-trace', 'agent-workflow-data', 'agent-message-transport', 'agent-watch-replay', 'agent-context-selection', 'agent-collection-schedule', 'agent-browser-measurements', 'agent-handoff-comparison'] },
  ]) {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto(`/projects/${slug}/#architecture`);
@@ -657,4 +657,43 @@ test('a corrected handoff moves the finish across the same allowance', async ({ 
  await expect(chart.locator('.handoff-stamps').last()).toContainText('08:49 UTC');
  expect((await rule.boundingBox())!.x).toBeCloseTo(before!.x, 1);
  await expect(chart.locator('.handoff-track i')).toHaveCSS('transform', 'matrix(0.65, 0, 0, 1, 0, 0)');
+});
+
+test('the measurement legend only displays the active language', async ({ page }) => {
+ await page.goto('/projects/personal-agent/#agent-browser-measurements');
+ const legend = page.locator('#agent-browser-measurements .agent-measure-legend');
+ await expect(legend.getByText('Baseline', { exact: true })).toBeVisible();
+ await expect(legend.getByText('基线', { exact: true })).toBeHidden();
+});
+
+test('the two pending articles arrive together in the evening digest', async ({ page }) => {
+ await page.setViewportSize({ width: 320, height: 740 });
+ await page.emulateMedia({ reducedMotion: 'reduce' });
+ await page.goto('/projects/personal-agent/#agent-watch-replay');
+ const replay = page.locator('#agent-watch-replay');
+ const queue = replay.locator('[data-lane="queue"]');
+ const inbox = replay.locator('[data-lane="inbox"]');
+ await expect(queue.locator('[data-article]')).toHaveCount(2);
+ await replay.getByRole('button', { name: '18:00' }).click();
+ await expect(queue).toContainText('Queue cleared');
+ await expect(inbox.locator('.digest-envelope [data-article]')).toHaveCount(2);
+ await replay.getByRole('button', { name: '13:00' }).click();
+ await expect(queue.locator('[data-article="notes"]')).toBeVisible();
+ await expect(inbox.locator('.digest-envelope')).toHaveCount(0);
+ await replay.getByRole('button', { name: /Full log/ }).click();
+ await expect(replay.getByRole('table').locator('tbody tr')).toHaveCount(7);
+ expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+});
+
+test('parallel collection brings the second batch forward on the same time axis', async ({ page }) => {
+ await page.emulateMedia({ reducedMotion: 'reduce' });
+ await page.goto('/projects/personal-agent/#agent-collection-schedule');
+ const chart = page.locator('#agent-collection-schedule');
+ const tracks = chart.locator('.collection-track i');
+ const first = (await tracks.first().boundingBox())!;
+ const before = (await tracks.last().boundingBox())!;
+ await chart.getByRole('button', { name: 'Up to three' }).click();
+ await expect(chart.locator('.collection-median')).toContainText('54.0');
+ await expect.poll(async () => Math.round((await tracks.nth(2).boundingBox())!.x)).toBe(Math.round(first.x));
+ expect((await tracks.last().boundingBox())!.x).toBeLessThan(before.x);
 });

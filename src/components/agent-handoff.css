@@ -28,17 +28,6 @@
 .handoff-chart.compact { width: 100%; height: 100%; padding: 6.5% 7%; border-radius: inherit; font-size: clamp(.62rem, 1.5vw, .86rem); }
 .compact .handoff-chart-heading { margin-bottom: .5em; }
 @media (max-width: 620px) { .handoff-chart.compact { font-size: .86rem; } }
-.watch-log { display: grid; grid-template-columns: repeat(7, 1fr); gap: .4rem; list-style: none; margin: 0; padding: 0; }
-.watch-log li { display: grid; align-content: start; justify-items: start; gap: .45rem; padding-block: .5rem; min-width: 0; }
-.watch-log time { font: 550 .81rem/1.5 ui-monospace, monospace; }
-.watch-log li::before { content: ''; background: var(--editorial-soft); width: 100%; height: .25rem; border-radius: 1rem; }
-.watch-log li[data-delivered]::before { background: var(--nju); }
-.watch-log span { font-size: .82rem; }
-@media(max-width:620px) {
-  .watch-log { grid-template-columns: 1fr; gap: 0; }
-  .watch-log li { grid-template-columns: 1rem 3.2rem 1fr; align-items: center; gap: .75rem; }
-}
-
 .handoff-chart.reader { padding: 0; background: transparent; }
 .reader .handoff-chart-heading { align-items: center; flex-wrap: wrap; gap: .55rem; margin: 0; }
 .reader .site-segments.inline-segments { box-shadow: inset 0 0 0 1px var(--figure-rule); }
