@@ -1,0 +1,54 @@
+.handoff-chart {
+  container-type: inline-size;
+  display: flex; flex-direction: column; justify-content: center;
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--nju) 5%, var(--background));
+  padding: clamp(1rem, 4%, 1.8rem);
+  border-radius: .8rem;
+  font-variant-numeric: tabular-nums;
+}
+.handoff-chart-heading, .handoff-ticks, .handoff-row > div:first-child { display: flex; align-items: baseline; }
+.handoff-chart-heading { align-items: center; justify-content: space-between; margin-bottom: 1.25em; gap: .5em; }
+.handoff-chart-heading > span:first-child { display: inline-flex; align-items: center; gap: .45em; font: 650 1.08em/1.1 var(--font-display,sans-serif); }
+.handoff-chart-heading > span:last-child, .handoff-ticks { font-size: .8em; color: var(--muted-foreground); }
+.handoff-scale { position: relative; }
+.handoff-scale::before { content: ''; position: absolute; left: 75%; top: 1.3em; bottom: .1em; border-left: 1px dashed color-mix(in srgb, var(--nju) 45%, transparent); }
+.handoff-ticks { margin-bottom: .75em; }
+.handoff-ticks span:last-child { position: absolute; left: 75%; transform: translateX(-50%); white-space: nowrap; }
+.handoff-row { margin-top: .8em; }
+.handoff-row > div:first-child { gap: .65em; font-size: .85em; font-weight: 550; }
+.handoff-row time { color: var(--muted-foreground); font-weight: 400; }
+.handoff-axis { position: relative; display: flex; align-items: center; height: 1em; margin-top: .3em; }
+.handoff-axis i { position: relative; height: .33em; border-radius: 1em; background: var(--nju); }
+.handoff-axis i::after { content: ''; position: absolute; right: -.19em; top: 50%; transform: translateY(-50%); width: .65em; height: .65em; background: inherit; border-radius: 50%; }
+.handoff-row:last-child i { background: color-mix(in srgb,var(--nju) 47%, var(--muted-foreground)); }
+.handoff-axis b { position: absolute; right: 0; bottom: 1.2em; font-size: .9em; font-weight: 600; }
+.handoff-axis b { white-space: nowrap; }
+.handoff-axis b > span { font-size: .78em; font-weight: 450; }
+.handoff-chart.compact { width: 100%; height: 100%; padding: 6.5% 7%; border-radius: inherit; font-size: clamp(.62rem, 1.5vw, .86rem); }
+.compact .handoff-chart-heading { margin-bottom: .5em; }
+@media (max-width: 620px) { .handoff-chart.compact { font-size: .86rem; } }
+.watch-log { display: grid; grid-template-columns: repeat(7, 1fr); gap: .4rem; list-style: none; margin: 0; padding: 0; }
+.watch-log li { display: grid; align-content: start; justify-items: start; gap: .45rem; padding-block: .5rem; min-width: 0; }
+.watch-log time { font: 550 .81rem/1.5 ui-monospace, monospace; }
+.watch-log li::before { content: ''; background: var(--editorial-soft); width: 100%; height: .25rem; border-radius: 1rem; }
+.watch-log li[data-delivered]::before { background: var(--nju); }
+.watch-log span { font-size: .82rem; }
+@media(max-width:620px) {
+  .watch-log { grid-template-columns: 1fr; gap: 0; }
+  .watch-log li { grid-template-columns: 1rem 3.2rem 1fr; align-items: center; gap: .75rem; }
+}
+
+.handoff-chart.reader { padding: 0; background: transparent; }
+.reader .handoff-chart-heading { align-items: center; flex-wrap: wrap; gap: .55rem; margin: 0; }
+.reader .site-segments.inline-segments { box-shadow: inset 0 0 0 1px var(--figure-rule); }
+.handoff-readout { display: flex; align-items: baseline; flex-wrap: wrap; gap: .85em; margin-block: 1.15rem 1.1rem; }
+.handoff-readout strong { font-size: clamp(2rem, 7cqi, 3rem); color: var(--figure-ink); line-height: 1; }
+.handoff-readout strong small { display: inline; white-space: nowrap; font-size: .38em; }
+.handoff-readout > span { color: var(--figure-accent); font-weight: 550; }
+.handoff-plot { position: relative; padding-bottom: .8rem; }
+.handoff-plot::after { content: ''; position: absolute; left: 75%; bottom: .4rem; height: 1.1rem; border-left: 1px dashed var(--figure-muted); }
+.handoff-track { height: .45rem; background: var(--figure-rule); border-radius: 1rem; overflow: hidden; }
+.handoff-track > i { display: block; height: 100%; width: 100%; background: var(--nju); border-radius: inherit; transform-origin: left; }
+.handoff-stamps { display: flex; align-items: baseline; gap: .6rem; color: var(--figure-muted); font-size: .83rem; }
+.handoff-stamps time { color: var(--figure-ink); font-weight: 580; }

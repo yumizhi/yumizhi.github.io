@@ -2,7 +2,7 @@ export type Bilingual = { en: string; zh: string };
 
 export type ArticleFigure = 'epub-worker-handoff' | 'epub-path-roundtrip' | 'originmark-teapot-report' |
   'originmark-lease-recovery' | 'agent-run-link' | 'agent-report-evidence' | 'agent-runtime-trace' |
-  'agent-workflow-data' | 'agent-message-transport';
+  'agent-workflow-data' | 'agent-message-transport' | 'agent-watch-replay';
 
 export type Chapter = { title: Bilingual; paragraphs: Bilingual[]; id?: string; figure?: ArticleFigure };
 
@@ -387,225 +387,166 @@ export const projectChapters: Record<string, TechnicalArticle> = {
     ],
   },
   'personal-agent': {
-    architectureTitle: { en: 'Model turns, workflow steps and message delivery', zh: '模型回合、工作流步骤与消息投递' },
-    architectureLead: {
-      en: 'A scheduled report starts with an approved app version and ends with a receipt. In between, the platform has to drive a workflow, execute individual model turns and keep their evidence available after either a worker or chat client disconnects.',
-      zh: '一份定时报告，从选定应用版本到收件箱回执，中间要过三道边界。工作流负责推进步骤，模型运行时负责一轮内的工具调用，消息通道负责把结果送到成员手里。这三段可以在不同时间恢复，最后用同一条运行记录对起来。',
+    "architectureTitle": {
+      "en": "What survives between runs",
+      "zh": "两次运行之间留下什么"
     },
-    architecture: [
+    "architectureLead": {
+      "en": "A workflow version describes which steps may run. An execution records which steps did run, with whose permission and on which evidence. A review belongs to the resulting artifact. Keeping those three lifetimes separate lets a member challenge a report without losing the decision that caused a work order.",
+      "zh": "工作流版本定义允许执行的步骤，一次运行记下实际走过的步骤、使用的资料和获得的权限，复核意见则落在产出的那一份报告上。三者的生命周期不同。分开保存，成员才可以质疑报告里的推断，同时保住当初开工单的那份依据。"
+    },
+    "architecture": [
       {
-        title: { en: 'Personal and project context', zh: '个人对话与项目上下文' },
-        paragraphs: [
+        "title": {
+          "en": "The run owns the evidence",
+          "zh": "让一次运行拥有自己的证据"
+        },
+        "paragraphs": [
           {
-            en: 'A person can ask a question in Chat or schedule a published assistant from the member workspace. Studio is where project authors edit, snapshot and deploy agents or workflows. Both experiences share identity and model access, but personal messages and memory do not automatically enter an application’s project context. A project run loads its released definition, project-scoped knowledge and authorized tools. That boundary lets the same workflow run for another authorized member without inheriting the author’s chat history.',
-            zh: '成员可以在「对话」里提问，也可以在成员工作区给已发布的助手排期。项目作者则在 Studio 编辑、保存快照、发布 Agent 或工作流。两个入口共用账号和模型授权，个人消息与记忆不会自动进入项目上下文。项目运行读取已发布定义、项目范围内的知识和获授权的工具，其他成员运行同一工作流时也不会带上作者的私人聊天记录。',
+            "en": "The project studio publishes the workflow and its tool grants. When a member starts an inspection, the worker resolves that version and saves the input. Each finished node leaves a checkpoint in SQLite. A tool that looks up the equipment can finish while a later write remains pending for hours. Closing the browser only closes the view onto those records.",
+            "zh": "项目工作室先发布工作流并配置可用工具。成员提交巡检后，工作进程找到指定版本、保存输入，每完成一个节点就在 SQLite 留下检查点。查询设备可能很快结束，后面的工单却可能要等几小时才有人审批。成员此时关闭浏览器，下次打开仍然能看到任务停在哪里。"
           },
           {
-            en: 'Project membership grants the rights a run can use. A member can start a published app with the appropriate access, while editing releases and approving writes are distinct project roles. The server checks those rights on execution and again when accessing a result. That matters in a shared workspace where the person who builds a workflow, the person who schedules it and the person who approves a write can be different people.',
-            zh: '运行可用的权限来自项目成员身份。成员在获授权后可以启动已发布的应用，编辑或发布版本、审批外部写入则是不同的项目权限。服务端在执行前检查，也会在访问成果时重新核对。在共享工作区里，编排工作流、安排任务和批准写入往往由不同的人负责。',
-          },
+            "en": "A scheduled task has one more identity to track. The scheduler records the occurrence and its child application run together, so a restarted worker can follow work already in progress. The inspection correction uses a different link: the earlier and later runs refer to one another, and both retain their own inputs. A scheduler retry and a human correction have different meanings even when they use the same workflow version.",
+            "zh": "定时任务还多一层身份：调度器同时保存排期实例和它启动的应用运行，重启后据此找回正在进行的工作。报告更正用的是另一种关联。原运行与更正运行相互引用，各自保留输入。即使都指向同一工作流版本，调度重试和人工更正也代表两件不同的事。"
+          }
         ],
+        "figure": "agent-run-link"
       },
       {
-        id: 'agent-pi-runtime',
-        title: { en: 'A Pi loop inside a workflow step', zh: 'Pi 循环嵌在一个工作流节点里' },
-        figure: 'agent-runtime-trace',
-        paragraphs: [
+        "title": {
+          "en": "The last mile has a receipt",
+          "zh": "结果交付还有最后一步"
+        },
+        "paragraphs": [
           {
-            en: 'The runtime adapter creates a fresh instance of Pi’s Agent for the step. Pi supplies the model and tool loop: it sends the messages and tool definitions to the provider, receives a tool request, adds the tool result to the turn and continues until the model ends the exchange. The project loads the pinned Agent definition, selects a model from the member’s authorized aliases, and hands Pi the configured provider stream. For a deployed app, each model request also rechecks the release’s model grant and reserves usage before it goes out.',
-            zh: '工作流走到一个 Agent 节点时，适配器为这一步创建一个新的 Pi Agent。模型调用和工具循环由 Pi 提供：模型收到消息与工具定义，发起一次工具调用，Pi 把工具结果放回本轮上下文，再继续请求模型，直到本轮结束。项目要交给 Pi 的是已有授权的模型、供应商流接口和固定版本的 Agent 定义。对已部署应用，每次请求发出前还会复查部署的模型授权，并预占当日用量。',
-          },
-          {
-            en: 'The engine prepares three pieces of input: the task, the collected business records and a bounded set of cited excerpts. It wraps authorized read capabilities as Pi tools. A tool call passes back through the engine, which checks the current run and project scope, validates the payload and records the outcome. Pi reports usage at turn boundaries. In debug runs the adapter also batches visible text deltas and writes them as trace events. The finished step has a separate record with the summary, sources, model and usage.',
-            zh: '调用开始前，引擎先备好三部分输入：任务原文、业务记录，以及限量的来源摘录。项目把获授权的只读能力包装成 Pi 工具；真正调用时，仍回到引擎核对当前运行和项目范围、验证参数并记录结果。Pi 在每轮结束时回报用量。草稿调试还会把用户可见的文本增量分批记入追踪事件。一步结束后，系统另外保存摘要、来源、模型与用量，这份记录才供后续节点和运行详情读取。',
-          },
-          {
-            en: 'P-17 uses the local evidence adapter under the same runtime contract. It reads the configured tool and assembles its report from the returned records and source excerpts. The scheduled acceptance therefore exercises the path from trigger to receipt with fixed data. Separate protocol tests exercise the Pi adapter with a controlled provider. This division makes failures easier to locate: a missing receipt can be investigated independently of the model’s ability to write a useful brief.',
-            zh: 'P-17 验收在同一个运行时契约下选用本地证据适配器。它调用指定的读取工具，用返回记录和来源摘录组装简报，所以可以用固定数据检查整条调度与投递链路。另有协议测试通过受控供应商覆盖 Pi 的调用。这样排查少了一层猜测：收件箱收不到简报时，可以单独检查调度、运行与回执，不必先从模型生成质量查起。',
-          },
+            "en": "A project report is delivered to the project inbox. Personal tasks can also target a web inbox or a bound chat channel. An inbound channel message is normalized and deduplicated before it starts work. On the way out, completing a model turn, creating the report and receiving confirmation from a channel are separate events. A lost external acknowledgement leaves the delivery open for reconciliation. Sending the message again could otherwise deliver two copies.",
+            "zh": "巡检报告交付到项目收件箱；个人任务还可送往网页收件箱或已绑定的聊天渠道。渠道收到的消息先归一化、去重，再启动应用。反向投递时，模型生成完毕、报告保存成功、外部渠道确认送达，是三个不同的时刻。如果最后一次确认丢失，就保留待核对状态；直接补发可能让接收人收到两份相同消息。"
+          }
         ],
-      },
-      {
-        id: 'agent-workflow-handoff',
-        title: { en: 'Information passes through committed step results', zh: '节点通过已提交的结果接力' },
-        figure: 'agent-workflow-data',
-        paragraphs: [
-          {
-            en: 'A workflow can pin different Agent versions at different nodes. When advancing a node, the engine walks back through the graph and loads completed ancestor outputs for this run. It collects business records, citations and structured values into context. An artifact step can also read the latest upstream summary. Each Agent runtime gets its own input, the records and evidence selected for that step, and a list of available tools. The Agent session starts fresh at each node, and the artifact reads the upstream summary through the workflow context.',
-            zh: '工作流的不同节点可以绑定不同的 Agent 版本。推进一个节点时，引擎顺着图往回找，只读本次运行中已完成的上游步骤，把业务记录、引用和结构化值整理成上下文。成果节点还可以读取最近一份上游摘要。每个 Agent 运行时收到的是这一步所需输入、记录、证据和可用工具，每个节点会新建自己的 Pi 会话，上游摘要则由成果节点从工作流上下文读取。',
-          },
-          {
-            en: 'For a maintenance workflow, a read node can return the equipment record, a knowledge node can attach manual excerpts, and the Agent can use both to prepare the brief. The artifact node gathers the resulting summary and evidence under the same run. Because the links are explicit, the run view can show which steps supplied records and which step wrote the summary. The runner can checkpoint those handoffs in SQLite and resume at the next eligible node.',
-            zh: '以设备维护工作流为例，读取节点可以返回设备记录，知识节点可以附上手册摘录，Agent 再据此整理简报。成果节点把摘要和证据收进同一次运行。运行详情里能看到设备记录来自哪一步、摘要由哪一步生成。引擎把这些交接写成 SQLite 检查点，恢复时沿已完成的结果找到下一个可执行节点。',
-          },
-        ],
-      },
-      {
-        id: 'agent-messages',
-        title: { en: 'Channel messages and workflow events', zh: '渠道消息与工作流事件' },
-        figure: 'agent-message-transport',
-        paragraphs: [
-          {
-            en: 'The QQ adapter receives gateway events over the bot SDK’s WebSocket. WeChat uses long polling. When a WeChat response arrives, its messages and the next cursor are saved together in one SQLite transaction. Both adapters pass normalized messages to the same gateway. It derives a deduplication key from the channel account, peer and source message ID, with group context where applicable. Pending messages from one peer remain ordered, while a transport retry can reuse an already computed reply.',
-            zh: 'QQ 通过机器人 SDK 的 WebSocket 接收网关事件，微信走长轮询。微信返回一批消息时，入箱与推进查询游标会在同一笔 SQLite 事务里完成。两个适配器再把消息交给同一个网关。网关根据渠道账号、会话来源和原消息编号生成去重键，群聊还会纳入群上下文。同一会话的待处理消息保持顺序，发送失败重试时也可以复用已经算好的回复。',
-          },
-          {
-            en: 'A bound private chat can invoke a published app. Its message key becomes the invocation key, so checking a queued or running reply can follow the existing run. The channel receives a reply or a waiting status, together with the run reference. Inside the application, the steps still communicate through saved state and evidence. Studio reads that durable record to show progress. The platform can finish the run even if the chat transport or the browser has disconnected.',
-            zh: '绑定后的私聊可以调用已发布应用，入站消息的去重键也会成为调用键。轮询一条还在排队的回复时，可以接着查原来的运行。渠道收到的是答复或等待状态，以及对应运行的编号。应用内部仍然通过保存的步骤结果与证据推进，Studio 则读取这些记录展示进度。聊天连接断开或浏览器关闭之后，应用可以继续跑。',
-          },
-          {
-            en: 'The project also includes a Kafka-to-webhook example for event-driven entry. It derives a stable key from the topic, partition and offset, and commits the offset only after the application endpoint accepts the event. If that acknowledgement is lost, the consumer can present the same key again. Scheduled delivery has its own receipt and uncertainty state. That keeps a completed run, a channel acknowledgement and a reader opening the result as distinct events.',
-            zh: '事件入口还有一个 Kafka 到 Webhook 的接入示例。桥接器用主题、分区和 offset 生成稳定的调用键，等应用接口接受事件之后才提交 offset。确认丢失时，消费端可以带同一个键重新提交。定时成果的发送另有投递回执和不确定状态，因而应用执行结束、渠道接受消息、收件人打开报告是三个分别留痕的事件。',
-          },
-        ],
-      },
-      {
-        title: { en: 'SQLite checkpoints and the deployment footprint', zh: 'SQLite 检查点与部署边界' },
-        paragraphs: [
-          {
-            en: 'The self-hosted Node service uses a shared local SQLite database in WAL mode. The queue, claim, step record and output can be updated using ordinary local transactions. Long model and tool calls happen outside them. This fits a single-host deployment with a small number of active workers. It also leaves an explicit scaling boundary: concurrent writes still contend for the database writer, and the shared local volume belongs to one host.',
-            zh: '自托管的 Node 服务使用同一份开启 WAL 的本地 SQLite 数据库。队列、任务领取、步骤记录和成果可以用普通本地事务更新，耗时的模型和工具调用在事务之外处理。这个方案适合单机和少量并行 Worker。它的规模上限也很明确，多次并发写入仍会争用数据库的写锁，共享数据卷也属于同一台主机。',
-          },
-          {
-            en: 'The platform adds separate records for project apps while retaining the original personal chat and task data. The two areas can share an account and model settings. Introducing a project workflow therefore does not require migrating somebody’s existing conversations into the application database or making their personal history available as project knowledge.',
-            zh: '平台为项目应用新增记录，原有个人对话和任务继续使用原来的数据。两套入口可以共用账号与模型设置。引入项目工作流时，无需迁移成员已有的对话，也无需把个人历史转成项目知识。',
-          },
-        ],
-      },
-      {
-        title: { en: 'Drafts, snapshots and deployments', zh: '草稿、快照与部署各自承担的职责' },
-        paragraphs: [
-          {
-            en: 'An author edits a mutable definition in Studio. The revision number protects against saving over someone else’s newer edit. Publication turns the chosen revision into an immutable snapshot with a content hash and moves the deployment pointer to that snapshot. A rollback moves the pointer to an earlier release. Every run retains its own snapshot reference, and a workflow node can reference a specific published Agent snapshot. Operators can change the default for future work without changing the definition that a historical run used.',
-            zh: '作者在 Studio 编辑可以反复修改的定义，保存时用草稿修订号防止覆盖别人的新编辑。发布时把选定修订固化成带内容哈希的快照，并让部署指针指向它。回滚只是把部署指回以前的快照。历史运行保留自己的快照引用，工作流内的 Agent 节点也可引用具体已发布版本。运维可以切换后续工作的默认部署，已经发生的运行仍能追溯到原先的定义。',
-          },
-          {
-            en: 'Debug runs are another reason to keep the objects separate. Studio can exercise a candidate revision as a snapshot before it becomes the active deployment. In that path, business writes become previews. A debug run can still read authorized data and use an authorized model. Publishing is the change that makes the new definition available for regular project execution.',
-            zh: '调试也依赖这三层分开。还没替换正式部署的候选修订，可以先作为快照试跑。调试流程会把业务写入变成参数预览，仍可以读取获授权的资料、调用允许使用的模型。完成调试后，发布才会让这个定义进入正常的项目执行入口。',
-          },
-        ],
-      },
+        "id": "agent-messages",
+        "figure": "agent-message-transport"
+      }
     ],
-    implementation: [
+    "implementation": [
       {
-        title: { en: 'An editable request becomes a versioned plan', zh: '自然语言交办落实到可核对的计划' },
-        figure: 'agent-run-link',
-        paragraphs: [
+        "title": {
+          "en": "Find the clause before starting the clock",
+          "zh": "先定位条款，再计算时差"
+        },
+        "paragraphs": [
           {
-            en: 'The example starts with a member choosing the published maintenance assistant and asking for a recurring P-17 brief. The draft names the application and deployment, the equipment, the time and time zone, and the delivery destination. An ambiguous app name has to be resolved before approval. The selected version matters because two deployments with similar names can use different knowledge or workflow steps. The plan stays tied to the version the member actually approved.',
-            zh: '示例从成员选择已发布的设备维护助手开始，再交办定期整理 P-17 简报。草稿列出应用和部署版本、设备、当地时间和时区，以及交付位置。出现重名应用时，需要先确认具体入口。名称相近的部署可能引用不同资料或执行不同步骤，批准计划时核对的是具体版本。即使同名应用之后改版，旧计划保存的仍是成员当时选定的版本。',
+            "en": "The inspection pack supplies two passages about the same equipment. One is a historical handoff that took 39 minutes. The other sets a 45-minute allowance for a standard I-204 handoff. Both are relevant search results and both contain a number. Only the agreement can supply the threshold. The read tool checks the record and category against the retrieved clause, requires a unique applicable limit and parses the UTC timestamps. Missing or ambiguous evidence stops the calculation.",
+            "zh": "模板里有两段容易混淆的文字。一段历史记录写着同一设备上次交接用了 39 分钟，另一段约定规定 I-204 的标准交接时限是 45 分钟。按设备检索，两段都相关，也都有数字。计算工具需要的是约定中的时限。它核对登记编号、类别和检索到的条款，找到唯一适用的时限后才解析 UTC 时间；缺少依据或出现歧义时就停下来。"
           },
           {
-            en: 'At the due time the scheduler validates the current permissions, submits the application, saves the parent and child IDs and sets the occurrence to awaiting_app in the same transaction. A restarted scheduler can follow the saved child run. When the child finishes, the parent reads its terminal state. Failure, cancellation and rejection lead to distinct messages in the task record. A successful child still has to pass the release and access check before the parent records the result for delivery.',
-            zh: '到点后，调度器在同一事务里核对权限、发起应用运行、保存父子编号，并把排期实例置为等待应用。重启后，可以沿保存的编号继续跟踪原来的子运行。子运行结束时，父任务读取其终态，失败、取消和拒绝审批分别留下不同提示。即使子运行已成功，父任务也要在处理交付前再核对发布策略与权限。',
-          },
+            "en": "This distinction matters again on the second run. The corrected elapsed time also happens to be 39 minutes. That value comes from subtracting 08:10 from 08:49. Copying the historical observation would produce the right number by accident. The report therefore retains the source lines and revision hashes alongside the calculation.",
+            "zh": "更正运行恰好也算出 39 分钟。这次的 39 来自 08:49 减去 08:10。倘若直接抄上次记录，数值碰巧相同，却无法解释此次交接。报告把计算输入与当次检索的行号、来源版本摘要一起保留，复核人可以把两个 39 分钟分别追到出处。"
+          }
         ],
+        "id": "agent-workflow-handoff",
+        "figure": "agent-workflow-data"
       },
       {
-        title: { en: 'Workers persist progress at step boundaries', zh: '执行进度在步骤边界保存' },
-        paragraphs: [
+        "title": {
+          "en": "A model turn has a small job",
+          "zh": "把模型回合放在合适的位置"
+        },
+        "paragraphs": [
           {
-            en: 'A workflow is a directed acyclic graph with an entry and at least one output. A worker takes a lease for the next eligible step in a short transaction and performs the call outside that transaction. Results, step events and deliverables are written as a checkpoint. A join waits for the paths it depends on to finish or be marked skipped. A long run can therefore resume from committed steps after a worker restart, while its in-progress call still needs to follow that call’s own retry or reconciliation policy.',
-            zh: '工作流由有向无环图描述，包含一个触发入口，至少有一个成果节点。Worker 在短事务里领取下一个可执行步骤，随后在事务之外调用模型或工具，再把结果、步骤事件和产物一起提交为检查点。汇合点会等依赖路径完成或被标为跳过。Worker 重启后，长任务可以从已提交的步骤继续，而中断时正在进行的调用仍要按它自己的重试或核对规则处理。',
-          },
-          {
-            en: 'The lease prevents an expired worker from writing another checkpoint. When a step is waiting for approval or an external callback, that status is stored and the run can leave the active queue. Approval or a valid callback makes it eligible to continue. This keeps a paused task visible to members without reserving a worker for the entire time it waits.',
-            zh: '已经过期的 Worker 无法提交新的检查点。需要批准的操作或等待外部回调的步骤会保存当前状态，让运行暂时退出活动队列。收到有效审批或回调后，再转回可执行状态。这样，任务可以继续在成员工作区展示等待原因，又不用在人工处理期间一直占住 Worker。',
-          },
+            "en": "The platform can run Pi for a model turn. It gives the model scoped context and read tools, validates tool calls and returns their results to the same turn. The workflow engine owns the checkpoints and authorization for a business write. For this inspection the template selects the deterministic local evidence runtime. The recorded arithmetic, mock work order and restart exercise therefore remain reproducible without depending on a particular model response.",
+            "zh": "工作台可以通过 Pi 执行模型回合：装配本次可见的上下文与只读工具，校验调用参数，再把工具结果送回同一回合。步骤持久化和业务写入审批由外层工作流管理。I-204 模板选择了确定性的本地证据运行时，因此核算、模拟工单和恢复演练可以重复执行，无需等待某个模型再次给出相同回答。"
+          }
         ],
+        "id": "agent-pi-runtime",
+        "figure": "agent-runtime-trace"
       },
       {
-        title: { en: 'The P-17 report preserves its sources and delivery state', zh: 'P-17 报告保留本次引用与投递状态' },
-        paragraphs: [
+        "title": {
+          "en": "Review the original, run the correction",
+          "zh": "在原稿上复核，另起一次更正运行"
+        },
+        "paragraphs": [
           {
-            en: 'The demo app uses the project’s equipment register and maintenance manual. When it retrieves a passage, the evidence includes the source locator, line number, text and content hash. The report can refer to the exact passage from that run. A reviewer can open it even if a later copy of the manual has different line numbers. The report, the JSON artifact and the run view all belong to the same execution, so each can be compared with its saved inputs and step results.',
-            zh: '演示应用使用项目中的设备台账和维护手册。检索得到引用时，运行会保存来源位置、行号、文本与内容哈希，报告引用指向当次执行用到的原文。维护手册之后换版或改变行号，读者仍能核对原段落。简报、可以下载的 JSON 附件和运行详情都属于同一次应用执行，因而可以与当时的输入和步骤结果逐项对照。',
+            "en": "A reviewer records a decision and a reason against the original artifact digest and the last review version. Submitting the same request again returns the existing version. Two reviewers starting from the same revision cannot silently overwrite one another. The stored review explains why the old report was challenged even if the correction is never submitted.",
+            "zh": "复核人把决定和理由提交到原稿摘要与上一复核版本上。同一请求重试时返回已保存的版本；两个人从同一旧版本编辑，后提交的人需要先处理版本冲突。即便后来没有人提交更正，原稿旁边也留着当时提出异议的理由。"
           },
           {
-            en: 'The built-in project retrieval matches terms against source titles and lines, then returns a bounded set of excerpts. A published Agent can choose a different retriever through the extension contract, but results still have to carry the source identity and excerpt. That contract is the reason the report reader can open evidence without knowing how the passage was selected. It also gives review a sensible boundary. A citation can locate a passage, and a human or an evaluation rule still has to check whether the conclusion follows from it.',
-            zh: '内置检索按词项匹配资料标题和正文行，返回有限数量的片段。发布的 Agent 可以通过扩展接口选择另一种检索实现，结果仍要携带来源标识和引用片段。报告阅读器因此可以直接检查证据，无需了解这段内容当初按哪种排序规则选出。一条引用证明系统实际用了哪段资料，结论是否能从这段资料推出，还需要人工复核或评测规则单独判断。',
-          },
-          {
-            en: 'Application success and delivery are stored separately. For the web channel, the scheduler saves an inbox receipt once the report has been placed in the member’s inbox. The inbox uses the authorized run to open the report. External channels have their own sending and acknowledgement states. A successful provider receipt records acceptance by that channel; it does not say the recipient read the message. If a send becomes uncertain, the recorded state lets an operator reconcile it before authorizing another try.',
-            zh: '应用成功与投递成功分别记账。网页渠道把成果放入成员收件箱后，调度端保存一条回执；打开正文时，收件箱再通过获授权的运行读取报告。外部渠道还要维护发送和确认状态，渠道回执表示对方平台接收，并不能说明收件人已读。一次发送结果不确定时，系统保留该状态，便于先核对实际去向，再决定是否重试。',
-          },
+            "en": "Resubmission pins the original workflow version, takes the corrected input and reads the sources again. That last detail matters if an agreement has since changed. A fresh approval covers the new work-order parameters, and the receipt is filed with this run. A reader can now explain both actions: the first order followed the data then on file, the second followed a documented correction.",
+            "zh": "提交更正时固定原工作流版本，带着新输入重新读取来源。协议可能已经换版，所以沿用流程也需要重新取证。新的工单参数再次进入审批，回执归入此次运行。这样，两次业务动作都解释得通：第一份工单依据当时的登记，第二份依据有记录的更正。"
+          }
         ],
-      },
+        "figure": "agent-report-evidence"
+      }
     ],
-    decisionsTitle: { en: 'Approval, retries and evidence', zh: '审批、重试与交付证据' },
-    decisions: [
+    "decisionsTitle": {
+      "en": "What a personal agent should remember",
+      "zh": "一项个人任务值得记住什么"
+    },
+    "decisions": [
       {
-        title: { en: 'Plan approval and tool permissions', zh: '计划批准与工具审批' },
-        paragraphs: [
+        "title": {
+          "en": "A watch can stay quiet",
+          "zh": "采集成功，也可以安静地结束"
+        },
+        "figure": "agent-watch-replay",
+        "paragraphs": [
           {
-            en: 'An approved plan grants permission to run the pinned application on schedule. When a step proposes a gated change to a connected system, the run pauses with the proposed action visible. A project approver can inspect the exact write before releasing that step.',
-            zh: '批准计划以后，系统可以按时启动指定的应用版本。执行到了需要审批的外部写操作，运行会停在该步骤，等待项目审批人核对具体参数并决定是否放行。',
+            "en": "In the member workspace a reader chooses subscriptions, topics, quiet hours and a digest time. Each hourly check takes a bounded snapshot, matches canonical URLs and fingerprints the title and excerpt. A repeat can end quietly. A relevant change can interrupt, and ordinary updates accumulate for a digest. The pending items and the report are saved together, so restarting the service preserves what is still owed to the reader.",
+            "zh": "在个人工作台，读者先选订阅、关注主题、免打扰时段和摘要时间。每小时采集一次有限快照，按规范网址比对条目，再看标题和正文摘要的指纹。重复条目可以安静结束，命中主题的变化可以优先送达，普通更新积累到摘要。待发条目和报告在同一事务里保存，服务重启后仍知道哪些内容还欠读者一次交付。"
           },
           {
-            en: 'The connector first prepares the concrete input and freezes it for review. The approval refers to the request ID and a digest of those parameters. The executor classifies calls as reads, writes with a business idempotency contract, or external actions. A read can be retried as a read. A write can reuse a stable business key only if the target honors that contract. When an external action has an uncertain outcome, the operator must reconcile the receipt before deciding what comes next.',
-            zh: '连接器先准备具体输入，把参数冻结后交给人检查。审批关联请求编号和参数摘要。执行层区分读取、有业务幂等契约的写入，以及普通外部操作。读取可以按读取重试。写入只有在目标系统兑现幂等契约时，才能用同一业务键继续。外部操作结果不确定时，要先核对回执，再决定下一步。',
-          },
-          {
-            en: 'If an application is republished, the old plan pauses on its next invocation until a member selects the new deployment and approves it. If access is revoked, it is checked again when reading the report, exporting a file or sending a message. Pausing a plan stops future scheduling and pending sends. An already started child run retains its own execution and approval rules.',
-            zh: '应用换版后，旧计划在下一次尝试调用时会暂停，直到成员选定新版并重新批准。权限发生变化时，读报告、导出文件和实际发送前都会重新核对。暂停计划会拦住未来的调度与等待发送的消息，已经启动的应用运行仍按所属项目的执行与审批规则处理。',
-          },
-        ],
+            "en": "Marking an item irrelevant lowers the priority of similar updates. A reader can reverse the feedback or save a successful run as a method. That version carries the sources, ranking and digest steps. The next task asks for its own destination and approval. If a source changes address, the dependent task pauses. A saved method is useful precisely because the member can see which assumptions it still depends on.",
+            "zh": "把一条更新标为“不相关”，会降低相似更新的优先级，也可以撤销这次反馈。一次成功运行还能保存成方法版本，留下已用过的来源、分级和摘要步骤。下次采用这套方法时，重新指定接收人并审批；依赖的来源换址后，任务暂停。读者能够复用已有方法，也能看清它继续运行所依赖的条件。"
+          }
+        ]
       },
       {
-        title: { en: 'A resumed action keeps the approved parameters', zh: '恢复执行沿用已批准的具体参数' },
-        paragraphs: [
+        "title": {
+          "en": "Spend the context budget on the task",
+          "zh": "把上下文留给当前目标"
+        },
+        "paragraphs": [
           {
-            en: 'A gated write is prepared and recorded before the connector executes it. The approval is bound to the action digest, which covers the relevant version, connector and parameters. Resuming checks permissions again. This matters if a member loses a role while a run is paused, or if a newer app version would propose a different write. A new deployment can be selected for later occurrences only after the older plan has been reviewed and approved again.',
-            zh: '需要审批的写操作先准备并保存参数，连接器随后才可实际执行。审批绑定该动作的摘要，关联具体应用版本、连接器和参数，恢复时还会重新复核权限。如果成员在任务暂停期间被撤权，或新版应用会发出不同的写操作，旧审批无法直接放行。后续的排期想使用新的部署，要先核对旧计划并重新批准。',
+            "en": "A long chat can easily push an early decision out of the prompt. Personal Agent keeps the most recent two turns, ranks eligible older turns by terms in the current request and assembles the selection in chronological order. Confirmed memories and linked tasks compete for the same byte budget within the member’s permissions. Group chat excludes private memories. The selection record keeps references to the entries that made the cut, which is especially helpful when a user has withdrawn a preference.",
+            "zh": "长对话里，一项很早确认的偏好往往先被截掉。工作台优先保留最近两轮，再按当前请求的词项选择较早记录，最后按发生顺序送入模型。已确认的记忆、关联任务和历史轮次都受字节预算与成员权限约束，群聊不注入私人记忆。系统同时记下入选条目的引用，所以偏好撤回后，还能核查下一轮究竟读到了什么。"
           },
           {
-            en: 'A target that supports a stable business key can return the same receipt after an interrupted call. If a connector’s external write offers no such contract and its reply is lost, the platform records an uncertain outcome instead of assuming nothing happened. The operator can record the confirmed receipt, authorize a retry or abandon that operation. The cost is a manual checkpoint on ambiguous calls. A lost acknowledgement therefore never triggers an automatic second write for that uncertain action.',
-            zh: '如果目标系统支持稳定的业务幂等键，调用中断后可以用同一个键核对原回执。普通外部写入如果没有这个约定，又在发出后丢了响应，平台会保存不确定状态，由操作者确认已有回执、批准重试或关闭操作。这样会增加疑难调用的人工核对成本，但不会因为没有收到响应就自动再写一遍。',
-          },
-        ],
-      },
-      {
-        title: { en: 'Read tools and business writes use different entry points', zh: '只读工具与业务写入走不同入口' },
-        paragraphs: [
-          {
-            en: 'A regular Agent can list the permitted read tools in its definition. A write to a business system belongs to a workflow tool node. That node gives the runtime a fixed definition, step identity and connector contract against which to save a proposed action, its parameters and its receipt. The read-only P-17 brief can retrieve a maintenance rule without triggering a write. Adding a work-order update would require an explicit workflow step and its own approval.',
-            zh: '普通 Agent 可以在定义中列出获授权的只读工具，业务系统的写入则通过工作流工具节点发起。节点为运行时提供固定的定义、步骤标识和连接器契约，使它能把拟执行的动作、具体参数和回执分别对应到同一步。P-17 只读简报可以查询维护要求；如果以后要增加工单更新，就需要定义一个显式的工作流步骤，并走该步骤自己的审批。',
-          },
-          {
-            en: 'Keeping the connector contract versioned also makes recovery less ambiguous. Two versions of a tool can accept different parameters or have different side effects. The proposed operation is therefore bound to the connector used when it was prepared. An older approval cannot be interpreted as permission for a changed operation merely because the tool still has the same label in Studio.',
-            zh: '给连接器契约保留版本，也便于在恢复时确认动作没有变化。同一个工具的新版可能接受不同参数，也可能产生不同副作用。审批保存的是准备动作时用到的连接器及具体内容。即使 Studio 中的工具名称相同，旧审批也不会因此变成对新动作的授权。',
-          },
-        ],
-      },
+            "en": "The watch makes a separate spending decision. It can deliver a source excerpt directly, requesting model interpretation only when the topic or combination of sources warrants it and quota remains. A small local Qwen model once returned a numbered paraphrase of the goal instead of an observation about the release. The watch retained the reply for review and delivered the source summary. Attaching a reference number alone would have made a weak answer look authoritative.",
+            "zh": "长期关注还要判断这一轮值不值得推理。来源摘要本身就可以交付，只有主题或多来源归并值得进一步解读、并且额度充足时，才调用模型。在一次真实发布源测试中，本地 Qwen 给目标复述加上了引用编号，却没有说出这次发布有什么变化。系统留下原答供复核，交付来源摘要。单看编号齐不齐，会让这类空洞解读显得很有依据。"
+          }
+        ]
+      }
     ],
-    verification: [
+    "verification": [
       {
-        title: { en: 'A real due time and separate recovery cases', zh: '真实排期触发与独立恢复用例' },
-        figure: 'agent-report-evidence',
-        paragraphs: [
+        "title": {
+          "en": "Restore the work between the two approvals",
+          "zh": "在两次审批之间恢复数据库"
+        },
+        "paragraphs": [
           {
-            en: 'The recorded screen walkthrough uses Run now to demonstrate the user journey. A separate acceptance case sets the next schedule and waits for the server clock to reach it. The evidence from that second case links the occurrence to the application run, the cited source lines and the saved web-inbox receipt. Using separate runs makes it clear which evidence establishes the scheduler actually started the work.',
-            zh: '功能录屏用「立即运行」展示从交办到读报告的整个过程。另一个验收用例才设定下一次排期，并等待服务器时钟实际到点。第二次执行留下排期实例、关联应用运行、引用的资料行和网页收件箱回执。两份记录分开，可以明确哪一份验证了真实调度触发，哪一份展示了成员操作。',
-          },
-          {
-            en: 'The PR records 70 server tests and 23 browser scenarios using the local evidence runtime. Those scenarios cover a changed deployment, revoked permissions, repeated runs, rejected write approval and pause/resume. They also exercise selecting between same-named apps, opening the source from a report and obtaining the attached artifact. The test data is synthetic, and the recorded receipt belongs to the web inbox. Reviewing production model answers and testing real external-channel receipts are separate acceptance tasks.',
-            zh: '该 PR 记录了 70 项服务端测试和 23 项浏览器场景，使用本地证据运行时。除了正常交付，还覆盖换版、撤权、重复执行、拒绝写入审批和暂停后恢复。界面用例也检查了同名应用选择、从引用跳到原文和下载附件。验收使用合成数据，回执对应网页收件箱。真实业务资料上的模型答案质量、外部渠道实号回执，属于独立的验收工作。',
-          },
-        ],
+            "en": "The replay uses an isolated SQLite database, fictional inspection records and a mock service desk. After the corrected run is created, a backup is restored to a new file. The replay checks integrity, foreign keys, links to the original and the behavior of a duplicate submission before approving the second write. A final attempt substitutes a clause for the wrong category. Its calculation fails and no third receipt appears. The two successful runs and that failed one test different properties of the same workflow.",
+            "zh": "回放使用独立 SQLite 数据库、合成交接记录和模拟工单服务。更正运行建立后，将备份恢复到新文件，核对数据库完整性、外键、原稿关联和重复提交，再批准第二次写入。最后把条款换成不适用的类别，核算步骤失败，始终没有第三份回执。前两次成功说明能完成交付，最后一次失败检验的是系统能否在缺乏依据时及时停下。"
+          }
+        ]
       },
       {
-        title: { en: 'The run record is the first place to investigate', zh: '从运行记录定位失败或等待步骤' },
-        paragraphs: [
+        "title": {
+          "en": "Measure the bytes as well as the wait",
+          "zh": "把传输量和等待时间分开看"
+        },
+        "paragraphs": [
           {
-            en: 'A member who sees no new brief can first open the task and inspect its latest occurrence. An occurrence waiting on the application leads to that application’s step history. A rejected write or a revoked app permission appears in its own state, while a completed app with delivery pending has progress on the application side and an open delivery action on the task side. Those records help the operator distinguish a scheduling problem from a tool or delivery problem.',
-            zh: '成员没有收到新简报时，可以先打开任务看最近一次排期实例。实例若还在等待应用，就沿关联进入应用的步骤记录。外部写入被拒绝、应用权限被撤销都有自己的状态。如果应用已完成而投递仍待处理，应用侧已经有结果，任务侧则还有一条未完成的投递。两边合起来看，才能定位问题是在排期、工具调用还是发送环节。',
+            "en": "In five fresh browser contexts with a synthetic 20-turn chat and a fixed streaming provider, the earlier build returned 31,645 API bytes after a send. The integrated build returned 1,977 by sending just the new turn. Loading workspace features on demand also cut initial uncompressed JavaScript from 730,841 to 488,594 bytes. Median time to the first visible reply stayed close to 19 milliseconds on both builds. Most of the observed gain was in transfer volume.",
+            "zh": "在五个冷启动浏览器环境中，使用同一份 20 轮合成对话和固定流式服务。早期版本每发一条消息，API 回传 31,645 字节；集成版只回传本轮记录，降到 1,977 字节。工作台按需加载后，首屏未压缩 JavaScript 从 730,841 降至 488,594 字节。两版首段文字可见的中位时间都在 19 毫秒左右，这组数据里最明显的收益在传输量。"
           },
           {
-            en: 'The operations view can look up a run by its identity or source and show its timeline, failed steps and usage. The model call is accounted for on the application run; the scheduled occurrence is the trigger and delivery record that links back to it. The management view returns the metadata needed for investigation. Reading the actual report and sources still uses the application’s access checks.',
-            zh: '运维视图可以从运行编号或来源查找，查看时间线、失败步骤和模型用量。模型调用记在应用执行里，排期实例记录触发及投递，再回链到对应运行。管理视图提供调查所需的元数据；打开报告正文和资料时，仍需要通过应用原来的访问权限检查。',
-          },
-        ],
-      },
-    ],
+            "en": "A separate CPU experiment used Pi and Qwen2.5-0.5B with a fixed seed. Sixteen unrelated turns separated a saved SQLite backup preference from the final request. Across three repetitions of that one task, the old context missed the time and used 1,125 tokens each time. The revised context recovered 23:15 UTC in 728 tokens. That result identifies a case where selection matters. Testing paraphrases and conflicting preferences would be needed to estimate reliability across tasks.",
+            "zh": "另一次测试在 CPU 上用 Pi 与 Qwen2.5-0.5B，以固定随机种子重复同一道题：在 SQLite 备份偏好与当前请求之间插入 16 轮无关对话。旧版三次都答错时间，每次消耗 1,125 tokens；新版三次都找回 23:15 UTC，每次 728 tokens。这说明选对上下文能挽回这一条偏好。对于同义改写或前后冲突的偏好，还需要独立样本才能判断可靠性。"
+          }
+        ]
+      }
+    ]
   },
 };

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { Localized } from './language';
+import { AgentHandoffCover } from './agent-handoff';
 import { EpubPreview } from './epub-preview';
 import { asset } from '@/lib/paths';
 import type { Project } from '@/lib/content';
@@ -16,7 +17,7 @@ export function ProjectCard({ project, heading: Heading = 'h3' }: { project: Pro
     <article className="project-card" data-project={project.slug}>
       {merge && split ? <EpubPreview views={[merge, split]} /> : (
         <Link href={href} className="project-card-cover" tabIndex={-1} aria-hidden="true">
-          <img src={asset(project.image)} loading="lazy" alt="" />
+          {project.slug === 'personal-agent' ? <AgentHandoffCover /> : <img src={asset(project.image)} loading="lazy" alt="" />}
         </Link>
       )}
       <div className="project-card-copy">
