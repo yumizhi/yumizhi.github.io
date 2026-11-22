@@ -226,17 +226,17 @@ test('mobile project showcases keep private repository links out of the page', a
  await page.goto('/projects/');
  for (const project of [
   { title: 'OriginMark', slug: 'originmark', tab: 'Verify', asset: 'originmark-verify' },
-  { title: 'Personal Agent', slug: 'personal-agent', tab: 'Corrected run', asset: 'agent-corrected' },
+  { title: 'Personal Agent', slug: 'personal-agent', tab: 'Workflow editor', asset: 'agent-platform-workflow' },
  ]) {
   await page.getByRole('link', { name: project.title, exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/projects/${project.slug}/$`));
   const detail = page.locator('.project-detail');
-  await expect(detail).toContainText('Source code is private.');
+  if (project.slug === 'originmark') await expect(detail).toContainText('Source code is private.');
   await expect(detail.locator('a[href*="github.com"]:not([href^="https://github.com/earendil-works/pi/"])')).toHaveCount(0);
   if (project.slug === 'personal-agent') {
    await expect(detail.getByRole('combobox', { name: 'Choose preview, Member workspace' })).toBeVisible();
-   await choosePreview(page, 'Source watch');
-   await expect(detail.locator('.stage-capture[aria-hidden="false"] img')).toHaveAttribute('src', /agent-watch/);
+   await choosePreview(page, 'Agent editor');
+   await expect(detail.locator('.stage-capture[aria-hidden="false"] img')).toHaveAttribute('src', /agent-platform-definition/);
   }
   await choosePreview(page, project.tab);
   await expect(detail.locator('.stage-capture[aria-hidden="false"] img')).toHaveAttribute('src', new RegExp(project.asset));
@@ -250,7 +250,7 @@ test('case studies expose anchored design and all four runtime stages', async ({
  await page.setViewportSize({ width: 390, height: 844 });
  await page.goto('/projects/personal-agent/');
  const sections = page.getByRole('navigation', { name: 'Project sections' });
- await jumpToSection(page, 'Motivation');
+ await jumpToSection(page, 'Workspace');
  await expect(page).toHaveURL(/#design$/);
  await expect(page.locator('#design').getByRole('heading', { level: 2 })).toBeInViewport();
  await jumpToSection(page, 'Model & tools');
@@ -259,9 +259,9 @@ test('case studies expose anchored design and all four runtime stages', async ({
  const sequence = page.locator('#agent-runtime-trace .runtime-sequence li');
  await expect(sequence).toHaveCount(4);
  await expect(sequence.nth(1)).toContainText('validates the call');
- await jumpToSection(page, 'Measured outcomes');
- await expect(page.locator('#verification')).toContainText('no third receipt appears');
- await expect(sections.getByRole('button')).toHaveAccessibleName(/, Measured outcomes$/);
+ await jumpToSection(page, 'Report review');
+ await expect(page.locator('#workflow-review')).toContainText('fresh approval');
+ await expect(sections.getByRole('button')).toHaveAccessibleName(/, Report review$/);
  await page.getByRole('navigation', { name: 'Other projects' }).getByRole('link', { name: 'OriginMark' }).click();
  await expect(page.locator('#architecture').getByRole('link', { name: /TIDE/ })).toHaveAttribute('href', '/research/tide/');
  await page.goto('/projects/epub-toolkit/#implementation');
@@ -273,7 +273,7 @@ test('project architecture figures preserve their evidence on desktop and mobile
  for (const { slug, evidence, architecture, decisions, details } of [
   { slug: 'epub-toolkit', architecture: 'Local processing', decisions: 'Format limits', evidence: 'Merge record', details: ['epub-worker-handoff', 'epub-path-roundtrip'] },
   { slug: 'originmark', architecture: 'Model execution', decisions: 'Evidence channels', evidence: 'Commit output under the current lease', details: ['originmark-teapot-report', 'originmark-lease-recovery'] },
-  { slug: 'personal-agent', architecture: 'Execution paths', decisions: 'Watches & memory', evidence: 'Delivery receipt', details: ['agent-run-link', 'agent-report-evidence', 'agent-runtime-trace', 'agent-workflow-data', 'agent-message-transport', 'agent-watch-replay', 'agent-context-selection', 'agent-collection-schedule', 'agent-browser-measurements', 'agent-handoff-comparison'] },
+  { slug: 'personal-agent', architecture: 'Execution paths', decisions: 'Source watches', evidence: 'Delivery receipt', details: ['agent-run-link', 'agent-runtime-trace'] },
  ]) {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto(`/projects/${slug}/#architecture`);
@@ -628,47 +628,19 @@ test('mobile project navigation keeps its glass within the control and remembers
  await expect(sheet).toHaveCount(0);
 });
 
-test('both inspection results share a visible allowance on mobile', async ({ page }) => {
- await page.setViewportSize({ width: 320, height: 740 });
- await page.goto('/projects/personal-agent/#agent-handoff-comparison');
- const chart = page.locator('#agent-handoff-comparison');
- await expect(chart.getByText('45 min limit')).toBeVisible();
- await expect(chart.locator('[data-reading="original"]')).toContainText('9 minutes overdue');
- await expect(chart.locator('[data-reading="corrected"]')).toContainText('08:49 UTC');
- const lengths = await chart.locator('.handoff-reading-track i').evaluateAll(nodes => nodes.map(n=>n.getBoundingClientRect().width));
- expect(lengths[1] / lengths[0]).toBeCloseTo(39 / 54, 2);
-});
-
-test('the measurement legend only displays the active language', async ({ page }) => {
- await page.goto('/projects/personal-agent/#agent-browser-measurements');
- const legend = page.locator('#agent-browser-measurements .agent-measure-legend');
- await expect(legend.getByText('Baseline', { exact: true })).toBeVisible();
- await expect(legend.getByText('基线', { exact: true })).toBeHidden();
-});
-
-test('both digest paths and all seven logged checks are readable at rest', async ({ page }) => {
- await page.setViewportSize({ width: 320, height: 740 });
- await page.emulateMedia({ reducedMotion: 'reduce' });
- await page.goto('/projects/personal-agent/#agent-watch-replay');
- const chart = page.locator('#agent-watch-replay');
- await expect(chart.locator('.digest-label')).toHaveCount(4);
- await expect(chart.getByText('Two waiting items delivered together')).toBeVisible();
- await expect(chart.getByRole('button',{ name:'Replay' })).toBeHidden();
- await expect(chart.getByText('Seven-check log', { exact: true })).toBeVisible();
- await expect(chart.getByRole('table').locator('tbody tr')).toHaveCount(7);
- expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
-});
-
-test('both source schedules remain on matching axes after replay', async ({ page }) => {
- await page.goto('/projects/personal-agent/#agent-collection-schedule');
- const chart = page.locator('#agent-collection-schedule');
- const serial = chart.locator('[data-mode="1"]');
- const parallel = chart.locator('[data-mode="3"]');
- await expect(serial).toHaveCount(6);
- await expect(parallel).toHaveCount(6);
- await chart.getByRole('button', { name: 'Replay' }).click();
- await expect.poll(() => serial.last().locator('i').evaluate(el => el.getBoundingClientRect().width)).toBeGreaterThan(2);
- const first = (await parallel.first().locator('div').boundingBox())!;
- const third = (await parallel.nth(2).locator('div').boundingBox())!;
- expect(third.x).toBeCloseTo(first.x,1);
+test('public project gallery offers separate editors in both languages', async ({ page }) => {
+ await page.goto('/projects/personal-agent/');
+ const article = page.locator('.project-detail');
+ await expect(article.locator('.project-source-note')).toHaveCount(0);
+ await expect(article).not.toContainText(/PRs?\s*#?\d+|开发预览|development preview|验收记录|regression fixture/i);
+ await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /agent-platform-workspace\.webp$/);
+ await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute('content', /agent-platform-workspace\.webp$/);
+ for (const [label, image] of [['Agent editor', 'definition'], ['Workflow editor', 'workflow'], ['Report', 'result']]) {
+   await choosePreview(page, label);
+   const selected = article.locator('.stage-capture[aria-hidden="false"] img');
+   await expect(selected).toHaveAttribute('src', '/images/projects/agent-platform-' + image + '.webp');
+   expect(await selected.evaluate(el => (el as HTMLImageElement).decode().then(() => true))).toBeTruthy();
+ }
+ await page.getByRole('button', { name: 'Switch to Chinese' }).click();
+ await expect(article.getByRole('combobox', { name: '切换预览, 任务成果' })).toBeVisible();
 });

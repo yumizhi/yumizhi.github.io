@@ -1,13 +1,11 @@
 import Image from 'next/image';
-import { ArrowLeftRight, ArrowRight, Check, CircleMinus, Clock3, Cpu, FileCode2, FileText, Inbox, MessageSquare, Monitor, RotateCcw, ShieldX } from 'lucide-react';
+import { ArrowLeftRight, ArrowRight, Check, CircleMinus, Clock3, Cpu, FileCode2, FileText, Monitor, RotateCcw, ShieldX } from 'lucide-react';
 import { Fragment, type ReactNode } from 'react';
 import { asset } from '@/lib/paths';
 import type { ArticleFigure } from '@/lib/project-chapters';
 import { Localized as Text } from './language';
 import { Diagram, FlowArrow } from './project-architecture';
-import { AgentHandoff } from './agent-handoff';
 import { AgentRuntimeTrace } from './agent-runtime-trace';
-import { AgentCollectionSchedule, AgentDigestReplay } from './agent-source-replays';
 import './project-article-figures.css';
 
 function EpubWorkerFigure() {
@@ -60,8 +58,8 @@ function EpubRoundTrip() {
     <Diagram id="epub-path-roundtrip"
       title={{ en: 'The second volume’s stylesheet through merge and split', zh: '第二卷样式表的往返改写' }}
       caption={{
-        en: 'These paths come from the resource regression fixture. The shared PNG occupies one slot in the collection. Split restores the local link and the original image bytes.',
-        zh: '路径来自资源回归测试。共享图片在合集中只存一份，拆分会恢复第二卷的本地链接及图片原始字节。',
+        en: 'Two volumes share the same PNG. The collection stores it once. Splitting restores the image at the path used by each volume’s stylesheet.',
+        zh: '两卷书共用同一张 PNG，合集只保存一份。拆分时，插图回到各卷样式表原先引用的位置。',
       }}>
       <div className="article-path-map">
         <EpubPath step={<Text en="Original volume" zh="原始分卷" />}
@@ -160,163 +158,13 @@ function AgentRunLink() {
   );
 }
 
-function AgentReportEvidence() {
-  const records = [
-    { name: { en: 'Workflow', zh: '工作流' }, a: { en: 'Published inspection version', zh: '已发布的巡检版本' }, b: { en: 'Same version', zh: '沿用原版本' } },
-    { name: { en: 'Register entry', zh: '交接登记' }, a: { en: 'Logged 09:04', zh: '09:04 确认' }, b: { en: 'Logged 08:49', zh: '08:49 确认' } },
-    { name: { en: 'Clause', zh: '时限条款' }, a: { en: 'Retrieved and cited', zh: '检索并引用' }, b: { en: 'Retrieved again', zh: '重新检索' } },
-    { name: { en: 'Work order', zh: '工单写入' }, a: { en: 'First approval and receipt', zh: '首次审批与回执' }, b: { en: 'New approval and receipt', zh: '独立审批与回执' } },
-  ];
-  return <Diagram id="agent-report-evidence"
-    title={{ en: 'The audit trail after a correction', zh: '更正前后的两份记录' }}
-    caption={{ en: 'The original report retains the review. The corrected run has a separate input, source record and write receipt.', zh: '复核意见保存在原报告上。更正运行有单独的输入记录、条款来源和写入回执。' }}>
-    <table className="agent-records">
-      <thead><tr><th scope="col"><Text en="Record" zh="记录项" /></th><th scope="col"><Text en="Original" zh="原运行" /></th><th scope="col"><Text en="Correction" zh="更正运行" /></th></tr></thead>
-      <tbody>{records.map(row => <tr key={row.name.en}><th scope="row"><Text {...row.name} /></th><td><Text {...row.a} /></td><td><Text {...row.b} /></td></tr>)}</tbody>
-    </table>
-  </Diagram>;
-}
-
-function AgentWatchReplay() {
-  const checks = [
-    { time: '13:00', changed: 2, pending: 1, delivered: 1, event: { en: 'Priority release', zh: '优先发布' } },
-    { time: '14:00', changed: 1, pending: 2, delivered: 0, event: { en: 'Lowered priority', zh: '降低优先级' } },
-    { time: '18:00', changed: 0, pending: 0, delivered: 2, event: { en: 'Evening digest', zh: '晚间摘要' } },
-    { time: '19:00', changed: 0, pending: 0, delivered: 0, event: { en: 'No change', zh: '无变化' } },
-    { time: '23:00', changed: 1, pending: 1, delivered: 0, event: { en: 'Quiet hours', zh: '免打扰' } },
-    { time: '07:00', changed: 0, pending: 0, delivered: 1, event: { en: 'Next morning', zh: '次日早晨' } },
-    { time: '08:00', changed: null, pending: null, delivered: 0, event: { en: 'Source failed', zh: '来源故障' } },
-  ];
-  return <Diagram id="agent-watch-replay" title={{ en: 'One immediate notice and one evening digest', zh: '一次即时提醒，一份晚报' }}
-    caption={{ en: 'Three afternoon checks from a seven-check replay, using synthetic releases and a working web inbox. In the full log, each dot is one item. A dash marks missing source data.', zh: '图中三个时刻取自七次采集回放，使用合成发布数据和实际网页收件箱。完整记录里每个点代表一条内容，短横表示缺少来源数据。' }}>
-    <AgentDigestReplay>
-    <table className="agent-watch-table"><thead><tr>
-      <th scope="col"><Text en="Check" zh="采集" /></th><th scope="col"><Text en="Updates" zh="有变化" /></th><th scope="col"><Text en="Queued" zh="待汇总" /></th><th scope="col"><Text en="Sent" zh="已送达" /></th>
-    </tr></thead><tbody>{checks.map(row => <tr key={row.time} data-morning={row.time === '07:00' || undefined}>
-      <th scope="row"><time>{row.time}</time><span className="agent-watch-event"><Text {...row.event} /></span></th>
-      {(['changed','pending','delivered'] as const).map(field => <td key={field} data-stage={field}>
-        <span className="sr-only">{row[field] === null ? <Text en="Unavailable" zh="暂无数据" /> : row[field]}</span>
-        <span className="agent-count" aria-hidden="true">{row[field] === null ? '—' : row[field] === 0 ? '0' : Array.from({length: row[field]}, (_,i) => <i key={i} />)}</span>
-      </td>)}</tr>)}</tbody></table>
-    </AgentDigestReplay>
-  </Diagram>;
-}
-
-function AgentContextSelection() {
-  const strips = [
-    { id: 'recent', title: { en: 'Recent turns only', zh: '只取最近对话' }, turns: [22, 23, 24] },
-    { id: 'selected', title: { en: 'Selected for the SQLite request', zh: '为本次 SQLite 请求选取' }, turns: [3, 23, 24] },
-  ];
-  return <Diagram id="agent-context-selection" title={{ en: 'Turn selection under a fixed context budget', zh: '固定上下文预算下的对话选择' }}
-    caption={{ en: 'Each tick is one conversation turn, earliest on the left. Both selections had a 4,000-byte ceiling. The second also included the confirmed memory and used 3,894 bytes in total.', zh: '每一格代表一轮对话，按时间从左到右排列。两种选法的上限都是 4,000 字节。第二种还读入了已确认的记忆，共占 3,894 字节。' }}>
-    <div className="agent-context-strips">{strips.map(strip => <div key={strip.id}>
-      <div className="agent-strip-heading"><strong><Text {...strip.title} /></strong><span><Text en="Turns" zh="轮次" /> {strip.turns.join(' · ')}</span></div>
-      <div className="agent-turns" aria-hidden="true">{Array.from({length: 24}, (_,i) => <i key={i} data-kept={strip.turns.includes(i + 1) || undefined} data-early={i === 2 && strip.id === 'selected' || undefined} />)}</div>
-    </div>)}</div>
-    <div className="agent-memory-note"><span className="agent-key-dot" aria-hidden="true" /><Text en="Turn 3 contains the earlier SQLite procedure." zh="第 3 轮保存了早先讨论的 SQLite 操作步骤。" /></div>
-  </Diagram>;
-}
-
-function AgentBrowserMeasurements() {
-  const measures = [
-    { label: { en: 'API response per send', zh: '每次发送后的 API 回传' }, before: '31,645 B', after: '1,977 B', ratio: 1977 / 31645 },
-    { label: { en: 'Request body sent to the model', zh: '发往模型的请求体' }, before: '30,591 B', after: '12,011 B', ratio: 12011 / 30591 },
-    { label: { en: 'Send to first visible text', zh: '点击发送至首段可见' }, before: '19.2 ms', after: '19.0 ms', ratio: 19 / 19.2 },
-  ];
-  return <Diagram id="agent-browser-measurements" title={{ en: 'Response size fell. First-text latency held steady.', zh: '回传数据变少，首段等待时间几乎持平' }}
-    caption={{ en: 'Medians from five fresh browser contexts per build, with 20 synthetic turns and a fixed streaming provider. Each pair uses its own baseline as the full width. B denotes bytes.', zh: '每版各用五个冷启动浏览器环境，采用相同的 20 轮合成历史与固定流式服务，图中为中位数。每组以自身基线为满宽。B 为字节。' }}>
-    <div className="agent-measure-legend"><span><i aria-hidden="true" /><Text en="Baseline" zh="基线" /></span><span><i aria-hidden="true" /><Text en="Integrated build" zh="集成版" /></span></div>
-    <dl className="agent-measures">{measures.map(metric => <div key={metric.label.en}>
-      <dt><Text {...metric.label} /></dt>
-      <dd><span aria-hidden="true" className="agent-bar" /><span><span className="sr-only"><Text en="Baseline" zh="基线" /> </span>{metric.before}</span></dd>
-      <dd><span aria-hidden="true" className="agent-bar" style={{width: (metric.ratio * 100) + '%'}} /><span><span className="sr-only"><Text en="Integrated build" zh="集成版" /> </span>{metric.after}</span></dd>
-    </div>)}</dl>
-  </Diagram>;
-}
-
-function AgentWorkflowData() {
-  return (
-    <Diagram id="agent-workflow-data"
-      title={{ en: 'Inputs to the handoff calculation', zh: '交接用时核算的输入' }}
-      caption={{
-        en: 'This graph illustrates the workflow contract. Each edge carries the results of a completed predecessor in the same run.',
-        zh: '图中是维护流程的配置示意。连线表示下游读取同一次运行中已完成的上游结果。',
-      }}>
-      <div className="article-path-map">
-        <div className="article-channel-input">
-          <div><strong><Text en="Register lookup" zh="交接登记" /></strong><code>record</code></div>
-          <div><strong><Text en="Agreement search" zh="检索适用条款" /></strong><code>citations</code></div>
-        </div>
-        <FlowArrow />
-        <div className="article-thread">
-          <div className="article-thread-title"><Cpu size={18} aria-hidden="true" /><strong><Text en="Elapsed-time tool" zh="只读耗时工具" /></strong></div>
-          <p><Text en="Match the category and subtract the timestamps" zh="匹配交接类别，再计算时间差" /></p>
-          <code>elapsed · limit · overdue</code>
-        </div>
-        <FlowArrow />
-        <div className="article-thread">
-          <div className="article-thread-title"><FileText size={18} aria-hidden="true" /><strong><Text en="Approval and report" zh="审批与报告" /></strong></div>
-          <p><Text en="Approve the work order and attach its receipt to the report" zh="批准工单，随报告保存此次写入的回执" /></p>
-        </div>
-      </div>
-    </Diagram>
-  );
-}
-
-function AgentMessageTransport() {
-  return (
-    <Diagram id="agent-message-transport"
-      title={{ en: 'QQ and WeChat message handling', zh: 'QQ 与微信的消息接收和投递' }}
-      caption={{
-        en: 'A bound private chat supplies a message key for the application invocation. A status lookup uses the saved association to retrieve the same run.',
-        zh: '绑定私聊中的应用调用以消息标识去重。查询状态时，系统依据已保存的关联读取原运行。',
-      }}>
-      <div className="transport-map">
-        <div className="transport-sources">
-          <div><strong>QQ</strong><code>WebSocket</code></div>
-          <div><strong><Text en="WeChat" zh="微信" /></strong><code><Text en="Long poll · cursor" zh="长轮询 · 查询游标" /></code></div>
-        </div>
-        <svg className="transport-fork" viewBox="0 0 88 100" preserveAspectRatio="none" aria-hidden="true">
-          <path d="M2 25H18C45 25 39 50 62 50H87" />
-          <path d="M2 75H18C45 75 39 50 62 50" />
-        </svg>
-        <div className="transport-stop">
-          <Inbox size={24} aria-hidden="true" /><strong><Text en="Channel gateway" zh="渠道网关" /></strong>
-          <p><Text en="Normalize, deduplicate and order per peer" zh="归一化、去重、保持会话内顺序" /></p>
-          <code>inbox · receipts</code>
-        </div>
-        <FlowArrow />
-        <div className="transport-stop">
-          <Cpu size={24} aria-hidden="true" /><strong><Text en="Published app" zh="已发布应用" /></strong>
-          <p><Text en="Open the existing run or submit a new invocation" zh="查找已有运行，或提交一次新调用" /></p>
-          <code>key → run ID</code>
-        </div>
-      </div>
-    </Diagram>
-  );
-}
-
 export function ProjectArticleFigure({ figure }: { figure: ArticleFigure }) {
   switch (figure) {
     case 'epub-worker-handoff': return <EpubWorkerFigure />;
     case 'epub-path-roundtrip': return <EpubRoundTrip />;
     case 'originmark-teapot-report': return <TeapotReport />;
     case 'originmark-lease-recovery': return <LeaseRecovery />;
-    case 'agent-handoff-comparison': return (
-      <Diagram id="agent-handoff-comparison"
-          title={{ en: 'Two readings of the same handoff', zh: '同一笔交接的两次核算' }}
-          caption={{ en: 'Both records give 08:10 UTC as the start. The original acknowledgement at 09:04 exceeds the allowance by nine minutes. The corrected time, 08:49, is six minutes inside it.', zh: '两次记录的起点都是 08:10 UTC。原确认时间 09:04 超出时限 9 分钟，更正后的 08:49 距时限还有 6 分钟。' }}>
-          <AgentHandoff />
-        </Diagram>
-    );
-    case 'agent-collection-schedule': return <AgentCollectionSchedule />;
-    case 'agent-context-selection': return <AgentContextSelection />;
-    case 'agent-browser-measurements': return <AgentBrowserMeasurements />;
-    case 'agent-watch-replay': return <AgentWatchReplay />;
     case 'agent-run-link': return <AgentRunLink />;
-    case 'agent-report-evidence': return <AgentReportEvidence />;
     case 'agent-runtime-trace': return <AgentRuntimeTrace />;
-    case 'agent-workflow-data': return <AgentWorkflowData />;
-    case 'agent-message-transport': return <AgentMessageTransport />;
   }
 }
