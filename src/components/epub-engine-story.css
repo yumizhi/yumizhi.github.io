@@ -1,5 +1,5 @@
 .epub-engine-story { max-inline-size: var(--editorial-copy-width); margin: 1.75rem auto 0; }
-.epub-merge-record { margin: 0; border: 1px solid var(--border); border-radius: .8rem; overflow: clip; }
+.epub-merge-record { margin: 0; border: 1px solid var(--border); border-radius: .8rem; }
 .epub-merge-record figcaption { display: flex; flex-wrap: wrap; gap: .5rem 1rem; align-items: baseline; padding: .875rem 1rem; }
 .epub-merge-record figcaption strong { font-size: .875rem; }
 .epub-merge-record figcaption code { color: var(--portfolio-secondary); font-size: .75rem; overflow-wrap: anywhere; }

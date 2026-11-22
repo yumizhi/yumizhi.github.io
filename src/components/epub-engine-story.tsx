@@ -14,8 +14,8 @@ export function EpubEngineStory() {
   "href": "chapters/01.xhtml",
   "merged_href": "v1/chapters/01.xhtml"
 }`}</code></pre>
-        <p><Localized en="These two fields are one resource entry from the example. The complete record also keeps each volume’s reading order, navigation and reference rewrites."
-          zh="这是示例里一个资源条目的两个字段。完整记录还保存每卷的阅读顺序、目录和引用改写关系。" /></p>
+        <p><Localized en="In this entry, href identifies the source chapter and merged_href identifies its copy in the collection. The full record also includes each volume’s reading order, navigation and rewritten references."
+          zh="此条记录的 href 对应原卷章节，merged_href 对应章节在合集中的位置。完整记录还保存每卷的阅读顺序、目录和引用改写关系。" /></p>
       </figure>
 
       <div className="epub-runtime-strip">

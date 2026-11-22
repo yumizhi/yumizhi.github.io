@@ -13,8 +13,8 @@ export function TideInjectionMath() {
       \widetilde z_\tau &= \mathcal F^{-1}\!\big((1-M)\odot Z_\tau + M\odot W\big)
     \end{aligned}`} />
     <p className="tide-prose"><Localized
-      en="Read the multiplication one frequency at a time. At an unmasked position, the first term supplies the original coefficient and the second vanishes. At a masked position, the first vanishes and the second supplies the learned coefficient. The diagram traces the two cases through the write. In the implementation, conjugate coefficients are kept symmetric so the inverse transform returns a real-valued latent."
-      zh="逐个频率来看这次乘法。掩码外，第一项留下原系数，第二项为零。掩码内，第一项为零，第二项填入学到的系数。下图把这两种位置并排展开。实现中还要维持共轭系数的对称性，逆变换才能得到实值潜变量。"
+      en="At frequencies outside M, the transformed latent retains its original coefficient. Inside M, the learned coefficient W replaces it. Conjugate symmetry ensures that the inverse Fourier transform yields a real-valued latent."
+          zh="在掩码 M 以外的频率上，变换后的潜变量沿用原系数。掩码内的频率则以学到的水印系数 W 替换。实现中维持共轭对称性，以保证逆傅里叶变换得到实值潜变量。"
     /></p>
     <figure className="paper-evidence-figure worked-figure">
       <div className="worked-panel tide-spectrum">
@@ -52,8 +52,8 @@ export function TideTrainingMath() {
         &=\operatorname{Dec}(\widehat z_{0,\tau}^{\mathrm{wm}})
     \end{aligned}`} />
     <p className="tide-prose"><Localized
-      en="The one-step estimate gives training a picture to compare before completing a whole denoising run. At the injection step, the U-Net predicts the noise component of the modified latent. The numerator subtracts that prediction with the timestep’s noise scale. Dividing by the signal scale gives an estimate in clean latent units, which the VAE decodes. The full run predicts noise again in every remaining step as its input changes, which can give a different result even when it starts from the same injection point. The short-term comparison uses the same estimator on both sides to keep that source of error in common."
-      zh="单步估计让训练在跑完整条轨迹之前，就有一张能拿来对比的图。到达注入步，U-Net 预测修改后潜变量里的噪声分量。分子按当前步的噪声尺度减掉这项预测，再除以信号尺度，得到对干净潜变量的估计，然后用 VAE 解码。即使出发点相同，这张图也可能与完整去噪得到的成图不同，因为往后每一步都会根据新输入重新预测噪声。短程比较两边使用同一种估计器，让这部分误差保持在共同条件里。"
+      en="At the injection step, the U-Net estimates the noise in the modified latent. Subtracting the scaled noise estimate and dividing by the signal scale gives a prediction of the clean latent. The VAE decodes it for the image losses. The clean branch uses the same estimator. Its one-step prediction may differ from its finished image because a full run updates the noise prediction at every subsequent step."
+          zh="在注入步，U-Net 估计修改后潜变量中的噪声。按当前步噪声尺度扣除预测噪声，再除以信号尺度，得到干净潜变量的单步预测。VAE 将预测解码，用于计算图像损失。无水印分支采用相同的估计器；由于完整去噪会逐步更新噪声预测，单步预测与最终成图可能有差异。"
     /></p>
     <PaperEquation number="5–7" math={tex`\begin{gathered}
       \begin{aligned}
@@ -75,8 +75,8 @@ export function TideTrainingMath() {
       \mathcal L_{\mathrm{det}} &= \max(0, m + D^+ - D^-)
     \end{aligned}`} />
     <p className="tide-prose"><Localized
-      en="The margin matters when both branches match the watermark to some degree. Take two clean predictions with the same watermarked distance. In the first pair, the clean prediction is already farther by at least the margin, so the detection loss contributes nothing. In the second pair, the clean prediction is closer to the template and the distance gap is insufficient. That pair still pushes the training objective. This comparison uses clean and watermarked latents from the same step and acts alongside the image-space losses. At verification time, the detector processes a single queried image and scores it against a cutoff calibrated on clean images."
-      zh="两路都和模板有一定相似度时，间隔损失才显出作用。设两组带水印预测与模板的距离相同。第一组里，无水印预测至少再远出一个间隔，检测损失为零。第二组的无水印预测更接近模板，距离差还不够，这一组便继续提供训练信号。这个比较用的是同一步的两路潜变量，与图像空间的重建损失一起训练。到了实际检测，验证器一次只收到一张待测图，判定用的是无水印样本校准出的阈值。"
+      en="The margin loss is zero when the unwatermarked estimate lies at least m farther from the template than the marked estimate. A smaller separation contributes a positive penalty. Training measures the two distances on latents from the same step. At verification, only the received image is available, and the decision threshold is calibrated on unwatermarked images."
+          zh="当无水印预测与模板的距离比带水印预测至少大 m 时，间隔损失为零。距离差小于 m 时产生惩罚。训练在同一步的配对潜变量上计算两项距离。实际验证只处理收到的图像，决策阈值另由无水印样本校准。"
     /></p>
   </>;
 }
@@ -90,8 +90,8 @@ export function TideGuidanceMath() {
       \Delta_t^{\mathrm{wm}}-\Pi_{B_t}\!\left(\Delta_t^{\mathrm{wm}}\right)
     \end{aligned}`} />
     <p className="tide-prose"><Localized
-      en="The basis Bₜ spans the text residuals from recent steps of this run. Removing the projection makes the retained watermark update orthogonal to that span. As an extreme case, a watermark residual lying entirely in the span leaves nothing to add. A residual already orthogonal to the span survives intact, although it can still be too strong for the current step. This is why the projection and the budgeting rule are separate operations."
-      zh="Bₜ 张成这次采样最近几步文本残差所在的子空间。减去投影以后，保留的水印更新与这片子空间正交。极端情况下，水印残差整个落在子空间里，减完就没有可加的分量。若它本来就与子空间正交，就会完整保留，但强度仍可能过大。这就是为什么先决定水印能沿哪些方向更新，再决定加多少。"
+      en="Bₜ spans the recent text residuals. Subtracting the projection eliminates any watermark component in that span. An orthogonal component survives projection in full and can still have a large magnitude. The budget rule scales this remaining component before it enters the denoising update."
+          zh="Bₜ 张成近期文本残差所在的子空间。减去投影以后，水印残差落在该子空间内的部分被消除。与子空间正交的部分完整保留，其幅度仍可能较大，因此预算规则还要调整这部分残差进入去噪更新时的权重。"
     /></p>
     <PaperEquation number="16–18" math={tex`\begin{aligned}
       c_t &= \frac{\operatorname{RMS}(\Pi_{B_t}\Delta_t^{\mathrm{wm}})}
@@ -131,8 +131,8 @@ export function TideGuidanceMath() {
        &+g_t^{\mathrm{wm}}\Delta^{\mathrm{wm}}_{t,\mathrm{null}}
     \end{aligned}`} />
     <p className="tide-prose"><Localized
-      en="The two weights always add to s, and the prompt keeps at least its reserved share. DDIM takes this combined noise prediction and advances the latent. The size of that step also depends on the residual magnitudes and the timestep. In the schematic, the guided branch approaches the reference over several updates. The timing ablation holds the learned watermark fixed and compares the two guidance rules using detection and image fidelity."
-      zh="两路权重的总和始终等于 s，文本至少保留预留的份额。DDIM 用合成后的噪声预测更新潜变量，每一步走多远还取决于残差的幅度和当前步的时间系数。示意图中，受引导的分支经过多步更新后逐渐靠近参照。注入时刻的消融固定学到的水印，以检出率和图像保真度比较固定引导与自适应引导。"
+      en="The weights sum to s at every step and reserve a minimum share for the text condition. DDIM advances the latent using the combined noise prediction. The resulting displacement depends on both residuals and the timestep coefficients. Orthogonality to recent text directions is a local constraint and does not guarantee convergence to the unwatermarked image."
+          zh="每一步两路权重之和均为 s，文本条件始终保有预留的最低份额。DDIM 根据合成噪声预测推进潜变量，实际位移由两路残差及当前步系数共同决定。与近期文本方向正交只是局部约束，无法保证最终恢复到原本的无水印图像。"
     /></p>
   </>;
 }
@@ -145,8 +145,8 @@ export function TideVerificationMath() {
         \frac{\left\Vert M\odot(\mathcal F(\widehat z_\tau)-W)\right\Vert_1}{|M|}
     \end{aligned}`} />
     <p className="tide-prose"><Localized
-      en="Suppose inversion recovers one written coefficient almost exactly, while a second is shifted by an edit. The first contributes almost no error, the second contributes its absolute mismatch, and everything outside the write mask contributes zero. Those errors are averaged over the selected coefficients. To interpret that distance, the detector uses the distribution of distances on clean images. A cutoff in its lower tail sets how often an unmarked image can pass. The true-positive rate is the share of watermarked images that pass the same cutoff."
-      zh="假设反演几乎恢复了第一个写入系数，第二个系数受编辑影响发生偏移。第一处几乎不计误差，第二处计入差值的绝对量，掩码外全部跳过。最后把误差除以选中系数的数量。得到的距离需要和无水印图上的同一统计量对照。阈值取在无水印距离分布的低端，控制无水印图偶然通过的比例。真阳性率则衡量带水印的图中有多少能通过同一个阈值。"
+      en="The verifier averages the absolute spectral mismatch over the coefficients selected by M. A close match has a small distance. Calibration places the cutoff in the lower tail of the clean-image distance distribution. The reported true-positive rate is the fraction of marked images below that cutoff."
+          zh="验证器在掩码 M 选中的系数上计算频谱差值的平均绝对量，距离越小表示与模板越接近。判定阈值取自无水印图像距离分布的低端。实验报告的真阳性率是带水印图像中距离低于该阈值的比例。"
     /></p>
   </>;
 }

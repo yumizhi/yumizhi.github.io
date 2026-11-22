@@ -10,7 +10,6 @@ type PaperCopy = { en: string; zh: string };
 export type Paper = {
   slug: string; shortTitle: string; title: string; venue: string; year: number;
   topic: 'Watermarking' | 'Adversarial learning'; authors: string[]; summary: string; summaryZh?: string;
-  introduction: { title: PaperCopy; paragraphs: PaperCopy[] };
   abstract: string; featured: boolean; image?: string; imageWidth?: number; imageHeight?: number; imageAlt: string; imageCaption: PaperCopy;
   paper: string; publisher?: string; code?: string; bibtex: string;
 };
@@ -19,21 +18,8 @@ export const papers: Paper[] = [
     slug: 'tide', shortTitle: 'TIDE', title: 'TIDE: Trajectory-Aware Watermark Propagation for Text-to-Image Diffusion Models',
     venue: 'NeurIPS', year: 2026, topic: 'Watermarking', featured: true,
     authors: ['Yihan Meng', 'Suping Xu', 'Yanfeng Wu', 'Chongjun Wang', 'Lin Shang'],
-    summary: 'A diffusion watermark must remain detectable through the rest of sampling. TIDE tracks recent text guidance to preserve the signal while limiting changes to the image that the same seed would have produced.',
-    summaryZh: '生成还未结束，写入的水印就要经历后续去噪。TIDE 参照最近几步的文本引导延续水印信号，同时尽量保留同一种子原本会生成的画面。',
-    introduction: {
-      title: { en: 'Sampling continues after the watermark goes in', zh: '写入水印之后，采样还在继续' },
-      paragraphs: [
-        {
-          en: 'In Figure 2, the same prompt and random seed produce two views of a red sports car. The unwatermarked image shows the hood and front wheel, while the Tree-Ring image shows the rear. Both images fit the prompt. The change in viewpoint tells us how far the result can move from the unwatermarked reference.',
-          zh: '论文图 2 里有一辆红色跑车。用同样的提示词和随机种子，无水印图像里能看到车头和前轮，Tree-Ring 的样例却拍到了车尾。两张图都符合提示词，但视角已经变了。',
-        },
-        {
-          en: 'TIDE starts from the steps that remain after injection. Those steps can carry the signal into the final image, and they are still shaping the scene. Recent text-guidance updates give a local estimate of the directions the watermark is most likely to compete with. We use that estimate to redirect the watermark update and adjust its strength as denoising proceeds.',
-          zh: 'TIDE 从注入之后的步骤入手。余下的去噪既能把水印带进最终图像，也还在塑造画面。最近几步的文本引导表明采样正在往哪些方向走。用它作参考，就可以在每一步调整水印引导的方向和强度，减少两种更新之间的干扰。',
-        },
-      ],
-    },
+    summary: 'TIDE writes a watermark partway through denoising. It uses the last few text-guidance updates to steer the watermark away from directions that are shaping the image.',
+    summaryZh: 'TIDE 在去噪中途写入水印。后续采样会减弱水印引导与近期文本引导方向重合的分量，尽量保留同一提示词和随机种子原本会生成的画面。',
     abstract: "Watermarking text-to-image diffusion models provides a practical mechanism for provenance tracking and responsible deployment. Post-processing methods are easy to deploy but vulnerable to image-space transformations. In-processing methods improve robustness by embedding the watermark within the denoising trajectory. Yet most existing methods inject the signal into the initial noise or a fixed intermediate latent, without controlling how it evolves during the remaining denoising steps. This can entangle watermark preservation with text-guided generation, risking weaker verification or degraded content fidelity. We propose TIDE, a trajectory-aware watermarking method for text-to-image diffusion models. TIDE injects a learnable watermark into an intermediate latent and jointly optimizes it with an auxiliary watermark condition, using preservation and detection objectives to limit deviation from the unwatermarked reference while maintaining separable watermark evidence. During sampling, TIDE estimates recent text-guidance directions and redirects watermark guidance toward the residual component less aligned with this local text subspace, reducing avoidable interference with semantic generation. Verification uses null-prompt partial inversion to recover the injection latent and match its masked coefficients to the target watermark. Experiments show that TIDE achieves reliable verification on unattacked images, improves robustness under common attacks, and better preserves semantic and visual fidelity.",
     image: '/images/tide-results-original.webp', imageWidth: 1422, imageHeight: 1120, imageAlt: 'Published qualitative comparison of clean, Tree-Ring, ROBIN, and TIDE images across five prompts.',
     imageCaption: { en: 'Generations from the same prompt. The unwatermarked image is the reference.', zh: '同一提示词下的生成结果。无水印图像作为参考。' },
@@ -44,21 +30,8 @@ export const papers: Paper[] = [
     slug: 'sasbo', shortTitle: 'SASBO', title: 'SASBO: Sparse Attack via Stochastic Binary Optimization',
     venue: 'PAKDD', year: 2024, topic: 'Adversarial learning', featured: true,
     authors: ['Yihan Meng', 'Weitao Li', 'Lin Shang'],
-    summary: 'Small changes spread across an image and changes confined to a few coordinates pose different tests of robustness. SASBO studies sparse changes by learning a mask alongside the perturbation and measuring the support left after pruning.',
-    summaryZh: '一幅图中只有极少数位置发生变化，分类结果也可能改变。SASBO 联合学习位置掩码和扰动幅度，再通过剪枝检验剩余位置对分类结果的影响。',
-    introduction: {
-      title: { en: 'A few changed coordinates can change the verdict', zh: '只动少数坐标，也能改变分类结果' },
-      paragraphs: [
-        {
-          en: 'The dog in the first row of Figure 1 looks much the same after perturbation. The map beside it makes the changes visible. Most of it stays black, with colored points showing the changed channels. Under an amplitude limit, making a classifier change its decision with so few edits depends on choosing those coordinates well.',
-          zh: '图 1 第一行里的狗在施加扰动前后看起来差别很小。旁边的扰动图更容易看出变化，大部分区域是黑色，零星的彩色点标出被改动的通道。每个位置能改多少是有限的，用这么少的改动改变分类结果，坐标就得选得准。',
-        },
-        {
-          en: 'The location and the magnitude call for different kinds of search. SASBO learns a probability for each discrete selection and uses it to choose where to perturb. It can return to that choice after the magnitudes change.',
-          zh: '选位置和调幅度需要两种不同的搜索。SASBO 给每个坐标一个可学习的选择概率，据此确定改动的位置。幅度更新后，位置也可以再选。',
-        },
-      ],
-    },
+    summary: 'SASBO searches for a small set of image coordinates that can change a classifier’s prediction. On CIFAR-10, its untargeted attack changed 3.95 entries on average at the largest amplitude allowance tested.',
+    summaryZh: 'SASBO 寻找足以让分类器改判的一小组坐标。在 CIFAR-10 非定向实验中，单点改动幅度取论文测试的最大值时，每张图平均改动 3.95 个坐标。',
     abstract: "Deep Neural Networks have shown vulnerability to sparse adversarial attack, which involves perturbing only a limited number of pixels. Identifying the coordinates requiring perturbation in sparse attacks poses a significant computational challenge. Existing solutions predominantly rely on heuristic methods or relax the ℓ0-norm to the ℓ1-norm. In this paper, we present an efficient algorithm for conducting sparse attacks. Our algorithm factorizes the perturbation at each pixel to the product of the perturbation coordinates and the perturbation magnitudes and then optimizes them alternately. We reformulate the ℓ0-norm as a stochastic binary optimization problem, assuming that each pixel’s perturbation status is associated with a stochastic binary variable. This stochastic binary variable follows a Bernoulli distribution, with a parameter value that ranges from 0 to 1, signifying the probability of pixel disturbance. To tackle this stochastic binary optimization challenge, we employ an unbiased gradient estimator known as Augment-Reinforce-Merge (ARM). Once the perturbed coordinates are determined, we optimize the perturbation magnitudes with gradient descent. Furthermore, we incorporate a binary search algorithm to eliminate redundant pixels to enhance sparsity. Comprehensive experiments demonstrate the superiority of our proposed method over several state-of-the-art sparse attack methods.",
     image: '/images/sasbo-original.webp', imageWidth: 782, imageHeight: 341, imageAlt: 'Original SASBO figure comparing clean images, SASBO perturbations, and GreedyF perturbations for a dog and flower.',
     imageCaption: { en: 'SASBO and GreedyFool under the same amplitude cap (ε = 10). Columns (c) and (e) show the changed channels. White marks all three RGB channels.', zh: 'SASBO 与 GreedyFool 使用相同的幅度上限（ε = 10）。第 (c)、(e) 列显示被改动的通道，白点表示 RGB 三个通道都有变化。' },
@@ -70,21 +43,8 @@ export const papers: Paper[] = [
     slug: 'sparse-meta-learning', shortTitle: 'Sparse Attack with Meta-Learning', title: 'Sparse Attack with Meta-Learning',
     venue: 'IJCNN', year: 2024, topic: 'Adversarial learning', featured: true,
     authors: ['Weitao Li', 'Mingqian Lin', 'Yihan Meng', 'Yangdai Si', 'Lin Shang'],
-    summary: 'A sparse perturbation can lose its effect on a different classifier. SAM uses a held-out surrogate during learning and evaluates transfer to other models under a fixed sparsity budget.',
-    summaryZh: '对一个分类器有效的稀疏扰动，换个模型可能失效。SAM 在学习过程中轮流留出一个替代模型检验更新，并在相同稀疏预算下比较跨模型迁移。',
-    introduction: {
-      title: { en: 'The same image meets a different classifier', zh: '同一张图，换一个分类器' },
-      paragraphs: [
-        {
-          en: 'In the CIFAR-10 experiment, the baseline’s perturbed images fool VGG19 more often than DenseNet161. The images are the same in both tests. What changes is the classifier, and the baseline had optimized every one of its input changes against VGG19.',
-          zh: '在 CIFAR-10 实验中，基线方法生成的扰动图像更容易骗过 VGG19，在 DenseNet161 上的成功率则低得多。两次测试用的是同一批图，只换了分类器。此前，图像上的每一处改动都由 VGG19 的反馈决定。',
-        },
-        {
-          en: 'SAM rehearses that handoff during optimization. For each sampled task, one group of accessible classifiers proposes the update and another model from the same surrogate pool checks how well it carries over. The roles rotate between tasks. Separate black-box targets come in at evaluation, where they measure the transfer this procedure was meant to encourage.',
-          zh: 'SAM 把换模型这件事提前到优化里。每轮先用一组可访问的分类器给出更新方向，再用替代模型池里暂时留出的另一个模型检验这次更新。下一轮重新分配角色。最后用独立的黑盒模型评估这些改动能迁移多远。',
-        },
-      ],
-    },
+    summary: 'A sparse perturbation that fools one classifier often fails on another. SAM holds out one surrogate in each training task to measure how well an update transfers before testing the finished image on independent models.',
+    summaryZh: '同一张扰动图像，在一个分类器上会被认错，换个模型却可能恢复原来的判断。SAM 每轮留出一个替代模型检验扰动，最终在未参与优化的分类器上评估迁移效果。',
     abstract: "Black-box attacks pose a significant challenge due to the restricted access to target model information, hindering the generation of impactful adversarial samples. This paper introduces a method that combines sparse attacks and meta-learning to alleviate the issue of low success rates in black-box attacks. SAM leverages the knowledge transfer capabilities inherent in meta-learning to augment the transferability of adversarial samples. The method integrates meta-learning with gradient-based attack techniques, effectively transforming the approach into a white-box attack. By aggregating multiple sampled models, SAM enhances the stability of adversarial samples. During meta-testing, simulated black-box attacks help mitigate gradient discrepancies across diverse models, consequently enhancing transferability. To further improve sparsity and preserve transferability, SAM incorporates a projection strategy that selectively sparsifies global adversarial perturbations. Experimental evaluations conducted on two image datasets substantiate SAM’s superiority in terms of both sparsity and attack success rate. Ablation experiments confirm the effectiveness of integrating meta-learning into the proposed method. SAM extends the applicability of generated adversarial samples, advancing the domain of adversarial attacks in scenarios with limited target model information. The proposed approach exhibits promise in enhancing the success rate of attacks while preserving sparsity, contributing to the broader understanding of black-box attacks and their implications.",
     image: '/images/sam-meta-learning.webp', imageWidth: 964, imageHeight: 604,
     imageAlt: 'Meta-learning illustration showing sampled training episodes and support and query sets during meta-testing.',
@@ -102,11 +62,11 @@ export type Project = {
 };
 export const projects:Project[] = [{
   slug: 'personal-agent', title: 'Personal Agent', category: 'Agent workspace', categoryZh: '智能体工作台', year: 2026,
-  cardSummary: { en: 'A self-hosted agent for work that outlasts a chat. Schedule a task, follow its run and receive the result on the web or a bound channel.', zh: '把对话里的交办留成持续运行的任务。在网页或已绑定的聊天渠道接收结果，再回到工作台查看执行记录。' },
-  summary: 'Personal Agent is a self-hosted workspace for conversations and tasks that continue after the chat closes. Members work through the web or a bound chat channel. A studio turns recurring work into versioned workflows with a schedule, an execution record and a destination for the result.',
-  summaryZh: 'Personal Agent 是一个自托管的智能体工作台。成员从网页或绑定的聊天渠道交办任务，离开对话后仍能追踪运行、接收结果。需要反复执行的工作可以在 Studio 编成有版本的流程，按计划运行，每次执行都留下记录。',
-  description: 'The member workspace handles subscriptions, priorities and delivery. The studio runs versioned workflows with evidence, approvals and linked corrections.',
-  descriptionZh: '个人工作台管理订阅、优先级和投递，开发者工作室将条款检索、工单审批和报告复核编入可回放的版本化工作流。',
+  cardSummary: { en: 'A self-hosted agent that keeps scheduled tasks running after the browser closes. Reports arrive in the web inbox or a linked chat.', zh: '自托管的个人智能体。关掉网页后，定时任务照常运行，报告送到收件箱或绑定的聊天渠道。' },
+  summary: 'Personal Agent shares a task history across a web workspace and linked chats. A daily brief can run while its owner is offline. The delivered report carries a link back to the run, including the tools it used and the material it cited. Recurring workflows are edited and published in Studio.',
+  summaryZh: 'Personal Agent 是一个自托管的个人智能体工作台。比如订好一份每日简报，关掉网页后它仍会按时运行。报告送到收件箱或聊天里，点开就能看到这次用过的工具和引用的资料。需要反复执行的流程可以在 Studio 里编辑、发布。',
+  description: 'Members manage subscriptions and receive reports in the workspace. Studio keeps each published workflow version and the runs made against it.',
+  descriptionZh: '成员在工作台里管理订阅、接收报告。Studio 保存已发布的流程版本，以及每个版本对应的运行记录。',
   image: '/images/projects/agent-member-desk.webp',
   imageAlt: 'Member workspace with a task composer, upcoming work and a delivered report',
   gallery: [],
@@ -147,11 +107,11 @@ export const projects:Project[] = [{
   technologyZh: '开发预览 · PR #14–17。源码暂未公开。',
 }, {
   slug: 'originmark', title: 'OriginMark', category: 'Image provenance', categoryZh: '图像溯源', year: 2026,
-  cardSummary: { en: 'Generate or protect an image, then verify the watermark and the signed credentials in the file that will actually be shared.', zh: '为生成图或已有图片添加保护，并在最终交付的文件上分别核验水印与签名凭证。' },
-  summary: 'OriginMark brings watermarking and signed image releases into one workspace. A publisher can generate or protect an image, then check the actual output file. The release record connects that file to its recovered watermark and credential verification result.',
-  summaryZh: 'OriginMark 把水印生成、图像保护和签名发布放在同一工作台。发布者可以直接核验将要交付的文件，再从发布记录中查到这份文件的水印回读结果和凭证验证结果。',
-  description: 'OriginMark brings image generation and provenance into one workflow. Generate a marked image with TIDE or protect an existing image, then inspect what a verifier can recover from the resulting file.',
-  descriptionZh: 'OriginMark 将图像生成和溯源串成一个工作流。用 TIDE 生成带水印的图像，或给已有图片添加保护，再检查验证工具能从输出文件中找回哪些证据。',
+  cardSummary: { en: 'A watermarking workspace for generated and existing images. Each signed release keeps the watermark readback for the delivered file.', zh: '给生成图和已有图像写入水印。每次签发都保留交付文件的水印回读结果。' },
+  summary: 'OriginMark handles two kinds of input. TIDE can generate an image with a watermark already embedded, and an existing image can be marked before release. The worker reads the watermark back from the finished file. Its release record keeps this result alongside the signature check.',
+  summaryZh: 'OriginMark 处理两类图像。新图可以用 TIDE 在生成时写入水印，已有图片也可以在发布前加上保护。签发时，后台会用实际交付的文件回读水印，把检测结果和签名核验结果一起存进发布记录。',
+  description: 'The workspace supports TIDE generation, protection of existing images and verification of exported files. Watermark detection and signature integrity have separate results.',
+  descriptionZh: '工作台支持 TIDE 生成、已有图像保护及文件核验。一张图是否检出了水印、签名是否完整，各有单独的核验结果。',
   image: '/images/projects/originmark-cover.webp',
   imageAlt: 'A ceramic teapot and pitcher from the OriginMark demonstration workspace',
   gallery: [],
@@ -165,18 +125,18 @@ export const projects:Project[] = [{
   technologyZh: '源码暂未公开。',
 }, {
   slug: 'epub-toolkit', title: 'EPUB Toolkit', category: 'Open-source software', categoryZh:'开源软件', year: 2026,
-  summaryZh: '把一套书装进一个 EPUB，卷与卷之间常有重名的章节和插图。EPUB Toolkit 在浏览器里整理资源路径和阅读顺序，并把分卷记录随合集保存，日后仍可拆回单册。',
-  cardSummary: { en: 'Merge EPUB volumes and split collections back into individual books in your browser.', zh: '在浏览器里合并 EPUB 分卷，也可以把合集拆回单册。' },
-  summary: 'A series is easier to carry as one book, but its volumes may reuse the same chapter and image names. EPUB Toolkit rebuilds their paths and reading order in the browser and saves the information needed to split the collection again.',
-  description: 'Arrange volumes in reading order, choose a grouped or continuous table of contents, then download a single EPUB. A collection merged with the toolkit can later be split back into individual books.',
-  descriptionZh: '按阅读顺序排列分卷，选择按书分组或连续的章节目录，导出一个 EPUB。使用本工具合并的合集，还可以重新拆分为单册。',
+  summaryZh: '一套电子书的两卷里，都可能有 chapter1.xhtml 和 cover.jpg。合并时，EPUB Toolkit 给每一卷单独安排路径，保留原来的章节顺序。分卷记录就存在合集里，下次拆书时还能找回各卷的内容。',
+  cardSummary: { en: 'An offline EPUB editor for collecting volumes in one book and splitting them apart again.', zh: '可以离线使用的 EPUB 小工具，在浏览器里合并分卷，也能拆回单册。' },
+  summary: 'Two volumes of an ebook can both have a chapter called chapter1.xhtml and an illustration called cover.jpg. EPUB Toolkit gives each volume its own paths inside the collection and keeps the original book order. A map saved in the EPUB makes the merge reversible.',
+  description: 'The merge queue sets the order of the volumes. The exported book supports a grouped or continuous table of contents and carries its own split record.',
+  descriptionZh: '合并队列里的排列顺序就是分卷顺序。导出时可以按卷编排目录，也可以让章节连续排列。合集里附有拆分所需的记录。',
   image: '/images/epub-workspace.webp', imageAlt: 'Actual EPUB Toolkit interface with book queue, output settings, table of contents preview, and download.',
   gallery: ['/images/epub-workspace.webp', '/images/epub-empty.webp'],
   previews: [
-    {id:'merge',label:'Merge',labelZh:'合并',image:'/images/epub-panel-merge.webp',width:762,height:429,mobile:'/images/epub-panel-merge-mobile.webp',mobileWidth:686,mobileHeight:752,alt:'Real EPUB Toolkit book queue with two volumes ready to merge',caption:'Arrange volumes before merging.',captionZh:'调整分卷顺序，准备合并。'},
-    {id:'output',label:'Output',labelZh:'输出',image:'/images/epub-panel-output.webp',width:352,height:363,alt:'Actual rebuilt EPUB contents and completed download',caption:'Review the contents and download the collection.',captionZh:'核对合集目录，下载合并结果。'},
-    {id:'split',label:'Split',labelZh:'拆分',image:'/images/epub-panel-split.webp',width:860,height:513,alt:'Actual split result with the two recovered original volumes',caption:'Recover the original volumes from a collection.',captionZh:'从合集中还原原始分卷。'},
-    {id:'inspect',label:'Inspect',labelZh:'检查',image:'/images/epub-panel-inspect.webp',width:620,height:470,mobile:'/images/epub-inspect-mobile.webp',mobileWidth:293,mobileHeight:533,alt:'Actual EPUB metadata, chapter structure, and package information',caption:'Check metadata and chapter structure.',captionZh:'检查元数据与章节结构。'},
+    {id:'merge',label:'Merge',labelZh:'合并',image:'/images/epub-panel-merge.webp',width:762,height:429,mobile:'/images/epub-panel-merge-mobile.webp',mobileWidth:686,mobileHeight:752,alt:'Real EPUB Toolkit book queue with two volumes ready to merge',caption:'Two volumes queued in reading order.',captionZh:'合并队列中的两册书，按阅读顺序排列。'},
+    {id:'output',label:'Output',labelZh:'输出',image:'/images/epub-panel-output.webp',width:352,height:363,alt:'Actual rebuilt EPUB contents and completed download',caption:'The exported collection and its rebuilt table of contents.',captionZh:'合并后的电子书及其重新编排的目录。'},
+    {id:'split',label:'Split',labelZh:'拆分',image:'/images/epub-panel-split.webp',width:860,height:513,alt:'Actual split result with the two recovered original volumes',caption:'Two separate books recovered from the collection.',captionZh:'拆分得到的两册电子书。'},
+    {id:'inspect',label:'Inspect',labelZh:'检查',image:'/images/epub-panel-inspect.webp',width:620,height:470,mobile:'/images/epub-inspect-mobile.webp',mobileWidth:293,mobileHeight:533,alt:'Actual EPUB metadata, chapter structure, and package information',caption:'Book metadata and chapter order in the inspector.',captionZh:'检查视图中的书籍信息和章节顺序。'},
   ],
   repo: 'https://github.com/yumizhi/lightweight_epub_merge_tool',
   demo: 'https://yumizhi.github.io/lightweight_epub_merge_tool/',

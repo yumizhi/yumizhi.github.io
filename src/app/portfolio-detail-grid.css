@@ -1,0 +1,95 @@
+/* Article measurements are local to the six case studies and research articles.
+   The navigation and article use the same outer width on a desktop display. */
+:root:has(main :is(.editorial-paper, .project-detail)) {
+  --detail-copy: 47.5rem;
+  --detail-visual: 65rem;
+  --editorial-copy-width: var(--detail-copy);
+  --editorial-shell-width: var(--detail-visual);
+}
+@media screen and (min-width: 51rem) and (min-height: 32rem) {
+  :root:has(main :is(.editorial-paper, .project-detail)) {
+    --editorial-shell-width: min(var(--detail-visual), calc(100vw - 2 * (var(--margin-rail-width) + var(--margin-gap) + 1.125rem)));
+  }
+}
+
+main .project-detail.portfolio-editorial,
+main .editorial-paper .paper-body-grid {
+  width: min(var(--editorial-shell-width), calc(100% - 2 * var(--editorial-gutter)));
+  min-inline-size: 0;
+  margin-inline: auto;
+}
+main :is(.editorial-paper, .project-detail) :is(.detail-text, .case-prose, .project-story-heading) {
+  inline-size: min(100%, var(--detail-copy)); margin-inline: auto;
+}
+main .editorial-paper .tide-masthead {
+  width: min(var(--detail-copy), var(--editorial-shell-width), calc(100% - 2 * var(--editorial-gutter)));
+}
+main .editorial-paper .tide-masthead h1 { margin-block: 0 1.15rem; }
+main .editorial-paper .tide-byline {
+  gap: .2rem 1.1rem; font-size: .938rem; line-height: 1.5;
+}
+main .editorial-paper .tide-byline li { white-space: nowrap; }
+main .editorial-paper .tide-affiliations {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+  gap: .3rem 1.3rem; margin-block: .65rem 0; font-size: .8125rem; line-height: 1.48;
+}
+main .editorial-paper .tide-affiliations li:has(sup) {
+  display: grid; grid-template-columns: .7rem 1fr;
+}
+main .editorial-paper .tide-affiliations sup {
+  align-self: start; top: 0; padding: 0; line-height: 1.35;
+}
+main .editorial-paper .tide-corresponding { margin-top: .4rem; }
+main .editorial-paper .tide-venue {
+  margin-top: 1rem; font-size: .875rem; color: var(--paper-ink);
+}
+main .editorial-paper .tide-paper-actions { margin-top: .25rem; }
+main .editorial-paper :is(.tide-abstract, .tide-chapter-head, .tide-prose, .paper-subsection, .paper-equation, .tide-paper-footer),
+main .project-detail.portfolio-editorial :is(.detail-heading, .breadcrumb, .project-availability) {
+  width: min(100%, var(--detail-copy)); max-width: var(--detail-copy);
+  margin-inline: auto; min-width: 0;
+}
+main .editorial-paper .tide-quant {
+  width: 100%; max-width: none;
+}
+main .editorial-paper .tide-quant > :is(h3, h4, p, .tide-table-wrap) {
+  width: min(100%, var(--detail-copy)); margin-inline: auto;
+}
+main .editorial-paper .tide-citation {
+  padding-inline: 0; border-radius: 0; background: transparent;
+}
+main .editorial-paper .paper-equation-math {
+  max-inline-size: 100%; overscroll-behavior-inline: contain;
+}
+main .editorial-paper .tide-table-wrap {
+  max-inline-size: 100%; min-inline-size: 0; overflow-x: auto;
+}
+main :is(.editorial-paper, .project-detail) .detail-figure,
+main .editorial-paper :is(.tide-overview, .tide-comparison, .paper-evidence-figure, .comparison-chart),
+main .project-detail.portfolio-editorial :is(.architecture-figure, .agent-product-evidence, .case-evidence, .workflow-preview .project-demo) {
+  inline-size: min(100%, var(--detail-visual)); max-inline-size: var(--detail-visual);
+  margin-inline: auto; min-inline-size: 0;
+}
+main .editorial-paper .worked-figure,
+main .project-detail.portfolio-editorial :is(#agent-handoff-comparison, #agent-context-selection, #agent-browser-measurements, #agent-runtime-trace, #agent-report-evidence, #agent-watch-replay) {
+  inline-size: min(100%, var(--detail-copy));
+}
+main :is(.editorial-paper, .project-detail) figure > figcaption {
+  max-inline-size: 100%; min-inline-size: 0;
+  line-height: 1.55; text-wrap: pretty;
+}
+main .editorial-paper .tide-overview > figcaption {
+  width: 100%; max-width: none; margin-inline: 0;
+}
+main .editorial-paper figcaption :is(p, a), main .project-detail figure > figcaption {
+  overflow-wrap: break-word;
+}
+main .project-detail .case-chapters { grid-template-columns: minmax(0,1fr); }
+main .editorial-paper :is(.tide-document, .tide-bound, section),
+main .project-detail :is(.case-chapters > *, .case-prose > *, .case-section) { min-inline-size: 0; }
+
+@media (max-width: 38rem) {
+  main :is(.editorial-paper, .project-detail) :is(.tide-prose, .tide-abstract p, .case-prose p) {
+    text-align: start; line-height: 1.65;
+  }
+}

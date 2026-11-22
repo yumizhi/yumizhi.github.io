@@ -1,0 +1,12 @@
+.tide-readback { margin-block: 1.6rem; }
+.readback-row { display: grid; grid-template-columns: minmax(5.6rem, .65fr) minmax(0,3fr); align-items: baseline; gap: .55rem; }
+.readback-row + .readback-row { margin-top: 1rem; }
+.readback-row > strong { font-size: .87rem; }
+.readback-row ol { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); list-style:none; padding:0; margin:0; }
+.readback-row li { position:relative; display:grid; justify-items:center; align-content:start; gap:.45rem; padding: .3rem .6rem; text-align:center; font-size:clamp(.78rem,2vw,.95rem); line-height:1.4; }
+.readback-row li i { font: italic 1.45rem Georgia,serif; color:var(--paper-caption); }
+.readback-row li[data-checkpoint] { color: var(--paper-link); background:color-mix(in srgb,var(--paper-link) 6%,transparent); }
+.readback-row li[data-checkpoint] i { color: inherit; }
+.readback-row li svg { position:absolute; inset-inline-end:-.5rem; top:.5rem; color:var(--paper-caption); }
+.tide-readback figcaption { margin-top:1rem; color:var(--paper-caption); font-size:.87rem; line-height:1.6; }
+@media(max-width:600px){.readback-row{grid-template-columns:minmax(0,1fr);} .readback-row li { padding-inline:.45rem; } }

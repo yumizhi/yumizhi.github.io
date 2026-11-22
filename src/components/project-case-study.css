@@ -49,53 +49,6 @@ html:has(.project-detail) { scroll-padding-top: 0; }
 .case-prose p { text-align: justify; text-align-last: start; }
 .case-prose p > [lang="en"] { hyphens: auto; }
 .case-prose p + p { margin-block-start: .9rem; }
-.case-flow {
-  max-inline-size: var(--editorial-copy-width);
-  margin: clamp(1.25rem, 3vw, 2rem) auto 0;
-  padding: clamp(.875rem, 3vw, 1.75rem);
-  border-radius: 1rem;
-  background: var(--portfolio-surface);
-}
-.case-flow figcaption {
-  margin: 0 0 .875rem;
-  color: var(--portfolio-ink);
-  font-size: .875rem;
-  font-weight: 640;
-}
-.case-flow .case-flow-steps {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  inline-size: 100%;
-  border-radius: .75rem;
-  max-inline-size: 100%;
-  overflow: clip;
-  padding: .2rem;
-}
-.case-flow .case-flow-step {
-  min-inline-size: 0;
-  justify-content: center;
-  min-block-size: 2.75rem;
-  gap: .35rem;
-  padding-inline: .375rem;
-  color: var(--portfolio-ink);
-  font-size: clamp(.75rem, .67rem + .35vw, .875rem);
-}
-.case-flow .case-flow-step[data-active] { color: var(--portfolio-link); }
-.case-flow-step svg { flex: none; opacity: .55; }
-.case-flow-panel { padding: clamp(.75rem, 2vw, 1.25rem) .125rem .125rem; }
-.case-flow-reading {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-  align-items: start;
-  gap: clamp(.75rem, 2.5vw, 1.5rem);
-}
-.case-flow p { font-size: .9375rem; }
-.case-flow-output {
-  border-inline-start: 1px solid var(--border);
-  padding-inline-start: clamp(.75rem, 2vw, 1.125rem);
-}
-.case-flow-output dt { color: var(--portfolio-secondary); font-size: .75rem; line-height: 1.45; }
-.case-flow-output dd { margin: .3125rem 0 0; color: var(--portfolio-ink); font-size: .875rem; font-weight: 650; line-height: 1.4; }
 .case-project-reference, .case-other-projects { max-inline-size: var(--editorial-copy-width); margin: 1.5rem auto 0; }
 .case-project-reference a, .case-other-projects a {
   display: inline-flex;
@@ -117,139 +70,45 @@ html:has(.project-detail) { scroll-padding-top: 0; }
   border-block-start: 1px solid var(--border);
 }
 
-@media (max-width: 37.5rem) {
-  .case-flow-reading { grid-template-columns: 1fr; }
-  .case-flow-step svg { display: none; }
+/* The sequence is read across on a wide page and down on a phone. */
+.case-flow { margin: 0 auto; width: 100%; }
+.case-flow figcaption { margin: 0 0 1.1rem; font-size: 1rem; font-weight: 600; }
+.case-exhibit { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: clamp(1rem,3vw,2.5rem); list-style: none; margin: 0; padding: 0; }
+.case-exhibit > li { min-width: 0; border-top: 1px solid var(--border); padding-block-start: .8rem; }
+.case-exhibit .case-action { display: block; color: var(--portfolio-link); font-size: .9rem; margin-bottom: .65rem; }
+.case-exhibit p { font-size: .93rem; line-height: 1.55; }
+.epub-paths, .origin-verdict { margin: 0 0 .8rem; }
+.epub-paths > div { display: grid; gap: .08rem; margin: .4rem 0; }
+.epub-paths small, .origin-verdict dt { color: var(--portfolio-secondary); font-size: .78rem; }
+.epub-paths code { color: var(--portfolio-ink); font: 520 .85rem/1.45 ui-monospace,monospace; overflow-wrap: anywhere; }
+.verdict-artifact { display: block; margin-bottom: .35rem; font-weight: 560; }
+.origin-verdict { display: grid; grid-template-columns: auto 1fr; align-items: baseline; gap: .18rem .7rem; }
+.origin-verdict dd { margin: 0; font-size: .86rem; font-weight: 560; }
+.case-result { display: block; margin-top: .65rem; color: var(--portfolio-ink); font-size: .85rem; line-height: 1.45; font-weight: 600; }
+.case-checks { width: 100%; margin-inline: auto; }
+#agent-deployment-scope { max-width: var(--detail-copy,47.5rem); }
+.deployment-receipts { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: clamp(.82rem,.75rem + .32vw,1rem); }
+.deployment-receipts :is(th, td) { text-align: start; vertical-align: top; padding: .6rem .5rem .6rem 0; overflow-wrap: break-word; }
+.deployment-receipts thead { border-bottom: 1px solid var(--figure-rule); }
+.deployment-receipts thead th:first-child { width: 24%; }
+.deployment-receipts th { font-weight: 590; }
+.deployment-receipts td { color: var(--portfolio-secondary); }
+.calibration-plot { display: grid; gap: .9rem; }
+.calibration-row { display: grid; grid-template-columns: minmax(7em,1fr) minmax(8rem,2fr) minmax(5.5rem,.65fr); align-items: center; gap: 1.25rem; }
+.calibration-row strong { font-size: .9rem; font-weight: 570; }
+.calibration-track { height: .62rem; position: relative; background: var(--figure-rule); }
+.calibration-track::after { content: ""; position: absolute; left: 33.3333%; inset-block: -.34rem; border-left: 1px dashed var(--portfolio-ink); }
+.calibration-track i { display: block; height: 100%; background: var(--figure-accent); }
+.calibration-readout { font-variant-numeric: tabular-nums; font-weight: 620; line-height: 1.35; }
+.calibration-readout small { display: block; font-weight: 450; color: var(--portfolio-secondary); }
+@media (max-width: 40rem) {
+  .case-exhibit { grid-template-columns: 1fr; }
+  .epub-paths { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+  .calibration-row { grid-template-columns: minmax(0,1fr) max-content; gap: .4rem .8rem; }
+  .calibration-row strong { grid-area: 1 / 1; }
+  .calibration-track { grid-area: 2 / 1; }
+  .calibration-readout { grid-area: 1 / 2 / 3; text-align: end; }
 }
-
-.case-flow {
-  max-inline-size: 51.5rem;
-  border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--background) 55%, var(--portfolio-surface));
-}
-.case-flow figcaption {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: .75rem;
-}
-.case-flow .case-play {
-  flex: none;
-  color: var(--portfolio-link);
-  padding-inline: .55rem;
-  gap: .35rem;
-  min-block-size: 2.375rem;
-  font-size: .75rem;
-}
-.case-flow .case-play svg { inline-size: .9rem; block-size: .9rem; }
-.case-flow .case-flow-panel { padding-block-start: .9rem; }
-.case-flow-stage { display: grid; gap: clamp(.95rem, 2.5vw, 1.55rem); }
-
-.trace-epub, .trace-origin {
-  padding: clamp(.75rem, 2.1vw, 1.35rem);
-  border-radius: .8rem;
-  background: var(--portfolio-surface);
-}
-.trace-epub-volumes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(.45rem, 2vw, 1rem); }
-.trace-epub-volumes > div {
-  padding: clamp(.5rem, 1.6vw, .875rem);
-  border-radius: .625rem;
-  background: var(--background);
-  border: 1px solid var(--border);
-}
-.trace-epub[data-phase="merge"] .trace-epub-volumes > div { border-color: color-mix(in srgb, var(--portfolio-link) 36%, var(--border)); }
-.trace-epub-label, .trace-epub-record {
-  display: flex;
-  align-items: center;
-  gap: .375rem;
-  font-size: .8125rem;
-  font-weight: 650;
-  line-height: 1.35;
-}
-.trace-epub-label svg, .trace-epub-record svg {
-  flex-shrink: 0;
-  color: var(--portfolio-link);
-}
-.trace-epub-volumes code {
-  display: block;
-  margin-top: .4rem;
-  color: var(--portfolio-secondary);
-  font: 500 clamp(.6725rem, .61rem + .38vw, .825rem)/1.35 ui-monospace, monospace;
-  overflow-wrap: anywhere;
-}
-.trace-epub[data-phase="merge"] code { color: var(--portfolio-link); }
-.trace-epub-connector { display: block; inline-size: 100%; block-size: 1.875rem; }
-.trace-epub-connector path { fill: none; stroke: var(--portfolio-link); stroke-width: 1.15; stroke-opacity: .65; vector-effect: non-scaling-stroke; }
-.trace-epub-record {
-  width: fit-content;
-  margin-inline: auto;
-  padding: .55rem .75rem;
-  border-radius: .65rem;
-  background: var(--background);
-}
-
-.trace-origin {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-  gap: clamp(.5rem, 2vw, 1.25rem);
-  align-items: center;
-}
-.trace-origin-image {
-  position: relative;
-  overflow: clip;
-  isolation: isolate;
-  border-radius: .625rem;
-  aspect-ratio: 1.7;
-  background: var(--background);
-}
-.trace-origin-image img { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; }
-.trace-origin-image span {
-  position: absolute;
-  inset: auto auto .45rem .45rem;
-  padding: .25rem .375rem;
-  background: #252129;
-  color: #fff;
-  border-radius: .35rem;
-  font-size: .6875rem;
-  line-height: 1.2;
-}
-.trace-origin-image span span { position: static; padding: 0; background: transparent; }
-.trace-origin-evidence { margin: 0; display: grid; gap: .4rem; }
-.trace-origin-evidence > div {
-  display: grid;
-  gap: .2rem;
-  padding: .45rem .625rem;
-  background: var(--background);
-  border: 1px solid var(--border);
-  border-radius: .5rem;
-}
-.trace-origin-evidence dt { color: var(--portfolio-secondary); font-size: .75rem; }
-.trace-origin-evidence dd { margin: 0; font-size: .8125rem; font-weight: 650; }
-.trace-origin-evidence [data-evidence="watermark"] dd { color: var(--portfolio-link); }
-
-.case-checks { max-inline-size: var(--editorial-copy-width); margin: 1.25rem auto 0; border-block-start: 1px solid var(--border); }
-.case-checks [data-slot="accordion-trigger"] { color: var(--portfolio-ink); font-weight: 600; }
-.case-checks [data-slot="accordion-trigger"][aria-expanded="true"] { color: var(--portfolio-link); }
-.case-checks [data-slot="accordion-panel"] p { margin: 0; color: var(--portfolio-secondary); line-height: 1.65; text-wrap: pretty; }
-@media (prefers-reduced-motion: reduce) {
-  .case-checks [data-slot^="accordion-"] { transition: none; }
-}
-@media (max-width: 38rem) {
-  .case-flow figcaption { align-items: flex-start; }
-  .case-flow .case-flow-steps [data-slot="tab-indicator"] { display: none; }
-  .case-flow .case-flow-step[data-active] { background: var(--background); box-shadow: 0 1px 3px #22152c13; }
-  .case-flow .case-play { margin-block-start: -.45rem; }
-  .trace-origin { grid-template-columns: 1fr; }
-  .trace-origin-image { aspect-ratio: 2.2; }
-}
-@media (max-width: 23rem) {
-  .case-flow .case-play { font-size: .68rem; padding-inline: .3rem; }
-}
-@media (pointer: coarse) {
-  .case-flow .case-play { min-block-size: 2.75rem; }
-}
-.trace-origin[data-phase="generate"] img { object-position: 50% 63%; }
-
 .project-detail :is(.case-section, #preview, .case-chapter, .architecture-figure)[id] { scroll-margin-top: 4.25rem; }
 @media screen and (min-width: 51rem) and (min-height: 32rem) {
   .case-contents {
