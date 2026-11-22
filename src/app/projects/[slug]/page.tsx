@@ -48,7 +48,7 @@ export default async function Project({params}:{params:Promise<{slug:string}>}) 
     {p.repo&&<Button asChild variant="outline"><a href={p.repo} target="_blank" rel="noreferrer">GitHub <ArrowUpRight size={16}/></a></Button>}
     {p.release&&<Button asChild variant="ghost"><a href={p.release} target="_blank" rel="noreferrer"><Localized en="Releases" zh="版本发布"/> <ArrowUpRight size={16}/></a></Button>}
    </div>}
-   {!p.repo && <p className="project-source-note"><Localized en={p.technology} zh={p.technologyZh??p.technology} /></p>}
+   {!p.repo && p.technology && <p className="project-source-note"><Localized en={p.technology} zh={p.technologyZh??p.technology} /></p>}
   </header>
   <ProjectCaseContents slug={p.slug} />
   <ProjectCaseStudy project={p} />

@@ -1,12 +1,11 @@
 export type Bilingual = { en: string; zh: string };
 
 export type ArticleFigure = 'epub-worker-handoff' | 'epub-path-roundtrip' | 'originmark-teapot-report' |
-  'originmark-lease-recovery' | 'agent-run-link' | 'agent-report-evidence' | 'agent-runtime-trace' |
-  'agent-workflow-data' | 'agent-message-transport' | 'agent-watch-replay' | 'agent-browser-measurements' | 'agent-context-selection' | 'agent-collection-schedule' | 'agent-handoff-comparison';
+  'originmark-lease-recovery' | 'agent-run-link' | 'agent-runtime-trace';
 
 export type CaseCheck = {title: Bilingual; body: Bilingual};
 export type ProjectStep = CaseCheck & { id: string; label: Bilingual; output: Bilingual };
-type CaseFigure = ArticleFigure | 'gallery' | 'architecture' | 'merge-record' | 'epub-docs' | 'tide-link' | 'calibration' | 'member-evidence' | 'deployment-scopes';
+type CaseFigure = ArticleFigure | 'gallery' | 'architecture' | 'merge-record' | 'epub-docs' | 'tide-link' | 'calibration';
 export type CaseBlock = { title?: Bilingual; id?: string; paragraphs?: Bilingual[]; figure?: CaseFigure; checks?: CaseCheck[]; steps?: ProjectStep[] };
 export type CaseSection = {id: string; label: Bilingual; title: Bilingual; blocks: CaseBlock[]};
 
@@ -142,24 +141,24 @@ export const projectArticles: Record<string, CaseSection[]> = {
     {
       id: "verification",
       label: { en: "Round-trip checks", zh: "往返验证" },
-      title: { en: "Round-trip tests on restored volumes", zh: "还原分卷的往返测试" },
+      title: { en: "Links and resources in a restored volume", zh: "分卷还原后的链接与资源" },
       blocks: [
         {
           title: { en: "Chapter links, fonts and navigation", zh: "章节链接、字体和导航" },
           paragraphs: [
-            { en: "The resource fixtures check the relative URL emitted in the merged XHTML and CSS, reopen a reconstructed volume and check those links again. The font fixture verifies that both sources can recover the font bytes and that SVGs with local references still have distinct entries. Other fixtures exercise EPUB 2 NCX, nested EPUB 3 navigation, filenames with spaces, query and fragment preservation, and old v1 records without the optional package metadata.", zh: "资源测试先检查合并后 XHTML 和 CSS 写出的具体相对链接，再打开重建的分卷，核对链接是否恢复。字体用例会比对恢复后的字体字节，并检查含有本地引用的 SVG 仍然分别保存。其余样本覆盖 EPUB 2 的 NCX、嵌套的 EPUB 3 目录、带空格的文件名、查询参数和片段，以及缺少可选包元数据的旧版 v1 合并记录。" },
-            { en: "EPUBCheck validates the container and package documents in both the combined and split files. Separate round trips merge with TypeScript and split with Python, then reverse the two implementations. Browser tests exercise cancellation, stale download URLs and offline worker operation.", zh: "合订本和拆出的分卷都经过 EPUBCheck 检查，覆盖容器和包文档。跨实现测试分别用 TypeScript 合并、Python 拆分，以及 Python 合并、TypeScript 拆分。浏览器测试另外覆盖取消操作、过期下载地址和离线工作线程。" },
+            { en: "A restored volume can contain its original chapter and directory structure even when the collection stores only one copy of a font. Each volume has its own link map. That map also preserves the fragments in chapter links and the paths in nested stylesheets. An SVG that refers to other files keeps its original directory context.", zh: "两卷书即使共用同一份字体，拆开后仍各自保有完整的资源目录。合集为每卷保存了引用关系，其中包括章内跳转的片段、嵌套样式表中的相对路径。对还会引用其他文件的 SVG，引擎会保留它原来的目录关系。" },
+            { en: "The browser, Node.js and Python versions read the same merge record. A collection made on a laptop in the browser can later be split with the Python command line. The exported collection and its restored volumes can also be checked with EPUBCheck.", zh: "浏览器、Node.js 和 Python 版本能读取同一种合并记录。在笔记本浏览器里做好的合订本，以后也能用 Python 命令行拆回去。合订本和还原出的分卷都可以用 EPUBCheck 检查。" },
           ],
         },
         {
           checks: [
             {
               title: { en: "A pooled resource still resolves after splitting", zh: "资源合并去重后，拆开仍能正确引用" },
-              body: { en: "The resource tests merge books with shared binaries and nested CSS references. They read the merged files, split the collection, then resolve the restored references again.", zh: "资源测试用包含共用二进制资源和嵌套 CSS 引用的电子书执行合并，检查合集中的文件，再拆分并重新解析恢复后的引用。" },
+              body: { en: "A shared image occupies one place in the collection. Splitting copies its bytes back to each volume that used it, so a chapter or stylesheet still resolves the corresponding relative URL.", zh: "共用插图在合集里只存一份。拆开时，引擎将图片按原路径写回用到它的各卷，章节和样式表里的相对链接仍能找到原图。" },
             },
             {
               title: { en: "Missing resources and unsupported formats", zh: "缺失资源与不支持的版式" },
-              body: { en: "Compatibility tests exercise missing resources, fixed-layout books and media overlays. A merge record is required for volume reconstruction.", zh: "兼容性测试包含缺失资源、固定版式和媒体叠加包。重建分卷时，引擎要求合集包含合并记录。" },
+              body: { en: "A missing resource stops the merge before a download is offered. Fixed-layout books and synchronized media overlays are outside the reflowable format supported here. A collection needs a merge record to restore its original volumes.", zh: "包中缺少被引用的资源时，合并会停止。固定版式与同步媒体叠加超出了工具支持的可重排版式范围。要恢复原分卷，合集还需保留合并记录。" },
             },
           ],
         },
@@ -253,7 +252,7 @@ export const projectArticles: Record<string, CaseSection[]> = {
           title: { en: "Batch requests retain the outcome of each image", zh: "批量发布保留每张图自己的结果" },
           paragraphs: [
             { en: "The directory demo repeats the single-image path for multiple inputs. A batch groups the jobs and provides an aggregate status, while each item has its own attempts and output. An item that fails the watermark or quality check can be retried without asking the user to regenerate successful outputs. A batch can therefore finish with usable released files and a list of failed items at the same time.", zh: "目录批量示例把单张图片的流程用于一组输入。Batch 聚合任务并给出总体进度，每个成员仍有自己的尝试记录与输出。某张图在水印回读或质量检查时失败，可以单独重试，其他已发布文件仍可下载。批次结束时可以同时交付成功的文件，并列出失败项，而不必让整组结果一起作废。" },
-            { en: "A JSON or CSV batch manifest lists each item’s status and final file hash. An importer can match a download against its release record using those fields. Repeating the directory submission in the recorded test reused the existing batch identities. Individual jobs still use their own leases and publication transactions.", zh: "批次的 JSON 或 CSV 清单逐项列出状态和最终文件哈希。上游导入时据此核对下载件与发布记录。目录验收中，重复提交相同输入复用了已有批次标识；批次内的计算任务仍按各自的租约和发布事务执行。" },
+            { en: "Each entry in the batch manifest carries the file’s status and hash. A publisher can distribute the successful files immediately and use that manifest, in JSON or CSV, to check the download or find an item that needs another attempt.", zh: "发布清单为每个文件保留处理状态和哈希。发布者可以先交付已经签发的图片，使用 JSON 或 CSV 清单核对下载件，也能单独找出需要再处理的文件。" },
           ],
         },
       ],
@@ -313,37 +312,25 @@ export const projectArticles: Record<string, CaseSection[]> = {
     },
     {
       id: "verification",
-      label: { en: "Calibration & release tests", zh: "校准与签发试验" },
+      label: { en: "Calibration and reports", zh: "校准与核验报告" },
       title: { en: "Release evidence and its limits", zh: "发布证据与校准范围" },
       blocks: [
         {
-          title: { en: "Runner parity and detector calibration", zh: "运行器一致性与检测器校准" },
+          title: { en: "Calibrating a TIDE presence finding", zh: "TIDE 存在性检测的阈值" },
           paragraphs: [
-            { en: "The integration tests ran the original TIDE script, its wrapper and the product runner with the same inputs and pinned settings. The recorded fixtures produced identical PNG hashes and raw detector scores. Estimating false positives required a different dataset: unmarked images that the runner had not used to set its threshold.", zh: "接入 TIDE 时，原研究脚本、适配层和产品运行器使用相同输入和固定配置。记录中的样本产生了完全一致的 PNG 哈希和原始检测分数。误报率另用负样本测量，测试图像与选定阈值所用图像分开统计。" },
+            { en: "The TIDE detector compares a recovered spectrum with the watermark template. Turning that distance into a presence finding requires a threshold associated with the generation and inversion settings. A change in either can shift the distances, even on unmarked images.", zh: "TIDE 检测器计算反演得到的频谱与水印模板之间的距离。判定水印存在需要一道与生成、反演配置匹配的阈值。配置改变后，同一批无水印图像的距离分布也可能变化。" },
             { en: "A calibration record specifies the sampler, inversion settings and watermark configuration associated with its threshold. When a run uses another profile, the report still retains its raw score. The detection field stays inconclusive until the matching profile has a calibration record.", zh: "校准记录将阈值绑定到采样器、反演设置和水印配置。换用另一组设置时，报告仍保留原始分数。对应配置没有校准记录，检测结论就保留为未定。" },
-            { en: "The isolated TIDE evaluation set its threshold on 5,000 negative images and froze it for the remaining tests. All 1,000 marked PNGs were detected. At the 1% false-positive target, 12 of 2,500 generated JPEGs, 52 of 2,500 photographs and 24 of 1,000 additional PNG controls crossed the threshold. These rates describe the unedited cohorts. Some PNG controls share image content with the JPEG cohort.", zh: "独立 TIDE 验收用 5,000 张负样本确定阈值，其余测试均使用这个固定值。1,000 张带水印 PNG 全部检出。误报目标为 1%，实测有 12/2,500 张生成 JPEG、52/2,500 张照片和 24/1,000 张额外 PNG 对照超过阈值。各组均为未经编辑的图像，部分 PNG 对照与 JPEG 组共享图像内容。" },
+            { en: "The full TIDE profile used 5,000 unmarked images to set a threshold, then evaluated it on separate images. At a nominal 1% false-positive rate the detector found the watermark in all 1,000 marked PNGs. The observed false-positive rates varied among generated JPEGs, photographs and additional PNG controls. These groups contain unedited images. Some PNG controls share image content with the JPEG group.", zh: "完整 TIDE 配置用 5,000 张无水印图像确定阈值，再用另一组图像评估。在标称误报率为 1% 的阈值下，1,000 张带水印 PNG 全部检出。实际误报率随图像来源而异，生成 JPEG、照片和额外的 PNG 对照分别列在下图中。各组图像均未经编辑，部分 PNG 对照与 JPEG 组共享图像内容。" },
           ],
         },
         {
           figure: "calibration",
         },
         {
-          title: { en: "Browser, batch and fault-injection evidence", zh: "浏览器、批量与故障注入的验收记录" },
+          title: { en: "Sharing a verification report", zh: "核验报告的交付" },
           paragraphs: [
-            { en: "The recorded browser run used the marked TIDE output for a verification, returned to the same artifact in Library, ran TrustMark Protect and checked the downloaded signed PNG. The recovered payload matched the registered release, and the verification report could be exported as PDF. A separate directory test published six images in two batches, downloaded the six outputs and checked their SHA-256 values. Repeating that submission reused the saved batch identities.", zh: "浏览器验收先验证 TIDE 生成的标记图，再从素材库复用同一产物执行 TrustMark 保护，最后核对下载的签名 PNG。回读水印载荷能匹配已登记发布，验证报告也可导出为 PDF。另一次目录验收把六张图分成两批发布，下载六份结果并逐一比对 SHA-256。重复提交时，保存的批次身份保持一致。" },
-            { en: "The reliability checks separately stopped a TIDE runner while it was handling a detection. The interrupted task failed, the worker stayed available, and the next detection succeeded. Earlier runtime checks on a dedicated demo also exercised duplicate delivery, active cancellation and a result-write failure after computation. These cases check recovery and publication behavior on those environments. Model robustness under arbitrary edits and production-wide performance require their own workload and evidence.", zh: "可靠性验收还在一次检测进行中终止 TIDE runner。被打断的任务记录为失败，Worker 继续存活，后续检测成功。较早一轮独立演示环境的运行时验收覆盖了重复投递、运行中取消，以及计算完成后数据库结果写入失败。它们检验的是这些环境下的任务恢复与发布行为。任意图像编辑后的水印鲁棒性和线上容量需要各自的负载与测量。" },
-          ],
-        },
-        {
-          checks: [
-            {
-              title: { en: "Payload match on the signed download", zh: "签名下载件的载荷匹配" },
-              body: { en: "The TrustMark protection check validated the signed file and matched its recovered payload to the registered release. The Studio walkthrough carried the generated artifact through to that check and exported the verification report as PDF.", zh: "TrustMark 保护验收核对了签名文件，并将恢复的水印载荷与已登记的发布记录匹配。工作台演示沿用前面生成的产物完成检查，并导出验证报告。" },
-            },
-            {
-              title: { en: "Detector recovery after an interrupted call", zh: "检测进程中断后的恢复" },
-              body: { en: "Reliability checks interrupted the TIDE runner and observed the current job fail. The worker remained available and the subsequent detection ran successfully.", zh: "可靠性检查主动中断 TIDE 计算进程，当前任务记录为失败，处理进程仍然可用，随后一次检测成功完成。" },
-            },
+            { en: "A recipient can reopen an image verification report through a read-only link, or keep a PDF alongside the downloaded image. The report keeps the watermark finding, credential integrity and issuer trust separate. An image with a detected watermark can still have no signed credential attached.", zh: "收件人可以通过只读链接打开图像的核验报告，也可以把 PDF 和下载的图片一起保存。报告分别记录水印检出、凭证完整性和签发者信任情况。一张检测出水印的图片也可能没有附加签名凭证。" },
+            { en: "A publisher handling many files can export the verification data as JSON. The release association and file hash tie each report to the particular copy checked. A resized copy has different bytes and can be submitted for its own verification.", zh: "批量处理图片时，发布者可以导出 JSON 格式的验证数据。关联的发布记录和文件哈希标明了本次核验使用的那一份图片。图片缩放后字节已经改变，新文件可以单独送检。" },
           ],
         },
       ],
@@ -351,220 +338,63 @@ export const projectArticles: Record<string, CaseSection[]> = {
   ],
   "personal-agent": [
     {
-      id: "design",
-      label: { en: "Motivation", zh: "开发缘起" },
-      title: { en: "Scheduled tasks in a personal workspace", zh: "个人工作台里的定时任务" },
+      id: "design", label: { en: "Workspace", zh: "工作台" },
+      title: { en: "The work that stays after a conversation", zh: "对话结束后的任务" },
+      blocks: [{ paragraphs: [
+        { en: "A request for a daily brief may take one message to describe, but the work recurs long after the conversation ends. Personal Agent gives that request a place of its own. A member can draft it in a chat, confirm the sources, local time and destination, and later find both the schedule and the reports in the web workspace. The browser can be closed between runs.", zh: "一句“每天早上把我关注的更新发给我”，说完就可以关掉对话，背后却有件事得每天有人做。Personal Agent 会把这类请求存成任务。成员可以在聊天里起草，确认订阅来源、当地时间和收件渠道。过几天再打开工作台，排期还在，之前收到的简报也能找到。" },
+        { en: "The same installation also hosts applications built in Studio. A member can run a published assistant in a private chat without having to edit its workflow. Its author can continue working on a draft while the published version serves existing requests.", zh: "有些工作还需要一套固定的工具和流程。作者在 Studio 里编排、发布应用，获得授权的成员就能在网页或绑定的私聊中使用。作者随后可以继续改草稿，已经发起的任务仍然使用当时发布的版本。" },
+      ] }],
+    },
+    {
+      id: "preview", label: { en: "Product views", zh: "产品界面" },
+      title: { en: "The member workspace and Studio", zh: "成员工作台与 Studio" },
       blocks: [
-        {
-          paragraphs: [
-            { en: "“Send me a maintenance brief every morning” specifies a recurring job as well as a request for information. The assistant needs a local time, a source and a destination for the finished report. Personal Agent stores those choices in the member’s workspace. The scheduler can run while the browser is closed, and the member can reopen yesterday’s brief on the web or receive the next one in a bound chat.", zh: "“每天早上给我一份维护简报”需要明确几点执行、查哪份资料，以及把报告发到哪里。Personal Agent 将这些设置保存在成员工作台里。浏览器关闭期间，调度器照常执行。成员可以在网页上翻看昨天的简报，也可以在绑定的聊天渠道里收到今天的报告。" },
-          ],
-        },
+        { figure: "gallery" },
+        { paragraphs: [
+          { en: "The member workspace keeps a report with the task that produced it. A notification is useful when a report arrives, but the workspace matters a week later, when the member wants to reopen the original source or adjust the next delivery. Changing the destination or the sources of a watch creates a new plan for approval.", zh: "成员收到通知时，可以直接打开报告。过一周想找回当时引用的文章，或者改一下下次的发送时间，也能顺着任务找到原来那份计划。长期关注任务更换来源或收件范围后，会产生一份需要重新确认的计划。" },
+          { en: "Studio has separate editors for an agent and a workflow. The agent editor sets the model, knowledge and tools available in a conversation. The workflow editor arranges steps on a canvas. Selecting a node exposes its inputs and exits, so the author can change a parameter, insert a step or reconnect a branch. On a narrow screen the steps can also be edited as a list.", zh: "Studio 里有两种编辑工作。配置 Agent 时，作者选择它可以调用的模型、知识集合和工具。编排工作流时，画布上显示的是步骤和连线。选中节点就能修改参数、插入步骤或重接出口；手机上也可以用步骤列表编辑同一个流程。" },
+        ] },
       ],
     },
     {
-      id: "preview",
-      label: { en: "Member workspace", zh: "成员工作台" },
-      title: { en: "Tasks, results and the Studio editor", zh: "成员任务、运行结果和 Studio 编辑器" },
+      id: "decisions", label: { en: "Source watches", zh: "长期关注" },
+      title: { en: "Following a source without repeating every update", zh: "长期关注与定时摘要" },
+      blocks: [{ paragraphs: [
+        { en: "A watch can follow a release feed, an arXiv subscription or an RSS feed. Members choose which topics warrant a prompt notification, which updates can wait for the digest, and when notifications should be quiet. Marking an item as irrelevant lowers the priority of later matches on that topic. The subscription itself stays in place.", zh: "成员可以订阅软件发布动态、arXiv 或 RSS，指定优先关注的主题、摘要时间和免打扰时段。这样，一个重要版本有更新时可以单独提醒，其余消息留到日报。如果某条更新选得不合适，标记“不相关”就会降低同主题后续更新的优先级，原来的订阅仍然保留。" },
+        { en: "Each poll compares source addresses and fingerprints of titles and excerpts with the last successful snapshot. Changes selected for a digest remain pending until delivery. The original links travel with the excerpts. If a member enables model commentary, it is stored separately, and the source material can still be delivered when there is no model response.", zh: "系统每次采集都会和上一次成功读取的快照比较。它用规范化后的链接识别条目，用标题和摘录的指纹判断内容有没有变化。待汇总的条目会一直保留到摘要发送时。原文链接随摘录保存；成员启用模型解读后，解读单独呈现。即使没有得到模型回复，来源材料仍能送达。" },
+        { en: "A useful watch can be saved as a reusable method after a successful run. The member reviews its sources, keywords and delivery rules before saving a version. Reusing it for another goal requires a new schedule, recipient and approval. This keeps the useful reading routine portable while leaving the original authorization with its task.", zh: "一次关注任务运行得合适，成员可以把这次用过的方法留下来。保存前能核对来源、关键词和摘要规则。下次换个关注目标时，这份配置可以复用，新的时间、收件渠道和授权则要单独确认。" },
+      ] }],
+    },
+    {
+      id: "architecture", label: { en: "Execution paths", zh: "执行路径" },
+      title: { en: "One scheduled task can run a published application", zh: "定时任务调用已发布应用" },
       blocks: [
-        {
-          figure: "gallery",
-        },
-        {
-          paragraphs: [
-            { en: "A request in Web Chat or a bound private chat opens a task draft. The member can edit its local time, recurrence and destination before approving it. Today lists the next occurrence alongside pending approvals. Results keeps the finished report, sources and attachments. Its run record shows whether the delivery channel has acknowledged receipt, including when the report is already available on the web and the external receipt is still pending.", zh: "在网页对话或已绑定的私聊中交代任务后，工作台会生成草稿，成员可以修改当地时间、周期和收件渠道。批准后，「今日」列出下一次排期和待处理审批。「成果」保留报告、引用和附件，并关联运行记录。有时报告已经能在网页打开，聊天渠道的回执还在等待确认，两种状态都能查到。" },
-            { en: "Studio is the authoring side of the same product. A developer gives an agent a bounded set of tools, wires steps into a workflow, tests an input, then publishes a version. A member with access can invoke that application from their workspace. In Studio, the developer can reopen the resulting run, inspect a particular step and turn the original input into an evaluation case. Operate gives administrators a separate view of queues, channels and model usage.", zh: "Studio 面向搭建助手的人。开发者给 Agent 配置工具，把读取资料、计算、审批等步骤连成工作流，用示例输入调试，再发布一个版本。获得授权的成员就能在个人工作台调用它。一次回答有问题，开发者可以回到 Studio，定位当次运行的具体步骤，把原始输入固定成下次发布前的评测案例。管理员则从 Operate 查看队列、渠道和模型用量。" },
-          ],
-        },
-        {
-          figure: "member-evidence",
-        },
+        { figure: "architecture" },
+        { paragraphs: [
+          { en: "Web, QQ and WeChat identify the member at the edge of the system. A scheduled task belongs to that member. An application has a published definition, project permissions and its own run history. When the schedule calls an application, the scheduler records which application run belongs to this occurrence. The result can then be delivered through the member’s chosen channel and reopened from the originating task.", zh: "网页、QQ 和微信负责识别发起请求的成员。定时任务属于个人；应用则有自己的发布版本、项目权限和运行历史。排期触发应用时，调度器会记下这一次任务对应哪一条应用运行。结果可以送回成员选定的渠道，后来在工作台上打开原任务，也能找到同一份结果。" },
+          { en: "The distinction matters when a process restarts. A recurring task may already have launched its application when the scheduler stops. Recording their association lets the scheduler pick up the existing run. Inside the workflow, completed steps have checkpoints in SQLite. A new worker can resume at the next eligible step, including after a pause for human approval.", zh: "如果调度器恰好在应用启动后重启，这层关联就派上了用场。调度器恢复后可以继续等原来那次运行，避免为同一份排期再次启动应用。工作流内部则把已完成的步骤写入 SQLite。换一个工作进程，或者等一次人工审批回来，执行都可以从下一个可运行的节点接续。" },
+        ], figure: "agent-run-link" },
       ],
     },
     {
-      id: "architecture",
-      label: { en: "Execution paths", zh: "执行路径" },
-      title: { en: "Personal tasks and published applications", zh: "个人任务与已发布应用" },
+      id: "implementation", label: { en: "Model & tools", zh: "模型与工具" },
+      title: { en: "Model context and tool access", zh: "模型上下文与工具权限" },
       blocks: [
-        {
-          paragraphs: [
-            { en: "Web, QQ and WeChat adapters identify the member and normalize incoming messages. Personal tasks enter through the member workspace. Published applications enter through Studio, the SDK or a trigger. Both use the account’s model grants and a SQLite store, but the project worker reads inputs and knowledge scoped to its project. Joining a project leaves the member’s private conversation history outside the application context.", zh: "网页、QQ 与微信的适配器识别成员，把各自的消息转换成平台可处理的输入。个人任务从工作台进入，项目应用则可由 Studio、SDK 或定时触发启动。两条路径复用账号、模型授权和 SQLite 存储。项目工作进程只读取当前项目允许使用的输入和知识；成员加入项目后，个人对话和私人记忆仍留在个人空间。" },
-          ],
-        },
-        {
-          figure: "architecture",
-        },
-        {
-          title: { en: "Run identity for a recurring task", zh: "周期任务的运行关联" },
-          paragraphs: [
-            { en: "The studio saves a published definition as a snapshot. Each workflow run pins that version and the input supplied by the caller. A worker claims a ready step with a lease and commits its output to SQLite. A later worker can continue at the next eligible step, even if the browser and original worker have both gone away. Before writing to an external system, the platform freezes the proposed operation and its parameters for the approving member.", zh: "Studio 把发布的定义保存为快照。每次运行都锁定版本和调用者交来的输入。工作进程凭租约领取一个可执行节点，完成后把输出提交到 SQLite。即使浏览器关闭、原进程退出，后续进程也能从下一个满足条件的节点接续。涉及外部写入时，平台会先冻结这次操作及其参数，交给成员批准。" },
-            { en: "A recurring personal task can also invoke a published application. At each due time the scheduler stores the link between the occurrence and its child application run. After a restart, that link lets the parent wait for the existing child and route its result back to the member. Starting the application again would create two executions for one morning’s brief.", zh: "周期任务也可以调用已发布的应用。执行时间到达时，调度器记下本次排期与应用子运行之间的关联。服务重启后，父任务沿这条记录找到仍在进行的子运行，等它完成，再把成果送回成员。如果每次恢复都重新启动应用，同一份早报就可能执行两遍。" },
-          ],
-          figure: "agent-run-link",
-        },
-        {
-          title: { en: "Channel delivery receipts", zh: "渠道投递回执" },
-          paragraphs: [
-            { en: "Project reports appear in the project inbox. Personal tasks can send results to the web inbox or a bound chat. On input, a channel adapter normalizes the message and checks its identity for duplicates. On output, the run records model completion, report creation and channel acknowledgement separately. A missing acknowledgement leaves delivery pending for reconciliation because the remote service may already have accepted the message.", zh: "项目报告写入项目收件箱，个人任务还可以选择网页收件箱或绑定的聊天渠道。接收消息时，适配器统一消息格式，按消息标识去重。投递结果时，运行记录分别保存模型结束、报告生成和渠道确认。若最后一次确认丢失，消息可能已经送达，系统会保留待核对状态。" },
-          ],
-          id: "agent-messages",
-          figure: "agent-message-transport",
-        },
+        { paragraphs: [
+          { en: "A Pi model turn runs with the tools and knowledge available to its deployment. A read request is checked before the result returns to the model. The workflow engine owns the longer-lived state, including which step is active, which result has been saved and whether a proposed external action needs approval. A model call can finish before the person who will approve that action is online.", zh: "Pi 的一次模型调用只能使用当前部署获准的工具和知识。读取请求经过校验，结果再回到本轮对话。哪一步已经执行、哪份结果已经保存、哪项外部操作还在等待批准，这些状态由工作流引擎接管。一轮模型调用可以很快结束，负责审批的人晚些时候上线也能接着处理。" },
+        ], figure: "agent-runtime-trace" },
+        { paragraphs: [
+          { en: "Personal conversations have a different context boundary. Recent turns take priority. Within the remaining budget, the system selects confirmed memories, linked tasks and older turns that match the request, then restores chronological order for the model. A member can withdraw a saved memory. Group conversations do not inherit that member’s private memories.", zh: "个人对话有自己的上下文范围。系统优先保留最近几轮，再按当前请求的文字相关度选择已确认的记忆、关联任务和较早的消息，交给模型前恢复时间顺序。成员可以撤回一条记忆。进入群聊后，个人记忆也不会自动带进群里的上下文。" },
+        ] },
       ],
     },
     {
-      id: "implementation",
-      label: { en: "Model & tools", zh: "模型与工具" },
-      title: { en: "Model calls and workflow checkpoints", zh: "模型调用与工作流检查点" },
-      blocks: [
-        {
-          paragraphs: [
-            { en: "Evidence retrieval usually finishes within a worker’s turn. An external write can pause the same workflow until someone approves it, sometimes long after the worker exits. The engine commits each completed node to SQLite. A later worker reads the checkpoint and claims the next eligible node. Pi is invoked only for steps that specify a model turn.", zh: "读取资料可以在一次任务领取期间完成，外部写入却可能一直等到成员批准，那时原进程也许已经退出。引擎把每个已完成节点的结果提交到 SQLite，后续进程读取检查点，领取下一个满足执行条件的节点。只有配置了模型调用的步骤才交给 Pi。" },
-          ],
-        },
-        {
-          title: { en: "Pi and read-only tools", zh: "Pi 与只读工具" },
-          paragraphs: [
-            { en: "The platform can run Pi for a model turn. It gives the model scoped context and read tools, validates tool calls and returns their results to the same turn. The workflow engine owns the checkpoints and authorization for a business write. The I-204 inspection template, for example, selects the deterministic local evidence runtime. The recorded arithmetic, mock work order and restart exercise therefore remain reproducible without depending on a particular model response.", zh: "工作台可以通过 Pi 执行模型回合：装配本次可见的上下文与只读工具，校验调用参数，再把工具结果送回同一回合。步骤持久化和业务写入审批由外层工作流管理。I-204 模板选择了确定性的本地证据运行时，因此核算、模拟工单和恢复演练可以重复执行，无需等待某个模型再次给出相同回答。" },
-          ],
-          id: "agent-pi-runtime",
-          figure: "agent-runtime-trace",
-        },
-        {
-          paragraphs: [
-            { en: "Publishing an application binds a deployment to a workflow or agent snapshot, the allowed models, tools and knowledge collections. A bound QQ or WeChat account can invoke an authorized application, then continue its conversation or retrieve the asynchronous result. A later deployment can point at a new snapshot while an older run still refers to its original definition. Revoking a member’s grant also removes access through their application key.", zh: "发布应用时，部署同时固定 Agent 或工作流快照，以及允许的模型、工具和知识集合。获准的成员可在绑定的 QQ 或微信私聊调用应用，之后接续会话，或取回异步结果。部署更新可以指向新快照，先前运行仍然指向原定义。撤销成员授权时，其个人应用密钥也失去访问能力。" },
-            { en: "The distinction shows up in an application replay. A member asked for the P-17 maintenance record twice, using the same published definition. The first deployment could read the register and the manual. The owner then removed both resources from the deployment. The second run still completed, but its report had no source for an inspection interval. Because the earlier result keeps its deployment identity, a reviewer can account for the difference without attributing it to a change of model.", zh: "一次应用回放固定了助手版本和问题。成员两次查询 P-17 检修记录。第一次部署允许读取设备台账和手册；随后，项目所有者收回了这两项资源的使用权限。第二次运行依然完成，报告里却找不到可用来判断检修周期的依据。回看第一份报告时，其部署身份和检索记录仍在，这就能解释两次回答的差异。" },
-          ],
-          figure: "deployment-scopes",
-        },
-      ],
-    },
-    {
-      id: "decisions",
-      label: { en: "Watches & memory", zh: "订阅与记忆" },
-      title: { en: "Source watches and conversation memory", zh: "订阅通知与对话记忆" },
-      blocks: [
-        {
-          title: { en: "Immediate and scheduled notifications", zh: "即时通知与定时摘要" },
-          figure: "agent-watch-replay",
-          paragraphs: [
-            { en: "The source-watch preview is part of the changes in PRs #14–17. A member chooses subscriptions, priority topics, quiet hours and a digest time. Hourly checks compare canonical URLs and fingerprints of titles and excerpts against a bounded snapshot. Unchanged items generate no notification. Priority matches can notify immediately, while ordinary changes queue for the digest. Pending items and the report are committed together. After a restart, another worker can deliver the saved items.", zh: "PR #14–17 的开发预览包含长期订阅。成员设置订阅来源、优先主题、免打扰时段和摘要时间。每小时采集保留一份有大小限制的快照，依据规范网址、标题和摘录指纹识别变化。未变更的条目不通知，命中优先主题的更新可以即时投递，其余进入摘要队列。待发条目和报告在同一事务中提交，重启后的工作进程可以接续投递。" },
-            { en: "In the synthetic release replay, the 13:00 poll found two changes. A priority match went straight to the inbox and the other item stayed queued. The member lowered the topic priority before the 14:00 poll found another release, bringing the queue to two. At 18:00 there were no new items. The scheduled digest contained the two saved updates.", zh: "合成版本发布回放中，13:00 的采集发现两项变化，命中优先主题的一项立即进入收件箱，另一项留在待发队列。成员调低主题优先级后，14:00 的新版本也进入队列，此时共有两项待发。18:00 的采集没有新增内容，当天摘要收录了此前保存的两项更新。" },
-            { en: "At 23:00 another item arrives during quiet hours. It remains pending until the following morning. At 08:00 the source fails altogether. Both checks are silent at the moment they run, but their recovery paths differ. The first has a saved item ready to deliver. The second has an outstanding fetch to retry. Treating a failed fetch as an empty snapshot would turn an outage into a misleading “no change” entry in the history.", zh: "夜里十一点还有一条更新，免打扰时段把它留到次日早晨再送。次日八点，上游请求失败，那一轮同样没有通知。翻开记录，两次沉默有不同的后续：前者已经拿到内容，只欠投递；后者连快照都没拿到，还得重新采集。把请求失败记成空快照，会让来源故障在历史里看起来像一切正常。" },
-          ],
-        },
-        {
-          title: { en: "Reusing a watch configuration", zh: "复用订阅配置" },
-          paragraphs: [
-            { en: "A delivered digest records the source endpoints, keywords, digest rules and quiet hours used for that run. The member can save those settings as a versioned recipe with a reference to the original run. Extraction skips runs with a partial source failure because some subscriptions were never checked.", zh: "已送达的摘要记录了当次使用的来源地址、关键词、摘要规则和免打扰时段。成员可以把这组设置保存为一个版本，并保留它与原运行的关联。若有来源采集失败，该运行就不参与提取，因为部分订阅没有完成检查。" },
-            { en: "Reusing a recipe creates a new task with its own goal, schedule, destination and approval. The old task keeps its model choice and recipient. In the replay, a new task successfully delivered a second digest using the saved recipe. After the source endpoint changed, the next run stopped and recorded the address change pending approval of the revised plan.", zh: "复用订阅配置会创建独立任务，另行填写目标、排期和收件渠道并取得批准。上一任务的模型和收件人保留在原记录中。回放里，新任务使用保存的配置送达了第二份摘要。替换来源地址后，下一次执行暂停，记录中标明地址已变更，等待成员批准更新后的计划。" },
-          ],
-        },
-        {
-          title: { en: "Context selection in a long conversation", zh: "长对话里的上下文选择" },
-          paragraphs: [
-            { en: "In a replay about SQLite backups, the user asks for an earlier procedure at turn 24. Keeping only the most recent exchanges selects turns 22, 23 and 24. The procedure is in turn 3. The revised selector reserves two recent turns, ranks older eligible turns by words in the current request and reads confirmed memory for this member. It restores chronological order before building the prompt. The 4,000-byte budget accommodates both turn 3 and the current preference.", zh: "在一次有关 SQLite 备份的回放中，成员于第 24 轮询问早先定下的操作步骤。只保留最近记录时，入选的是第 22、23、24 轮，操作约定却写在第 3 轮。修改后的策略为最近两轮预留空间，按当前请求中的词语匹配较早记录，并读取该成员已确认的记忆。入选对话按时间顺序写入提示，第 3 轮和当前偏好都能放进 4,000 字节的预算。" },
-            { en: "The replay also edits the saved preference to specify the weekly copy, then withdraws it. Each subsequent selection reads the current record. After withdrawal the private memory is absent even though the conversation still exists. The trace retains references to the entries actually selected. Those references make a missing preference diagnosable: it may have been withdrawn, excluded by the member boundary, or simply missed by lexical matching after the user paraphrased the request.", zh: "验收接着把已确认的备份偏好改成“使用每周副本”，随后撤回。每次准备下一轮输入时，系统都重读当前记录；撤回后，会话还在，私有记忆已退出选集。每轮留下实际入选的条目引用。排查一次遗漏时可以据此区分几种情况：用户撤回了偏好，当前会话无权读取，或者用户换了说法，词项匹配没有找回原句。群聊也不会因此读到成员的私人记忆。" },
-            { en: "A separate CPU run used Pi and Qwen2.5-0.5B with a fixed seed. Sixteen unrelated turns separated a saved SQLite backup preference and the final request. In three repetitions, the old context omitted the requested time and used 1,125 tokens per run. The revised context recovered 23:15 UTC and used 728 tokens on each run. The inputs were identical across repetitions. Paraphrased requests and conflicting preferences were outside this test.", zh: "另一次 CPU 测试使用 Pi、Qwen2.5-0.5B 和固定随机种子。SQLite 备份偏好与最终请求之间隔了 16 轮无关对话。相同输入重复三次，旧上下文每次消耗 1,125 tokens，均未答出时间。新版每次消耗 728 tokens，三次都找回 23:15 UTC。这次测试没有更换请求措辞，也没有加入相互冲突的偏好。" },
-          ],
-          figure: "agent-context-selection",
-        },
-        {
-          title: { en: "Source excerpts and optional interpretation", zh: "来源摘要与按需解读" },
-          paragraphs: [
-            { en: "Routine digests use the release title, source excerpt and canonical address. In one local-model trial the generated text paraphrased the member’s goal. Another output shortened a source URL. The collector now supplies canonical links directly. Model interpretation is optional, so the original source record can still be delivered after an inference failure.", zh: "常规摘要列出版本标题、原文摘录和规范网址。一次本地模型测试只生成了对订阅目标的复述，另一次输出截短了来源网址。现在由采集器直接提供规范链接，模型解读是可选步骤。推理失败时，原文摘录和完整链接仍可照常投递。" },
-            { en: "Automatic interpretation is available for priority matches and reports spanning multiple sources. With fewer than 512 daily tokens remaining, the task delivers source excerpts directly. Below 1,024 it favors the configured fast model when interpretation is enabled. A recent failure temporarily excludes that model from automatic selection for the member. Explicit model choices stay pinned. External writes continue to require approval through the workflow engine.", zh: "自动解读适用于命中优先主题或涉及多个来源的报告。当天剩余额度低于 512 tokens 时直接投递原文摘录；低于 1,024 tokens 且需要解读时优先采用已配置的快速模型。近期调用失败的模型会暂时退出该成员的自动候选列表，手动指定的模型保持固定。外部写入仍由工作流执行审批。" },
-          ],
-        },
-      ],
-    },
-    {
-      id: "workflow-review",
-      label: { en: "Recoverable writes", zh: "可恢复的写入" },
-      title: { en: "Review and correction of an approved work order", zh: "已批准工单的复核与更正" },
-      blocks: [
-        {
-          title: { en: "A corrected timestamp changes the finding", zh: "一处录入更正改变了巡检结论" },
-          paragraphs: [
-            { en: "The inspection template in the development preview uses a fictional handoff, I-204, to exercise the durable engine. The register shows a start at 08:10 UTC and an acknowledgement at 09:04. With 45 minutes allowed, the calculation records a nine-minute overrun. A reviewer later supplies 08:49 as the corrected acknowledgement. By then the first report has already led to an approved mock work order.", zh: "开发预览中的巡检模板用虚构的 I-204 交接走通这套引擎。登记表里的开始时间为 08:10 UTC，确认时间为 09:04；协议允许 45 分钟，因此初次核算超时 9 分钟。复核人后来拿出更正后的确认时间 08:49。此时第一份报告已经触发过一笔获批的模拟工单。" },
-          ],
-          figure: "agent-handoff-comparison",
-        },
-        {
-          title: { en: "The contractual handoff limit", zh: "交接协议规定的时限" },
-          paragraphs: [
-            { en: "The inspection pack supplies two passages about the same equipment. One is a historical handoff that took 39 minutes. The other sets a 45-minute allowance for a standard I-204 handoff. Both are relevant search results and both contain a number. Only the agreement can supply the threshold. The read tool checks the record and category against the retrieved clause, requires a unique applicable limit and parses the UTC timestamps. Missing or ambiguous evidence stops the calculation.", zh: "模板里有两段容易混淆的文字。一段历史记录写着同一设备上次交接用了 39 分钟，另一段约定规定 I-204 的标准交接时限是 45 分钟。按设备检索，两段都相关，也都有数字。计算工具需要的是约定中的时限。它核对登记编号、类别和检索到的条款，找到唯一适用的时限后才解析 UTC 时间；缺少依据或出现歧义时就停下来。" },
-            { en: "The corrected timestamps yield 39 minutes, also the value in the historical record. The calculation uses 08:49 minus 08:10. The report stores the timestamps, source lines and revision hashes so the calculation and the coincidentally identical historical observation remain distinguishable.", zh: "更正后的用时是 39 分钟，碰巧与历史记录相同。本次计算采用的字段是 08:49 和 08:10。报告保存原始时间戳、来源行和修订哈希，可以区分这次计算结果与上一次交接的实测值。" },
-          ],
-          id: "agent-workflow-handoff",
-          figure: "agent-workflow-data",
-        },
-        {
-          title: { en: "Review history and resubmission", zh: "复核记录与重新提交" },
-          paragraphs: [
-            { en: "A reviewer records a decision and a reason against the original artifact digest and the last review version. Submitting the same request again returns the existing version. Two reviewers starting from the same revision cannot silently overwrite one another. The original report keeps the reviewer’s reason for requesting a correction, even if nobody resubmits the task.", zh: "复核人把决定和理由提交到原稿摘要与上一复核版本上。同一请求重试时返回已保存的版本；两个人从同一旧版本编辑，后提交的人需要先处理版本冲突。即便后来没有人提交更正，原稿旁边也留着当时提出异议的理由。" },
-            { en: "Resubmission pins the original workflow version and supplies the corrected input. Retrieval runs again against the current agreement. A new approval covers the revised work-order parameters and its receipt belongs to the new run. The original run retains its own inputs, approval and receipt.", zh: "重新提交时锁定原工作流版本，输入改用更正后的记录。检索重新读取当前生效的协议，更新后的工单参数单独发起审批，回执登记在本次运行。原运行的输入、审批与回执按原样保存。" },
-          ],
-          figure: "agent-report-evidence",
-        },
-      ],
-    },
-    {
-      id: "verification",
-      label: { en: "Measured outcomes", zh: "实测结果" },
-      title: { en: "Measurements and replay results", zh: "性能测量与回放结果" },
-      blocks: [
-        {
-          title: { en: "Response size and time to first text", zh: "响应体积与首段文字延迟" },
-          paragraphs: [
-            { en: "In five fresh browser contexts with a synthetic 20-turn chat and a fixed streaming provider, the earlier build returned 31,645 API bytes after a send. The integrated build returned 1,977 by sending just the new turn. Loading workspace features on demand also cut initial uncompressed JavaScript from 730,841 to 488,594 bytes. Median time to the first visible reply stayed close to 19 milliseconds on both builds. Most of the observed gain was in transfer volume.", zh: "在五个冷启动浏览器环境中，使用同一份 20 轮合成对话和固定流式服务。早期版本每发一条消息，API 回传 31,645 字节；集成版只回传本轮记录，降到 1,977 字节。工作台按需加载后，首屏未压缩 JavaScript 从 730,841 降至 488,594 字节。两版首段文字可见的中位时间都在 19 毫秒左右，这组数据里最明显的收益在传输量。" },
-            { en: "The earlier client fetched the full conversation once more at the end of a send. The completion event now carries the new turn, which the browser appends to its local history. The removed request used to grow with every exchange. In this test the streaming provider had a fixed schedule, and the smaller API response changed the byte count much more than the time to first text.", zh: "旧客户端在一轮发送结束时还会取一次完整历史，对话越长，重复传输量越大。现在完成事件直接携带新增回合，浏览器追加到本地历史即可。测试使用按固定节奏输出的流式服务，因此响应体积的变化明显大于首段文字延迟的变化。" },
-          ],
-          figure: "agent-browser-measurements",
-        },
-        {
-          title: { en: "Concurrent polling of six sources", zh: "六个来源的并发采集" },
-          paragraphs: [
-            { en: "The worker collects up to three independent read-only sources concurrently and returns their items in subscription order. Seven replays used six sources with a fixed 25-millisecond delay each. Median collection time was 160.7 milliseconds with sequential requests and 54.0 with three requests in flight. Both configurations issued six requests and returned six items. The fixed-delay replay did not simulate upstream rate limits.", zh: "工作进程最多同时读取三个相互独立的只读来源，返回结果按订阅顺序排列。七次回放均使用六个来源，每个来源固定延迟 25 毫秒。顺序采集的中位耗时为 160.7 毫秒，三路并发为 54.0 毫秒。两组都发出六次请求并取得六条记录，回放没有模拟上游限流。" },
-          ],
-          figure: "agent-collection-schedule",
-        },
-        {
-          title: { en: "Database recovery between approvals", zh: "两次审批之间的数据库恢复" },
-          paragraphs: [
-            { en: "The replay uses an isolated SQLite database, fictional inspection records and a mock service desk. After the corrected run is created, a backup is restored to a new file. The replay checks integrity, foreign keys, links to the original and the behavior of a duplicate submission before approving the second write. A final attempt substitutes a clause for the wrong category. Its calculation fails and no third receipt appears. The two successful runs and that failed one test different properties of the same workflow.", zh: "回放使用独立 SQLite 数据库、合成交接记录和模拟工单服务。更正运行建立后，将备份恢复到新文件，核对数据库完整性、外键、原稿关联和重复提交，再批准第二次写入。最后把条款换成不适用的类别，核算步骤失败，始终没有第三份回执。前两次运行完成了交付。第三次因条款不适用而停在审批之前，工单服务没有收到写入请求。" },
-          ],
-        },
-        {
-          checks: [
-            {
-              title: { en: "QQ task submission and delivery receipt", zh: "QQ 任务提交与投递回执" },
-              body: { en: "A local WebSocket peer submitted a task under a bound QQ account. The member reviewed the time, version and destination in the web workspace. When the task came due the peer received one message. The browser displayed the corresponding delivery receipt. This replay used a local protocol peer in place of an external QQ recipient.", zh: "本机 WebSocket 对端使用绑定的 QQ 测试账号提交任务，成员在工作台核对时间、版本和目的地。任务到期时，对端收到一条消息，网页显示相应投递回执。本次回放的收件端是本机协议对端，未向外部 QQ 账号投递。" },
-            },
-            {
-              title: { en: "One maintenance answer, two retrieved passages", zh: "一份维护回答与两条检索记录" },
-              body: { en: "A local Pi run with Qwen2.5-0.5B returned the recorded 72-hour inspection interval for P-17. Retrieval found two source lines, but the reply itself contained zero exact citations. The result page records the retrieved passages and exact citations separately. This single grounded question exposed a gap between finding the manual and citing it in a generated answer.", zh: "一次使用 Pi 与本地 Qwen2.5-0.5B 的运行，回答了 P-17 的 72 小时巡检周期。检索找到了两行原文，模型回答中的精确引用却是零。成果页分别显示检索到的资料和回答中的引用。这道有明确依据的问题，暴露出了找到手册与在回答里准确引用手册之间的落差。" },
-            },
-            {
-              title: { en: "Six successful polls, three notifications", zh: "六次成功采集，三次通知" },
-              body: { en: "In a seven-check replay with synthetic release events, six polls succeeded and one source failed. A policy that notified on every successful poll would have sent six notifications. The watch sent three. The run measures interruption frequency on that event stream.", zh: "在七次合成发布事件回放中，六次采集成功，一次上游故障。若每次成功都通知，会发送六次；长期关注策略实际发送三次。这组记录度量的是这段事件流上的打扰次数。" },
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: "development",
-      label: { en: "Development scope", zh: "开发边界" },
-      title: { en: "Implemented features and open work", zh: "已实现功能与待验证事项" },
-      blocks: [
-        {
-          paragraphs: [
-            { en: "The merged workspace supports conversational task drafts, scheduled application runs, versioned workflows and results delivered through a member’s authorized channels. The source-watch, context-selection, adaptive-execution and inspection-review changes discussed here are implemented on four stacked review branches. Their replays use controlled sources and test accounts. Real business corpora, multi-host recovery and delivery to external QQ and WeChat accounts still need acceptance testing in their target environments.", zh: "已合并的工作台支持对话起草、定时调用应用、版本化工作流及授权渠道投递。本文介绍的长期关注、上下文选择、自适应执行和巡检复核已经在四个依次衔接的评审分支上实现。回放使用受控来源与测试账号；真实业务语料、多主机恢复以及外部 QQ 和微信收件账号仍需各自验收。" },
-            { en: "Current watches run against goals and schedules that members have approved. Future work includes detecting a new task from incoming events, estimating the cost before proposing it and revising the plan when the evidence changes. The current replays cover approved tasks and their delivery. They do not measure how often the agent would propose a useful new task on its own.", zh: "目前的订阅任务使用成员已批准的目标与排期。后续设想包括根据新事件发现任务、在提议时估计成本，以及结合新增资料调整计划。现有回放覆盖已批准任务的执行与投递，尚未评估系统自行提出新任务的命中率。" },
-          ],
-        },
-      ],
+      id: "workflow-review", label: { en: "Report review", zh: "报告复核" },
+      title: { en: "What happens to a report after a correction", zh: "报告更正后保留两次运行" },
+      blocks: [{ paragraphs: [
+        { en: "A project report can cite the records behind its conclusion. A reviewer can attach a decision and reason to the report or request a correction to its input. Resubmission runs the same workflow version with the corrected input and retrieves the relevant material again. The earlier report remains available beside the new one.", zh: "项目报告可以附上支持结论的来源。复核人发现输入有误时，可以在原报告上记录原因并要求更正。重新提交后，同一工作流版本会用改正后的输入重新执行，也重新读取这次判断所需的资料。原报告保留下来，两次结论各有各的依据。" },
+        { en: "If the corrected report proposes an external write, its parameters go through a fresh approval. The new receipt belongs to the new run. That separation preserves a record of the action that was actually approved, even if someone later changes the underlying input.", zh: "如果更正后的报告还要触发外部写入，新参数需要重新审批，新的回执也归入这次运行。这样，即使后来有人修改了输入，仍能分清当时批准的是哪一次操作。" },
+      ] }],
     },
   ],
 };

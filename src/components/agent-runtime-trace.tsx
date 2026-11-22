@@ -31,7 +31,7 @@ const steps = [
 
 export function AgentRuntimeTrace() {
   return <Diagram id="agent-runtime-trace" title={{en: 'A model turn inside a durable workflow', zh:'工作流中的一次模型回合'}}
-    caption={{en:'The Pi adapter handles model turns. The inspection template uses a deterministic evidence adapter with the same execution contract.',zh:'Pi 适配器负责模型回合。巡检模板通过同一执行契约调用确定性的证据适配器。'}}>
+    caption={{en:'The model turn ends when its output is saved. Approval and delivery can resume later using the same workflow run.',zh:'模型输出保存后，本轮调用就结束了。需要人工审批或投递时，工作流可以在稍后沿用同一条运行记录继续执行。'}}>
     <ol className="runtime-sequence">{steps.map(step => <li key={step.id}>
       <div><strong><Text {...step.label} /></strong><span><Text {...step.title} /></span></div>
       <p><Text {...step.detail} /></p>
