@@ -17,8 +17,8 @@ export function SamTaskMath() {
       zh="每个支持模型都对同一张当前图像求输入梯度。在某个位置上，如果两种模型的梯度方向相反，加权和会抵消一部分，再对这个和取符号。在方向一致的位置，更新就沿共同方向走。这一步始终在改图像，分类器及其训练得到的参数保持冻结。"
     /></p>
     <p className="tide-prose"><Localized
-      en="After K such updates, the query model supplies a gradient at the image proposed by the support models. SAM keeps the distinction between where this gradient is measured and where it is applied. Write vᵢ for the image before projection. In the outer update, the support proposal appears inside the gradient; the starting image for the new move is still xᵢ."
-      zh="支持模型完成 K 次更新后，查询模型在它们提出的图像上求梯度。SAM 区分了梯度在哪里计算，以及计算出的改动加到哪里。把投影前的图记为 vᵢ，外层式子的梯度在支持组提出的图像上计算，新一轮更新却还是从原来的 xᵢ 出发。"
+      en="After K support updates the query model evaluates the proposal xᵢ,ₖ. Its gradient is applied at the saved task input xᵢ. The resulting candidate vᵢ is projected to the pixel budget before the next task begins."
+          zh="经过 K 次支持组更新，查询模型在提案 xᵢ,ₖ 处计算梯度。该梯度作用于保留的本轮初始图像 xᵢ，所得候选图 vᵢ 经稀疏投影后进入下一轮。"
     /></p>
     <PaperEquation number="5, Alg. 1" math={tex`\begin{aligned}
       q_i &= \nabla_x\mathcal L_{q}(x_{i,K}) \\
@@ -26,16 +26,21 @@ export function SamTaskMath() {
       x_{i+1} &= \mathcal P(v_i)
     \end{aligned}`} />
 
-    <p className="tide-prose"><Localized
-      en="For example, one support model may push on an edge that another model barely uses. If the blended support update changes that edge, the query model re-evaluates the perturbed image with its own loss. Its gradient can point somewhere else. Applying this signal to the saved state avoids directly accumulating every temporary support step."
-      zh="例如，某个支持模型可能主要依赖一条边缘，另一个模型却很少用它。支持组的合并更新动了这条边缘以后，查询模型会在改过的图上用自己的损失重新评估，得到的梯度可能指向别处。SAM 把查询信号加回本轮的起始图像，支持组的临时更新只用来确定求梯度的位置。"
-    /></p>
   </>;
 }
 
 export function SamMethod() {
   return (
     <figure id="handoff-figure" className="paper-evidence-figure worked-figure sam-handoff">
+      <div className="sam-role-path">
+        <div><strong><Localized en="Accessible pool" zh="可访问的模型池"/></strong><span><Localized en="Roles in two example tasks" zh="两轮任务中的示意分工"/></span>
+          <table><thead><tr><th><Localized en="Task" zh="任务"/></th><th><Localized en="Support" zh="支持模型"/></th><th><Localized en="Query" zh="查询模型"/></th></tr></thead><tbody>
+            <tr><th scope="row">i</th><td>A, B</td><td>C</td></tr><tr><th scope="row">i + 1</th><td>B, C</td><td>A</td></tr>
+          </tbody></table></div>
+        <ArrowRight className="role-transfer-arrow" aria-hidden="true"/>
+        <div><strong><Localized en="Independent targets" zh="独立目标模型"/></strong><span><Localized en="Evaluate the final images" zh="只评估最终图像"/></span>
+          <p><Localized en="Six classifiers outside the pool measure transfer after the last task." zh="最后一次任务结束后，由池外的六个分类器衡量迁移表现。"/></p></div>
+      </div>
       <div className="worked-panel sam-board">
         <div className="sam-evaluate">
           <div>
@@ -71,7 +76,7 @@ export function SamMethod() {
           </div>
         </div>
       </div>
-      <figcaption><Localized en="One SAM task. The query gradient is measured at the proposal and applied to the saved starting image." zh="一次 SAM 任务。查询梯度在支持组的提案上计算，再加回本轮保留的起点图像。" /></figcaption>
+      <figcaption><Localized en="A, B and C denote accessible classifiers with different roles across two tasks. Inside one task, the query model evaluates the support proposal. Its gradient updates the image retained between tasks." zh="A、B、C 表示两轮任务中交换角色的可访问模型。单轮任务中，查询模型在支持组的候选图上计算梯度，再以该梯度更新轮次间保留的图像。" /></figcaption>
     </figure>
   );
 }
@@ -85,8 +90,8 @@ export function SamProjectionMath() {
   return <>
     <h3 className="paper-subsection"><Localized en="Projection onto the pixel budget" zh="按像素预算投影" /></h3>
     <p className="tide-prose"><Localized
-      en="The outer step can propose changes throughout the image, including at pixels that were untouched in the previous task. To compress that proposal, compare two possible outcomes at each pixel. We can restore all three channels to the original values, or we can keep the proposed changes after clipping each channel to the allowed amplitude. The choice is made for the whole pixel because SAM counts a changed spatial position once, even if all three channels at that position change."
-      zh="外层更新可以在整张图上提出改动，包括上一轮还未动过的位置。要把这次提案压回预算内，每个像素有两种去处。一种是把三个通道全部恢复到原值，另一种是把各通道的改动裁剪到允许的幅度再保留。这个决策以整个像素为单位，因为在 SAM 里，同一个位置即使改了三个通道，也只占一份像素预算。"
+      en="The outer update can affect pixels outside the previous support. Projection bounds each channel’s change and retains at most k spatial positions. A location counts once toward the budget whether one, two or all three colour channels change."
+          zh="外层更新可以作用于上一轮掩码以外的像素。投影限制每个通道的改动幅度，并最多保留 k 个空间位置。一个位置无论改动了一个、两个还是三个颜色通道，都只占一个像素名额。"
     /></p>
     <PaperEquation number="7" math={tex`\begin{aligned}
       \min_z\;&\Vert v-z\Vert_F^2 \\
@@ -94,8 +99,8 @@ export function SamProjectionMath() {
       &\#\{i:z_{i,:}\ne x_{i,:}\}\le k
     \end{aligned}`} />
     <p className="tide-prose"><Localized
-      en="The squared distance in this objective is between the new sparse image z and the candidate v. Both constraints use the original image x as their reference. Keeping those references separate helps explain the clipping rule. A candidate channel already within its allowed interval can be copied exactly, giving zero distance to the proposal there. If the proposal crosses either boundary, the closest allowed value is that boundary. For a chosen pixel, clipping performs this calculation for each of its three channels."
-      zh="目标函数的平方距离量的是新稀疏图 z 和提案 v 的差，两项约束量的却是 z 相对原图 x 的改动。分清参照，就能看出为什么用裁剪。若候选通道仍在允许区间里，可以照用，离提案的距离就是零。越过上界或下界时，离提案最近的可行值就是那条边界。对于选中的像素，裁剪分别落实到它的三个通道。"
+      en="The objective measures squared distance to the dense proposal v. The bounds are measured relative to the original image x. At a retained pixel, a channel within its permitted interval keeps its proposed value. A channel outside the interval is clipped to the nearest endpoint."
+          zh="目标函数衡量稀疏解与稠密提案 v 的平方距离，两项约束以原图 x 为基准。在保留的位置上，位于允许区间内的通道沿用候选值；超出区间的通道裁剪到最近的端点。"
     /></p>
     <PaperEquation number="9–10" math={tex`\begin{aligned}
       d_{ij} &= v_{ij}-x_{ij} \\
@@ -104,13 +109,13 @@ export function SamProjectionMath() {
         \left[d_{ij}^{\,2}-(d_{ij}-\bar d_{ij})^2\right]
     \end{aligned}`} />
     <p className="tide-prose"><Localized
-      en="In this formula, x is the original image and v is the dense candidate. If a pixel is dropped, its squared error from the candidate is the sum of the squared proposed changes. If it is kept, the error is the excess left over after clipping. Subtracting the two errors gives the saving Sᵢ. Savings add across pixels. Choosing the k biggest savings therefore gives a closest feasible image for this projection objective. A candidate selection that omits a larger saving in favor of a smaller one can always improve by swapping them."
-      zh="这里 x 是原图，v 是稠密提案。丢掉一个像素时，与提案的平方误差是三个通道改动量的平方和。保留该像素时，误差来自裁剪后剩下的超出部分。两种误差之差就是 Sᵢ，表示把一个名额给这个像素能少掉多少误差。像素间的收益可以直接相加，所以选收益最大的 k 个，就能得到这个投影目标下距离最近的可行图像。如果舍弃了高收益的位置、选了一个低收益的位置，交换它们就能让距离更小。"
+      en="Dropping a position incurs the squared magnitude of its proposed RGB change. Keeping the clipped position incurs only the squared excess above the permitted amplitudes. Their difference Sᵢ is the reduction in projection error obtained by retaining that pixel. The objective adds over positions, so the k largest savings minimize the total error at that budget."
+          zh="舍弃一个位置时，其误差为三个通道候选改动量的平方和。保留并裁剪该位置时，误差仅来自各通道超出允许幅度的部分。两种误差之差 Sᵢ 是保留该位置带来的误差减少量。目标函数可按空间位置求和，故在给定预算下，选取 Sᵢ 最大的 k 个位置使投影误差最小。"
     /></p>
     <figure id="projection-example" className="paper-evidence-figure worked-figure">
       <div className="worked-panel sam-projection">
         <div className="projection-heading">
-          <strong><Localized en="Two pixels, one slot" zh="两个像素，一个保留名额" /></strong>
+          <strong><Localized en="Projection error at two pixels" zh="两个像素的投影误差" /></strong>
           <span className="sam-math">ε &lt; a &lt; 2ε</span>
         </div>
         <table>
@@ -130,11 +135,11 @@ export function SamProjectionMath() {
           ))}</tbody>
         </table>
       </div>
-      <figcaption><Localized en="B keeps the slot. The biggest individual channel belongs to A, but retaining B saves more squared error across all three channels." zh="保留 B。最大的单通道改动出现在 A，但保留 B 能在三个通道合计减少更多平方误差。" /></figcaption>
+      <figcaption><Localized en="The largest individual channel change occurs at A. Retaining B produces the greater reduction in squared error summed over channels." zh="最大的单通道改动位于 A。按三个通道合计，保留 B 能减少更多平方误差。" /></figcaption>
     </figure>
     <p className="tide-prose"><Localized
-      en="For pixel A, the saving is a²−(a−ε)². Since a is below twice the cap, that saving is less than the three squared channel changes that can be kept at B. The comparison explains how a pixel with three moderate changes can beat one with a single stronger change. It also identifies what the projection optimizes. The score measures closeness to the dense candidate. Transfer comes from the feedback used to build that candidate and must still be checked on independent classifiers."
-      zh="对 A 来说，保留它省下的误差是 a²−(a−ε)²。因为 a 小于两倍上限，这个差比 B 可以完整留下的三个通道改动平方和更小。于是，即使 A 有一个更强的单通道改动，也会输给 B 的三处中等幅度改动。这同时说明了投影究竟在优化什么。收益衡量的是与稠密提案的距离。提案能否迁移，取决于构造它时用的反馈，仍要在独立分类器上检验。"
+      en="In the example, A saves 2aε − ε² and B saves 3ε². For the displayed interval, the latter is larger. This criterion ranks positions by distance to the candidate. Transfer performance is evaluated separately on independent classifiers."
+          zh="示例中，保留 A 可减少 2aε − ε² 的误差，保留 B 可减少 3ε²。在图示区间内，后者较大。这一排序由到候选图的距离决定；图像的迁移性能另由独立分类器评估。"
     /></p>
   </>;
 }

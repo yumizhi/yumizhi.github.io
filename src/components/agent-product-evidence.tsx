@@ -16,7 +16,7 @@ export function AgentProductEvidence() {
           loading="lazy" alt="P-17 handoff report citing an equipment manual and maintenance record." />
       </div>
     </div>
-    <figcaption><Localized en="Two views of the same P-17 demonstration. The run records the inbox delivery. Opening that delivery reveals the assistant’s recommendation and the numbered passages behind it."
-      zh="同一项 P-17 演示任务留下两份记录。执行面板保存收件箱的送达回执；打开交付结果，能读到助手的建议，并沿编号引用核对原文。" /></figcaption>
+    <figcaption><Localized en="The P-17 demonstration run has four completed steps and an inbox receipt. The delivered report cites the equipment manual and maintenance record alongside its recommendation."
+      zh="P-17 演示任务的执行记录列出四个已完成步骤和收件箱回执。报告列有维护建议，并标注对应的设备手册与台账条目。" /></figcaption>
   </figure>;
 }

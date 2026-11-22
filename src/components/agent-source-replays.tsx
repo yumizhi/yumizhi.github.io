@@ -5,7 +5,6 @@ import { RotateCcw } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { Diagram } from './project-architecture';
 import { Localized as Text } from './language';
-import { Accordion, AccordionItem, AccordionPanel, AccordionTrigger } from './ui/coss/accordion';
 import { Button } from './ui/coss/button';
 import './agent-source-replays.css';
 
@@ -42,16 +41,14 @@ export function AgentDigestReplay({ children }: { children: ReactNode }) {
       </svg>
       <div className="digest-label" style={{gridRow:'1'}}><strong><Text en="Agent runtime release" zh="Agent 运行时发布" /></strong><small><Text en="Priority notice, delivered immediately" zh="优先通知，当轮送达" /></small></div>
       <div className="digest-label" style={{gridRow:'2'}}><strong><Text en="Conference programme" zh="会议日程" /></strong><small><Text en="Saved for the evening digest" zh="留待晚报" /></small></div>
-      <div className="digest-label" style={{gridRow:'3'}}><strong><Text en="Follow-up release" zh="后续版本发布" /></strong><small><Text en="Queued after the reader lowered its priority" zh="读者调低优先级，加入待发队列" /></small></div>
+      <div className="digest-label" style={{gridRow:'3'}}><strong><Text en="Follow-up release" zh="后续版本发布" /></strong><small><Text en="Queued at the new, lower priority" zh="按调低后的优先级列入待发队列" /></small></div>
       <div className="digest-label digest-result" style={{gridRow:'4'}}><strong><Text en="One evening digest" zh="一份晚报" /></strong><small><Text en="Two waiting items delivered together" zh="两条待发内容一起送达" /></small></div>
     </div>
     <div className="digest-foot">
-      <Accordion className="digest-audit">
-        <AccordionItem value="history"><AccordionTrigger><Text en="Seven-check log" zh="七次采集记录" /></AccordionTrigger>
-          <AccordionPanel>{children}</AccordionPanel></AccordionItem>
-      </Accordion>
-      {!reduced && <Replay onClick={() => replay(n => n+1)} />}
+      <strong><Text en="Seven-check log" zh="七次采集记录" /></strong>
+      <Replay onClick={() => replay(n => n+1)} />
     </div>
+    {children}
   </div>;
 }
 
@@ -60,7 +57,7 @@ const feeds = ['A','B','C','D','E','F'];
 export function AgentCollectionSchedule() {
   const [pass,replay] = useState(0);
   const reduced = useReducedMotion();
-  return <Diagram id="agent-collection-schedule" title={{ en:'Six requests on the same clock', zh:'同一时间轴上的六次请求' }}
+  return <Diagram id="agent-collection-schedule" title={{ en:'Sequential and concurrent source polling', zh:'六个来源的顺序采集与并发采集' }}
     caption={{ en:'Bars show the idealized dispatch order with equal source delays. Times are measured medians from seven replays with a 25 ms delay per source. The returned records keep their subscription order.', zh:'条形示意来源延迟相同时的请求调度。耗时中位数来自七轮回放，每个来源注入 25 毫秒延迟。返回记录始终按订阅顺序排列。' }}>
     <div className="collection-comparison">
       <div className="collection-coltitle"><span><Text en="Sequential" zh="逐个读取" /></span><strong>160.7 <small>ms</small></strong></div>
@@ -78,7 +75,7 @@ export function AgentCollectionSchedule() {
         })}
       </Fragment>)}
     </div>
-    <div className="collection-foot"><Text en="Each bar represents one source request." zh="每根条形代表一次来源请求。" />{!reduced && <Replay onClick={() => replay(n=>n+1)} />}</div>
+    <div className="collection-foot"><Text en="Each bar represents one source request." zh="每根条形代表一次来源请求。" /><Replay onClick={() => replay(n=>n+1)} /></div>
     <span className="sr-only"><Text en="Sequential collection waits for each feed in turn. Parallel collection starts A, B and C together, followed by D, E and F." zh="顺序采集逐个等待六个来源。并发采集同时发出前三个请求，随后读取后三个来源。" /></span>
   </Diagram>;
 }

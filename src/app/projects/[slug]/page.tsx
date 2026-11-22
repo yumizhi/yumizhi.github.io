@@ -4,8 +4,6 @@ import { notFound } from 'next/navigation';
 import { ArrowUpRight } from 'lucide-react';
 import { projects } from '@/lib/content';
 import { TransitionLink } from '@/components/providers';
-import { ProjectGallery } from '@/components/project-gallery';
-import { ProjectStage } from '@/components/project-stage';
 import { Button } from '@/components/ui/button';
 import { Localized } from '@/components/language';
 import { ProjectCaseStudy } from '@/components/project-case-study';
@@ -52,10 +50,7 @@ export default async function Project({params}:{params:Promise<{slug:string}>}) 
    </div>}
    {!p.repo && <p className="project-source-note"><Localized en={p.technology} zh={p.technologyZh??p.technology} /></p>}
   </header>
-  <ProjectCaseContents />
-  <figure id="preview" tabIndex={-1} className="project-workflow" aria-label="Application preview">
-   {p.previews?.length?<div className="workflow-preview"><ProjectStage project={p}/></div>:<ProjectGallery title={p.title} images={p.gallery}/>}
-  </figure>
+  <ProjectCaseContents slug={p.slug} />
   <ProjectCaseStudy project={p} />
   {p.repo && <p className="project-availability"><Localized en={p.technology} zh={p.technologyZh??p.technology}/> <a href={p.repo} target="_blank" rel="noreferrer"><Localized en="Documentation" zh="使用文档"/> <ArrowUpRight size={13}/></a></p>}
  </article>;

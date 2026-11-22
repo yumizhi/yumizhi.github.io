@@ -32,8 +32,8 @@ function EpubArchitecture() {
     <Diagram id="epub-toolkit-overview" project="epub-toolkit"
       title={{ en: 'The EPUB archive and its merge record', zh: 'EPUB 合集与内嵌合并记录' }}
       caption={{
-        en: 'The output is a regular EPUB 3. Its manifest and spine serve the reader, and the embedded merge record gives the split tool the source paths and reading order for each volume.',
-        zh: '合集按 EPUB 3 打包。阅读器通过清单和 spine 打开书籍，拆分工具则读取随书保存的原始路径和各卷阅读顺序。',
+        en: 'The combined EPUB 3 lists its resources in the manifest and its reading order in the spine. A separate merge record stores the source paths and chapter order used to reconstruct each volume.',
+        zh: '合集按 EPUB 3 打包，manifest 列出可用资源，spine 规定章节顺序。拆分时用到的原始路径和各卷阅读顺序另存于合并记录。',
       }}>
       <div className="epub-map">
         <div className="epub-source">
@@ -93,7 +93,7 @@ const sequence = [
 function OriginMarkArchitecture() {
   return (
     <Diagram id="originmark-overview" project="originmark"
-      title={{ en: 'An OriginMark run from submission to commit', zh: 'OriginMark 任务从提交到结果登记' }}
+      title={{ en: 'OriginMark job dispatch and publication', zh: 'OriginMark 的任务分发与发布登记' }}
       caption={{
         en: 'PostgreSQL records both the work and its outcome. The worker calls the selected engine and controls publication. Studio reads the recorded events after a reconnect.',
         zh: 'PostgreSQL 保存任务与结果，Worker 调用模型并负责登记发布。工作台可以在重新连接后接着读取已保存的事件。',
@@ -135,8 +135,8 @@ function OriginMarkArchitecture() {
 function AgentArchitecture() {
   return (
     <Diagram id="personal-agent-overview" project="personal-agent"
-      title={{ en: 'From an authorized request to a delivered result', zh: '从获准的委托到送达的成果' }}
-      caption={{ en: 'Members and project builders share identity and model grants. A scheduled application links the member’s task to a versioned project run. Personal memory stays scoped to the member.', zh: '成员与项目开发者共用身份和模型授权。定时调用应用时，个人任务关联到锁定版本的项目运行。个人记忆始终受成员权限约束。' }}>
+      title={{ en: 'Personal tasks, project runs and delivery', zh: '个人任务、项目执行与结果投递' }}
+      caption={{ en: 'The workspace and Studio use the same identity and model-access system. A scheduled application links the member’s task to a versioned project run. Personal memory stays scoped to the member.', zh: '成员工作台和 Studio 使用同一套账号和模型授权。定时调用应用时，个人任务关联到锁定版本的项目运行。个人记忆始终受成员权限约束。' }}>
       <ol className="agent-map" role="list">
         <li className="agent-stage">
           <div className="agent-stage-head"><CalendarClock size={21} aria-hidden="true" /><strong><Text en="Work & Build" zh="交办与构建" /></strong></div>

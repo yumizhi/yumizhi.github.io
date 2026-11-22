@@ -13,7 +13,7 @@ import './project-article-figures.css';
 function EpubWorkerFigure() {
   return (
     <Diagram id="epub-worker-handoff"
-      title={{ en: 'Documents stay local as they move between threads', zh: '书籍文件在浏览器线程间交接' }}
+      title={{ en: 'EPUB processing in a browser worker', zh: '浏览器工作线程中的 EPUB 处理' }}
       caption={{
         en: 'Preview reads the parsed summary. The same workspace can pass a finished Blob to Inspect or Split without writing another ZIP.',
         zh: '预览读取解析摘要。合并得到的 Blob 可以直接交给检查或拆分，无需额外打包。',
@@ -102,7 +102,7 @@ function TeapotReport() {
 function LeaseRecovery() {
   return (
     <Diagram id="originmark-lease-recovery"
-      title={{ en: 'One job can outlive a worker lease', zh: '同一任务在租约失效后继续执行' }}
+      title={{ en: 'Retrying a job after its lease expires', zh: '租约过期后的任务重试' }}
       caption={{
         en: 'In this recovery path, attempts remain in the retry budget. Publication checks the current claim version, the lease and the running state together.',
         zh: '图示假定任务还有剩余重试次数。发布时同时核对当前领取版本、租约和任务运行状态。',
@@ -135,7 +135,7 @@ function LeaseRecovery() {
 function AgentRunLink() {
   return (
     <Diagram id="agent-run-link"
-      title={{ en: 'A schedule occurrence keeps its child run', zh: '排期实例保存对应的子运行' }}
+      title={{ en: 'Scheduled occurrence and application run', zh: '任务排期与对应的应用运行' }}
       caption={{
         en: 'The association and waiting state are saved when the app starts. After a scheduler restart, the parent follows the same child run.',
         zh: '应用启动时同时保存父子关联和等待状态。调度器重启后，父任务继续跟踪同一个子运行。',
@@ -169,7 +169,7 @@ function AgentReportEvidence() {
   ];
   return <Diagram id="agent-report-evidence"
     title={{ en: 'The audit trail after a correction', zh: '更正前后的两份记录' }}
-    caption={{ en: 'The review stays attached to the original report. Following its correction link opens the second run with its own sources and receipt.', zh: '复核意见保存在执行原稿上。沿更正记录进入第二次运行，可以找到这次读到的条款和写入回执。' }}>
+    caption={{ en: 'The original report retains the review. The corrected run has a separate input, source record and write receipt.', zh: '复核意见保存在原报告上。更正运行有单独的输入记录、条款来源和写入回执。' }}>
     <table className="agent-records">
       <thead><tr><th scope="col"><Text en="Record" zh="记录项" /></th><th scope="col"><Text en="Original" zh="原运行" /></th><th scope="col"><Text en="Correction" zh="更正运行" /></th></tr></thead>
       <tbody>{records.map(row => <tr key={row.name.en}><th scope="row"><Text {...row.name} /></th><td><Text {...row.a} /></td><td><Text {...row.b} /></td></tr>)}</tbody>
@@ -207,7 +207,7 @@ function AgentContextSelection() {
     { id: 'recent', title: { en: 'Recent turns only', zh: '只取最近对话' }, turns: [22, 23, 24] },
     { id: 'selected', title: { en: 'Selected for the SQLite request', zh: '为本次 SQLite 请求选取' }, turns: [3, 23, 24] },
   ];
-  return <Diagram id="agent-context-selection" title={{ en: 'An earlier procedure fits back into the prompt', zh: '让早先的操作步骤回到提示里' }}
+  return <Diagram id="agent-context-selection" title={{ en: 'Turn selection under a fixed context budget', zh: '固定上下文预算下的对话选择' }}
     caption={{ en: 'Each tick is one conversation turn, earliest on the left. Both selections had a 4,000-byte ceiling. The second also included the confirmed memory and used 3,894 bytes in total.', zh: '每一格代表一轮对话，按时间从左到右排列。两种选法的上限都是 4,000 字节。第二种还读入了已确认的记忆，共占 3,894 字节。' }}>
     <div className="agent-context-strips">{strips.map(strip => <div key={strip.id}>
       <div className="agent-strip-heading"><strong><Text {...strip.title} /></strong><span><Text en="Turns" zh="轮次" /> {strip.turns.join(' · ')}</span></div>
@@ -237,7 +237,7 @@ function AgentBrowserMeasurements() {
 function AgentWorkflowData() {
   return (
     <Diagram id="agent-workflow-data"
-      title={{ en: 'From two passages to one calculation', zh: '从两条检索结果到一次核算' }}
+      title={{ en: 'Inputs to the handoff calculation', zh: '交接用时核算的输入' }}
       caption={{
         en: 'This graph illustrates the workflow contract. Each edge carries the results of a completed predecessor in the same run.',
         zh: '图中是维护流程的配置示意。连线表示下游读取同一次运行中已完成的上游结果。',
@@ -266,10 +266,10 @@ function AgentWorkflowData() {
 function AgentMessageTransport() {
   return (
     <Diagram id="agent-message-transport"
-      title={{ en: 'Different chat transports, one persisted inbox', zh: '不同的接入方式，共用持久收件箱' }}
+      title={{ en: 'QQ and WeChat message handling', zh: 'QQ 与微信的消息接收和投递' }}
       caption={{
-        en: 'For a published app invoked from a bound private chat, the message key identifies the invocation. A later lookup can continue following the same run.',
-        zh: '从绑定私聊调用已发布应用时，消息键也用作调用键。之后查询可以继续跟踪同一次运行。',
+        en: 'A bound private chat supplies a message key for the application invocation. A status lookup uses the saved association to retrieve the same run.',
+        zh: '绑定私聊中的应用调用以消息标识去重。查询状态时，系统依据已保存的关联读取原运行。',
       }}>
       <div className="transport-map">
         <div className="transport-sources">
@@ -305,7 +305,7 @@ export function ProjectArticleFigure({ figure }: { figure: ArticleFigure }) {
     case 'agent-handoff-comparison': return (
       <Diagram id="agent-handoff-comparison"
           title={{ en: 'Two readings of the same handoff', zh: '同一笔交接的两次核算' }}
-          caption={{ en: 'Both runs start at 08:10 UTC. Correcting the acknowledgement moves the finish to the other side of the same 45-minute allowance.', zh: '两次运行的起点都是 08:10 UTC。确认时间更正后，终点落到了同一条 45 分钟时限的另一侧。' }}>
+          caption={{ en: 'Both records give 08:10 UTC as the start. The original acknowledgement at 09:04 exceeds the allowance by nine minutes. The corrected time, 08:49, is six minutes inside it.', zh: '两次记录的起点都是 08:10 UTC。原确认时间 09:04 超出时限 9 分钟，更正后的 08:49 距时限还有 6 分钟。' }}>
           <AgentHandoff />
         </Diagram>
     );

@@ -37,8 +37,8 @@ function PaperFeature({ paper }: { paper: Paper }) {
         </p>
         <p className="ph-paper-description">
           {tide
-            ? <Localized en="TIDE follows the denoising trajectory to keep a watermark detectable while preserving the scene of the original generation." zh="TIDE 沿去噪轨迹调整水印引导，让生成图保留可检测信号，也尽量保住原有构图。" />
-            : <Localized en="SASBO studies the fragility of image classifiers when only a few input coordinates change." zh="SASBO 研究图像分类器对局部变化的敏感性：改动集中在极少数位置时，模型的判断仍可能翻转。" />}
+            ? <Localized en="TIDE embeds a watermark midway through image generation and adjusts its guidance as the scene develops." zh="TIDE 在去噪中途写入水印，后续去噪会随文本引导调整水印的方向。" />
+            : <Localized en="SASBO learns which image entries to change and by how much. It then removes changes the classifier can do without." zh="SASBO 交替搜索扰动的位置和幅度。分类器改判后，算法还会检验哪些改动可以撤掉。" />}
         </p>
         <PublicationActions paper={paper} fromHome />
       </header>

@@ -78,10 +78,10 @@ test('touch research links and mobile navigation work directly',async({page})=>{
  await page.setViewportSize(sizes[3]);await page.goto('/');const card=page.getByTestId('research-card-tide');await expect(card.getByRole('heading')).toBeVisible();await card.getByRole('link',{name:'Read the study',exact:true}).click();await expect(page).toHaveURL(/\/research\/tide\//);
  await page.getByRole('button',{name:'Open navigation'}).click();await page.getByRole('navigation',{name:'Mobile navigation'}).getByRole('link',{name:'Research',exact:true}).click();await expect(page).toHaveURL(/\/research\//);await expect(page.getByRole('dialog')).toHaveCount(0);
 });
-test('the paper opens with its overview and keeps the original abstract and citation accessible',async({page,context})=>{
+test('the paper opens with its original abstract and supports figure selection and citation',async({page,context})=>{
  await context.grantPermissions(['clipboard-read','clipboard-write']);await page.goto('/research/tide/');
  const sections=page.getByRole('navigation',{name:'Paper sections'});
- await expect(sections.getByRole('button')).toHaveAccessibleName(/, Overview$/);
+ await expect(sections.getByRole('button')).toHaveAccessibleName(/, Abstract$/);
  const comparison=page.locator('#overview + .tide-comparison');
  const method = comparison.getByRole('combobox', { name: 'Watermark method, Tree-Ring' });
  await method.click();
@@ -127,7 +127,7 @@ test('worked paper equations fit the mobile reading column', async ({ page }) =>
  for (const slug of ['tide', 'sasbo', 'sparse-meta-learning']) {
    await page.goto(`/research/${slug}/`);
    const prose = page.locator('#method .tide-prose').first();
-   await expect(prose).toHaveCSS('text-align', 'justify');
+   await expect(prose).toHaveCSS('text-align', 'start');
    const equations = page.locator('.paper-equation-math');
    expect(await equations.count()).toBeGreaterThan(2);
    for (const equation of await equations.all()) {
@@ -250,35 +250,35 @@ test('case studies expose anchored design and all four runtime stages', async ({
  await page.setViewportSize({ width: 390, height: 844 });
  await page.goto('/projects/personal-agent/');
  const sections = page.getByRole('navigation', { name: 'Project sections' });
- await jumpToSection(page, 'Design');
+ await jumpToSection(page, 'Motivation');
  await expect(page).toHaveURL(/#design$/);
  await expect(page.locator('#design').getByRole('heading', { level: 2 })).toBeInViewport();
- await jumpToSection(page, 'Implementation');
+ await jumpToSection(page, 'Model & tools');
  await expect(page).toHaveURL(/#implementation$/);
- await expect(sections.getByRole('button')).toHaveAccessibleName(/, Implementation$/);
+ await expect(sections.getByRole('button')).toHaveAccessibleName(/, Model & tools$/);
  const sequence = page.locator('#agent-runtime-trace .runtime-sequence li');
  await expect(sequence).toHaveCount(4);
  await expect(sequence.nth(1)).toContainText('validates the call');
- await jumpToSection(page, 'Validation');
+ await jumpToSection(page, 'Measured outcomes');
  await expect(page.locator('#verification')).toContainText('no third receipt appears');
- await expect(sections.getByRole('button')).toHaveAccessibleName(/, Validation$/);
+ await expect(sections.getByRole('button')).toHaveAccessibleName(/, Measured outcomes$/);
  await page.getByRole('navigation', { name: 'Other projects' }).getByRole('link', { name: 'OriginMark' }).click();
- await expect(page.locator('#implementation').getByRole('link', { name: /TIDE/ })).toHaveAttribute('href', '/research/tide/');
+ await expect(page.locator('#architecture').getByRole('link', { name: /TIDE/ })).toHaveAttribute('href', '/research/tide/');
  await page.goto('/projects/epub-toolkit/#implementation');
  await expect(page.locator('.epub-merge-record')).toBeVisible();
  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
 
 test('project architecture figures preserve their evidence on desktop and mobile', async ({ page }) => {
- for (const { slug, evidence, details } of [
-  { slug: 'epub-toolkit', evidence: 'Merge record', details: ['epub-worker-handoff', 'epub-path-roundtrip'] },
-  { slug: 'originmark', evidence: 'Commit output under the current lease', details: ['originmark-teapot-report', 'originmark-lease-recovery'] },
-  { slug: 'personal-agent', evidence: 'Delivery receipt', details: ['agent-run-link', 'agent-report-evidence', 'agent-runtime-trace', 'agent-workflow-data', 'agent-message-transport', 'agent-watch-replay', 'agent-context-selection', 'agent-collection-schedule', 'agent-browser-measurements', 'agent-handoff-comparison'] },
+ for (const { slug, evidence, architecture, decisions, details } of [
+  { slug: 'epub-toolkit', architecture: 'Local processing', decisions: 'Format limits', evidence: 'Merge record', details: ['epub-worker-handoff', 'epub-path-roundtrip'] },
+  { slug: 'originmark', architecture: 'Model execution', decisions: 'Evidence channels', evidence: 'Commit output under the current lease', details: ['originmark-teapot-report', 'originmark-lease-recovery'] },
+  { slug: 'personal-agent', architecture: 'Execution paths', decisions: 'Watches & memory', evidence: 'Delivery receipt', details: ['agent-run-link', 'agent-report-evidence', 'agent-runtime-trace', 'agent-workflow-data', 'agent-message-transport', 'agent-watch-replay', 'agent-context-selection', 'agent-collection-schedule', 'agent-browser-measurements', 'agent-handoff-comparison'] },
  ]) {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto(`/projects/${slug}/#architecture`);
   const nav = page.getByRole('navigation', { name: 'Project sections' });
-  await expect(nav.getByRole('button')).toHaveAccessibleName(/, Architecture$/);
+  await expect(nav.getByRole('button')).toHaveAccessibleName(new RegExp(', ' + architecture + '$'));
   const figure = page.locator(`#${slug}-overview`);
   await expect(figure.getByText(evidence, { exact: true })).toBeVisible();
   await expect(figure.locator('figcaption')).not.toBeEmpty();
@@ -290,32 +290,24 @@ test('project architecture figures preserve their evidence on desktop and mobile
    await expect(detail.locator('figcaption')).not.toBeEmpty();
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
-  await jumpToSection(page, 'Trade-offs');
+  await jumpToSection(page, decisions);
   await expect(page.locator('#decisions').getByRole('heading', { level: 2 })).toBeInViewport();
  }
 });
 
-test('technical walkthroughs reveal paths, evidence, and run stages', async ({ page }) => {
+test('project figures show paths, verdicts and run stages without a control', async ({ page }) => {
  await page.setViewportSize({ width: 1280, height: 900 });
  await page.goto('/projects/epub-toolkit/#implementation');
  const flow = page.locator('.case-flow');
- await flow.getByRole('button', { name: 'Play walkthrough' }).click();
- await expect(flow.getByText('v2/chapters/01.xhtml', { exact: true })).toBeVisible({ timeout: 3800 });
- await flow.getByRole('button', { name: 'Pause', exact: true }).click();
- await expect(flow.getByRole('tab', { name: 'Merge', exact: true })).toHaveAttribute('aria-selected', 'true');
+ await expect(flow.locator('[data-case-step]')).toHaveCount(3);
+ await expect(flow.locator('[data-case-step="merge"]').getByText('v2/chapters/01.xhtml', { exact: true })).toBeVisible();
  await page.setViewportSize({ width: 320, height: 750 });
  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
- await flow.getByRole('tab', { name: 'Split', exact: true }).click();
- await expect(flow.getByRole('tabpanel', { name: 'Split' })).toContainText('Two independently readable EPUBs');
- const disclosure = page.locator('.case-checks').getByRole('button', { name: 'The archive boundary stays explicit' });
- await disclosure.focus();
- await page.keyboard.press('Enter');
- await expect(disclosure).toHaveAttribute('aria-expanded', 'true');
-
+ await expect(flow.locator('[data-case-step="restore"]')).toContainText('Two independently readable EPUBs');
+ await expect(page.locator('.case-checks').getByRole('heading', { name: 'Missing resources and unsupported formats' })).toBeVisible();
  await page.emulateMedia({ reducedMotion: 'reduce' });
- await page.goto('/projects/originmark/#implementation');
- await flow.getByRole('tab', { name: 'Verify', exact: true }).click();
- const panel = flow.getByRole('tabpanel', { name: 'Verify' });
+ await page.goto('/projects/originmark/#preview');
+ const panel = flow.locator('[data-case-step="verify"]');
  await expect(panel.getByText('Detected', { exact: true })).toBeVisible();
  await expect(panel.getByText('No credential', { exact: true })).toBeVisible();
  await expect(panel.getByText('Not evaluated', { exact: true })).toBeVisible();
@@ -654,7 +646,7 @@ test('the measurement legend only displays the active language', async ({ page }
  await expect(legend.getByText('基线', { exact: true })).toBeHidden();
 });
 
-test('both digest paths are readable at rest and the logged checks open from the keyboard', async ({ page }) => {
+test('both digest paths and all seven logged checks are readable at rest', async ({ page }) => {
  await page.setViewportSize({ width: 320, height: 740 });
  await page.emulateMedia({ reducedMotion: 'reduce' });
  await page.goto('/projects/personal-agent/#agent-watch-replay');
@@ -662,9 +654,7 @@ test('both digest paths are readable at rest and the logged checks open from the
  await expect(chart.locator('.digest-label')).toHaveCount(4);
  await expect(chart.getByText('Two waiting items delivered together')).toBeVisible();
  await expect(chart.getByRole('button',{ name:'Replay' })).toBeHidden();
- const log = chart.getByRole('button', { name: 'Seven-check log' });
- await log.focus();
- await page.keyboard.press('Enter');
+ await expect(chart.getByText('Seven-check log', { exact: true })).toBeVisible();
  await expect(chart.getByRole('table').locator('tbody tr')).toHaveCount(7);
  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
 });
